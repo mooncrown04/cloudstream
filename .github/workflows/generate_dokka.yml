@@ -26,9 +26,7 @@ jobs:
           private_key: ${{ secrets.GH_APP_KEY }}
           # 'repository' yerine 'repositories' kullanıldı ve JSON array formatında belirtildi
           repositories: '["recloudstream/dokka"]' # Bu deponun recloudstream altında olduğunu varsayıyorum
-          # LÜTFEN BU SATIRLARIN YAMLDAN TAMAMEN SİLİNDİĞİNDEN EMİN OLUN.
-          # installation_retrieval_mode: repository
-          # installation_retrieval_payload: mooncrown04/cloudstream
+      
 
       - name: Checkout main project
         # @master yerine @v4 kullanmak daha güvenlidir
