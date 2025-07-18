@@ -23,9 +23,10 @@ jobs:
       with:
         app_id: ${{ secrets.GH_APP_ID }}
         private_key: ${{ secrets.GH_APP_KEY }}
-        # Depo yolunu mooncrown04 olarak güncelleyin
-        repositories: "mooncrown04/secrets"
-        # installation_retrieval_mode ve installation_retrieval_payload satırlarını SİLİN
+        # repositories girdisini JSON array formatında güncelleyin
+        repositories: '["mooncrown04/secrets"]' # TEK DEPO İÇİN BİLE ARRAY OLARAK YAZILMALI
+        # installation_retrieval_mode: repository # BU SATIRI SİLİN
+        # installation_retrieval_payload: mooncrown04/cloudstream # BU SATIRI SİLİN
 
     - name: Generate access token (archive)
       id: generate_archive_token
@@ -33,9 +34,10 @@ jobs:
       with:
         app_id: ${{ secrets.GH_APP_ID }}
         private_key: ${{ secrets.GH_APP_KEY }}
-        # Depo yolunu mooncrown04 olarak güncelleyin
-        repositories: "mooncrown04/cloudstream-archive"
-        # installation_retrieval_mode ve installation_retrieval_payload satırlarını SİLİN
+        # repositories girdisini JSON array formatında güncelleyin
+        repositories: '["mooncrown04/cloudstream-archive"]' # TEK DEPO İÇİN BİLE ARRAY OLARAK YAZILMALI
+        # installation_retrieval_mode: repository # BU SATIRI SİLİN
+        # installation_retrieval_payload: mooncrown04/cloudstream # BU SATIRI SİLİN
 
     - uses: actions/checkout@v4
     - name: Set up JDK 17
@@ -50,7 +52,6 @@ jobs:
       run: |
         TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
         mkdir -p "${TMP_KEYSTORE_FILE_PATH}"
-        # curl komutlarındaki depo yollarını mooncrown04 olarak güncelleyin
         curl -H "Authorization: token ${{ steps.generate_token.outputs.token }}" -o "${TMP_KEYSTORE_FILE_PATH}/prerelease_keystore.keystore" "https://raw.githubusercontent.com/mooncrown04/secrets/master/keystore.jks"
         curl -H "Authorization: token ${{ steps.generate_token.outputs.token }}" -o "keystore_password.txt" "https://raw.githubusercontent.com/mooncrown04/secrets/master/keystore_password.txt"
         KEY_PWD="$(cat keystore_password.txt)"
@@ -67,7 +68,6 @@ jobs:
         SIMKL_CLIENT_SECRET: ${{ secrets.SIMKL_CLIENT_SECRET }}
     - uses: actions/checkout@v4
       with:
-        # Depo yolunu mooncrown04 olarak güncelleyin
         repository: "mooncrown04/cloudstream-archive"
         token: ${{ steps.generate_archive_token.outputs.token }}
         path: "archive"
