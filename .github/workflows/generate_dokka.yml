@@ -31,7 +31,7 @@ jobs:
         # @master yerine @v4 kullanmak daha güvenlidir
         uses: actions/checkout@v4
         with:
-          path: "src"
+          path: "src" # Ana proje (cloudstream) buraya çekilecek
 
       - name: Checkout dokka repository
         # @master yerine @v4 kullanmak daha güvenlidir
@@ -39,7 +39,7 @@ jobs:
         with:
           # Depo yolunu mooncrown04 olarak güncelledik
           repository: "mooncrown04/dokka" # Kullanıcı adınız mooncrown04 ise bu şekilde olmalı
-          path: "dokka"
+          path: "dokka" # Dokka deposu buraya çekilecek
           token: ${{ steps.generate_token.outputs.token }}
           
       - name: Clean old builds
@@ -59,19 +59,23 @@ jobs:
 
       - name: Generate Dokka
         run: |
+          # Gradle'ı ana projenin (src içinde) kökünden çalıştırıyoruz
           cd $GITHUB_WORKSPACE/src/
           chmod +x gradlew
+          # Eğer ana proje klasörünüz 'cloudstream' (küçük harf) ise, komut bu şekilde olmalı.
+          # Dokka modülü 'docs' ise, yol 'docs:dokkaGeneratePublicationHtml' doğru.
           ./gradlew docs:dokkaGeneratePublicationHtml
 
       - name: Copy Dokka
         run: |
-          cp -r $GITHUB_WORKSPACE/src/docs/build/dokka/html/* $GITHUB_WORKSPACE/dokka/
+          # Eğer ana proje klasörünüz 'cloudstream' (küçük harf) ise, yol bu şekilde olmalı.
+          # Dokka çıktısı src/cloudstream/docs/build/dokka/html/ içinde olacaktır.
+          cp -r $GITHUB_WORKSPACE/src/cloudstream/docs/build/dokka/html/* $GITHUB_WORKSPACE/dokka/
 
       - name: Push builds
         run: |
           cd $GITHUB_WORKSPACE/dokka
           touch .nojekyll
-          # Bot kullanıcısını github-actions[bot] olarak güncelledik
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
