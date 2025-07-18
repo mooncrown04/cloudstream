@@ -30,6 +30,7 @@ jobs:
         # permissions: |
         #   contents: write # Commit yapmak için gerekli
         # installation_retrieval_mode ve installation_retrieval_payload satırları burada yok, bu doğru.
+        # LÜTFEN BU SATIRLARIN YAMLDAN TAMAMEN SİLİNDİĞİNDEN EMİN OLUN.
 
     - uses: actions/checkout@v4
       with:
