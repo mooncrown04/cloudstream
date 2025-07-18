@@ -23,9 +23,7 @@ jobs:
       with:
         app_id: ${{ secrets.GH_APP_ID }}
         private_key: ${{ secrets.GH_APP_KEY }}
-        # 'repository' yerine 'repositories' kullanın ve depoyu liste olarak belirtin
-        repositories: "recloudstream/secrets" # Tek depo olduğu için tırnak içinde string olarak da çalışabilir, ama liste daha doğru
-        # Eğer bu token sadece bu depoya erişim içinse, permissions'ı da burada belirtebilirsiniz.
+        repositories: "recloudstream/secrets"
         # permissions: |
         #   contents: read
 
@@ -35,8 +33,7 @@ jobs:
       with:
         app_id: ${{ secrets.GH_APP_ID }}
         private_key: ${{ secrets.GH_APP_KEY }}
-        # 'repository' yerine 'repositories' kullanın ve depoyu liste olarak belirtin
-        repositories: "recloudstream/cloudstream-archive" # Tek depo olduğu için tırnak içinde string olarak da çalışabilir, ama liste daha doğru
+        repositories: "recloudstream/cloudstream-archive"
         # permissions: |
         #   contents: write
 
@@ -53,8 +50,6 @@ jobs:
       run: |
         TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
         mkdir -p "${TMP_KEYSTORE_FILE_PATH}"
-        # Token'ı kullanırken dikkat: İlk token (generate_token) recloudstream/secrets deposuna erişim için.
-        # Bu curl komutları doğru token'ı kullanıyor.
         curl -H "Authorization: token ${{ steps.generate_token.outputs.token }}" -o "${TMP_KEYSTORE_FILE_PATH}/prerelease_keystore.keystore" "https://raw.githubusercontent.com/recloudstream/secrets/master/keystore.jks"
         curl -H "Authorization: token ${{ steps.generate_token.outputs.token }}" -o "keystore_password.txt" "https://raw.githubusercontent.com/recloudstream/secrets/master/keystore_password.txt"
         KEY_PWD="$(cat keystore_password.txt)"
@@ -77,7 +72,8 @@ jobs:
 
     - name: Move build
       run: |
-        cp app/build/outputs/apk/prerelease/release/*.apk "archive/$(git rev-parse --short HEAD).apk"
+        # Doğru klasör yolu: 'cloudstream' (küçük harf)
+        cp cloudstream/app/build/outputs/apk/prerelease/release/*.apk "archive/$(git rev-parse --short HEAD).apk"
       
     - name: Push archive
       run: |
