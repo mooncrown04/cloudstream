@@ -1,7 +1,7 @@
 name: Dokka
 
 # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency
-concurrency: 
+concurrency:
   group: "dokka"
   cancel-in-progress: true
 
@@ -24,19 +24,24 @@ jobs:
         with:
           app_id: ${{ secrets.GH_APP_ID }}
           private_key: ${{ secrets.GH_APP_KEY }}
-          repository: "recloudstream/dokka"
-      - name: Checkout
-        uses: actions/checkout@master
+          # 'repository' yerine 'repositories' kullanıldı ve JSON array formatında belirtildi
+          repositories: '["recloudstream/dokka"]' # Bu deponun recloudstream altında olduğunu varsayıyorum
+          # installation_retrieval_mode ve installation_retrieval_payload satırları burada yok, bu doğru.
+
+      - name: Checkout main project
+        # @master yerine @v4 kullanmak daha güvenlidir
+        uses: actions/checkout@v4
         with:
           path: "src"
 
-      - name: Checkout dokka
-        uses: actions/checkout@master
+      - name: Checkout dokka repository
+        # @master yerine @v4 kullanmak daha güvenlidir
+        uses: actions/checkout@v4
         with:
-          repository: "recloudstream/dokka"
+          repository: "recloudstream/dokka" # Bu deponun recloudstream altında olduğunu varsayıyorum
           path: "dokka"
           token: ${{ steps.generate_token.outputs.token }}
-      
+          
       - name: Clean old builds
         run: |
           cd $GITHUB_WORKSPACE/dokka/
@@ -69,5 +74,5 @@ jobs:
           git config --local user.email "111277985+recloudstream[bot]@users.noreply.github.com"
           git config --local user.name "recloudstream[bot]"
           git add .
-          git commit --amend -m "Generate dokka for recloudstream/cloudstream@${GITHUB_SHA}" || exit 0   # do not error if nothing to commit
+          git commit --amend -m "Generate dokka for recloudstream/cloudstream@${GITHUB_SHA}" || exit 0    # do not error if nothing to commit
           git push --force
