@@ -1928,3 +1928,61 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
         }
     }
 }
+// Üst sınıfa kanal değiştirme isteğini iletmek için bir arayüz veya abstract metot düşünebiliriz
+// Örneğin, AbstractPlayerFragment'a veya GeneratorPlayer'a eklenecek bir metot:
+interface ChannelSwitchListener {
+    fun onNextChannelRequested()
+    fun onPreviousChannelRequested()
+    fun onChannelSelected(index: Int)
+}
+
+// FullScreenPlayer sınıfının içinde
+protected var channelSwitchListener: ChannelSwitchListener? = null // Bu listener set edilmeli
+
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    playerBinding?.apply {
+        // ... mevcut düğme dinleyicileri ...
+
+        playerPrevChannelBtt.setOnClickListener {
+            channelSwitchListener?.onPreviousChannelRequested()
+            showToast("Önceki kanal yükleniyor...") // Kullanıcıya geri bildirim
+            onClickChange() // Kontrolleri gizle
+        }
+
+        playerNextChannelBtt.setOnClickListener {
+            channelSwitchListener?.onNextChannelRequested()
+            showToast("Sonraki kanal yükleniyor...") // Kullanıcıya geri bildirim
+            onClickChange() // Kontrolleri gizle
+        }
+
+        // Eğer bir kanal listesi göstermek isterseniz
+        // playerChannelListBtt.setOnClickListener {
+        //     showChannelListDialog() // Yeni bir diyalog metodu
+        // }
+    }
+}
+
+// ... diğer metotlar ...
+
+// Örnek bir kanal listesi diyalog metodu (gerekiyorsa)
+/*
+private fun showChannelListDialog() {
+    val ctx = context ?: return
+    val channels = channelSwitchListener?.getAvailableChannels() ?: emptyList() // Üst sınıftan kanal listesini al
+    val channelNames = channels.map { it.name } // Kanal isimlerini al
+
+    activity?.let { act ->
+        act.showDialog(
+            channelNames,
+            -1, // Seçili yok
+            act.getString(R.string.player_select_channel),
+            false
+        ) { index ->
+            channelSwitchListener?.onChannelSelected(index)
+            showToast("${channelNames[index]} yükleniyor...")
+            onClickChange()
+        }
+    }
+}
+*/
