@@ -2090,4 +2090,52 @@ inline fun <reified T : Serializable> Bundle.getSafeSerializable(key: String): T
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) getSerializable(key) as? T else getSerializable(
         key,
         T::class.java
-    )
+    )  
+class GeneratorPlayer : FullScreenPlayer(), ChannelSwitchListener {
+
+    private var currentChannelIndex: Int = 0
+    private var availableChannels: List<MovieSearchResponse> = emptyList() // Veya LoadResponse türünde olabilir
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        channelSwitchListener = this // FullScreenPlayer'a kendisini listener olarak ata
+        // Kanal listesini burada veya load() metodunda doldurun
+        // Örneğin, recommendations listesini kanallar olarak kullanabilirsiniz
+        // availableChannels = someFunctionToGetChannels()
+    }
+
+    override fun onNextChannelRequested() {
+        if (availableChannels.isEmpty()) return
+        currentChannelIndex = (currentChannelIndex + 1) % availableChannels.size
+        loadAndPlayChannel(currentChannelIndex)
+    }
+
+    override fun onPreviousChannelRequested() {
+        if (availableChannels.isEmpty()) return
+        currentChannelIndex = (currentChannelIndex - 1 + availableChannels.size) % availableChannels.size
+        loadAndPlayChannel(currentChannelIndex)
+    }
+
+    override fun onChannelSelected(index: Int) {
+        if (index >= 0 && index < availableChannels.size) {
+            currentChannelIndex = index
+            loadAndPlayChannel(currentChannelIndex)
+        }
+    }
+
+    // Kanal listesini döndürmek için (eğer showChannelListDialog kullanılıyorsa)
+    // override fun getAvailableChannels(): List<MovieSearchResponse> = availableChannels
+
+    private fun loadAndPlayChannel(index: Int) {
+        val channel = availableChannels.getOrNull(index) ?: return
+        // Yeni kanalın URL'sini kullanarak oynatıcıyı yükle
+        // Bu, mevcut load() ve loadLinks() metodlarınızı kullanacaktır.
+        // Örneğin:
+        // load(channel.url) // Bu, PlayerViewModel'e bir olay gönderebilir
+        // player.load(channel.url, someEpisodeIndex) // Veya doğrudan player'ı kullan
+        // PlayerViewModel'in load() metodunu çağırmak daha uygun olabilir
+        playerViewModel.load(channel.url) // PlayerViewModel'in load metodunu çağırın
+    }
+
+    // ... diğer metotlar ...
+}
