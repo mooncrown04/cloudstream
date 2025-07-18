@@ -8,7 +8,7 @@ on:
     branches:
       - master
 
-concurrency: 
+concurrency:
   group: "locale"
   cancel-in-progress: true
 
@@ -22,18 +22,29 @@ jobs:
       with:
         app_id: ${{ secrets.GH_APP_ID }}
         private_key: ${{ secrets.GH_APP_KEY }}
-        repository: "recloudstream/cloudstream"
+        # 'repository' yerine 'repositories' kullanıldı ve JSON array formatında belirtildi.
+        # Bu iş akışı mevcut depoda çalıştığı için, token'ı mevcut depo için oluşturuyoruz.
+        repositories: '["${{ github.repository }}"]' # Örn: "mooncrown04/cloudstream"
+        # Bu iş akışı için gerekli izinleri burada belirtebilirsiniz.
+        # Örneğin, içerik okuma/yazma (commit için), pull request okuma (eğer PR'lar üzerinde çalışıyorsa).
+        # permissions: |
+        #   contents: write # Commit yapmak için gerekli
+        # installation_retrieval_mode ve installation_retrieval_payload satırları burada yok, bu doğru.
+
     - uses: actions/checkout@v4
       with:
+        # Token, mevcut depoyu çekmek ve değişiklikleri geri itmek için kullanılır.
         token: ${{ steps.generate_token.outputs.token }}
     - name: Install dependencies
       run: |
         pip3 install lxml
     - name: Edit files
       run: |
+        # .github/locales.py betiği mevcut depoda çalışır
         python3 .github/locales.py
     - name: Commit to the repo
       run: |
+        # Git yapılandırması, botun kimliğini belirtir
         git config --local user.email "111277985+recloudstream[bot]@users.noreply.github.com"
         git config --local user.name "recloudstream[bot]"
         git add .
