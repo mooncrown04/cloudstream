@@ -7,7 +7,40 @@
     android:orientation="vertical"
     android:screenOrientation="landscape"
     tools:orientation="vertical">
+<!-- player_custom_layout.xml dosyanıza eklenecek örnek düğmeler -->
+<LinearLayout
+    android:id="@+id/player_top_holder"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
 
+    <!-- Mevcut öğeleriniz buraya gelecek -->
+
+    <ImageView
+        android:id="@+id/player_prev_channel_btt"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        android:src="@drawable/ic_baseline_skip_previous_24"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/player_prev_channel"
+        android:layout_marginStart="8dp" />
+
+    <ImageView
+        android:id="@+id/player_next_channel_btt"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        android:src="@drawable/ic_baseline_skip_next_24"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/player_next_channel"
+        android:layout_marginEnd="8dp" />
+
+</LinearLayout>
 
     <!--
         <LinearLayout android:layout_width="match_parent"
