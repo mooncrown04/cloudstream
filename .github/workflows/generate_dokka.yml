@@ -24,21 +24,21 @@ jobs:
         with:
           app_id: ${{ secrets.GH_APP_ID }}
           private_key: ${{ secrets.GH_APP_KEY }}
-          # Depo yolunu mooncrown04 olarak güncelledik
-          repositories: '["mooncrown04/dokka"]' # Kullanıcı adınız mooncrown04 ise bu şekilde olmalı
+          # Depo yolunu kendi deponuz olan "mooncrown04/dokka" olarak ayarladık.
+          repositories: '["mooncrown04/dokka"]'
 
       - name: Checkout main project
         # @master yerine @v4 kullanmak daha güvenlidir
         uses: actions/checkout@v4
         with:
-          path: "src" # Ana proje (cloudstream) buraya çekilecek
+          path: "src" # Ana proje (mooncrown04/cloudstream) buraya çekilecek
 
       - name: Checkout dokka repository
         # @master yerine @v4 kullanmak daha güvenlidir
         uses: actions/checkout@v4
         with:
-          # Depo yolunu mooncrown04 olarak güncelledik
-          repository: "mooncrown04/dokka" # Kullanıcı adınız mooncrown04 ise bu şekilde olmalı
+          # Dokka deposu yolunu kendi deponuz olan "mooncrown04/dokka" olarak ayarladık.
+          repository: "mooncrown04/dokka"
           path: "dokka" # Dokka deposu buraya çekilecek
           token: ${{ steps.generate_token.outputs.token }}
           
@@ -76,8 +76,10 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/dokka
           touch .nojekyll
+          # Dokka deposuna commit yapan bot kullanıcısı (genel github-actions[bot] olarak güncellendi)
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add .
+          # Commit mesajı, dokümantasyonun hangi ana depodan geldiğini belirtir (mooncrown04/cloudstream)
           git commit --amend -m "Generate dokka for mooncrown04/cloudstream@${GITHUB_SHA}" || exit 0    # do not error if nothing to commit
           git push --force
