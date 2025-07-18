@@ -9,5 +9,5 @@ dependencies {
 }
 
 dokka {
-    moduleName = "Cloudstream"
+    moduleName = "cloudstream"
 }
