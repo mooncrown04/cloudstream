@@ -26,6 +26,8 @@ jobs:
         repositories: "recloudstream/secrets"
         # permissions: |
         #   contents: read
+        # installation_retrieval_mode: repository # BU SATIRI SİLİN
+        # installation_retrieval_payload: mooncrown04/cloudstream # BU SATIRI SİLİN
 
     - name: Generate access token (archive)
       id: generate_archive_token
@@ -36,8 +38,8 @@ jobs:
         repositories: "recloudstream/cloudstream-archive"
         # permissions: |
         #   contents: write
-        # installation_retrieval_mode: repository # Bu satır da gereksiz olabilir, repositories ile çakışıyor
-        # installation_retrieval_payload: mooncrown04/cloudstream # BU SATIRI KALDIRIN
+        # installation_retrieval_mode: repository # BU SATIRI SİLİN
+        # installation_retrieval_payload: mooncrown04/cloudstream # BU SATIRI SİLİN
 
     - uses: actions/checkout@v4
     - name: Set up JDK 17
