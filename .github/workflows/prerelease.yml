@@ -25,9 +25,7 @@ jobs:
         # 'repository' yerine 'repositories' kullanıldı ve JSON array formatında belirtildi.
         # Depo yolunu mooncrown04 olarak güncelledik.
         repositories: '["mooncrown04/secrets"]' # Kullanıcı adınız mooncrown04 ise bu şekilde olmalı
-        # LÜTFEN BU SATIRLARIN YAMLDAN TAMAMEN SİLİNDİĞİNDEN EMİN OLUN.
-        # installation_retrieval_mode: repository
-        # installation_retrieval_payload: mooncrown04/cloudstream
+       
 
     - uses: actions/checkout@v4
     - name: Set up JDK 17
