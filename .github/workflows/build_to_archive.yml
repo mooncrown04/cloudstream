@@ -25,8 +25,6 @@ jobs:
         private_key: ${{ secrets.GH_APP_KEY }}
         # repositories girdisini JSON array formatında güncelleyin
         repositories: '["mooncrown04/secrets"]' # TEK DEPO İÇİN BİLE ARRAY OLARAK YAZILMALI
-        # installation_retrieval_mode: repository # BU SATIRI SİLİN
-        # installation_retrieval_payload: mooncrown04/cloudstream # BU SATIRI SİLİN
 
     - name: Generate access token (archive)
       id: generate_archive_token
@@ -36,8 +34,6 @@ jobs:
         private_key: ${{ secrets.GH_APP_KEY }}
         # repositories girdisini JSON array formatında güncelleyin
         repositories: '["mooncrown04/cloudstream-archive"]' # TEK DEPO İÇİN BİLE ARRAY OLARAK YAZILMALI
-        # installation_retrieval_mode: repository # BU SATIRI SİLİN
-        # installation_retrieval_payload: mooncrown04/cloudstream # BU SATIRI SİLİN
 
     - uses: actions/checkout@v4
     - name: Set up JDK 17
