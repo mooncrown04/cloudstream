@@ -69,6 +69,7 @@ jobs:
         prerelease: true
         title: "Pre-release Build"
         files: |
+          app/build/outputs/apk/debug/*.apk
           app/build/outputs/apk/prerelease/release/*.apk
           app/build/libs/app-sources.jar
           app/build/classes.jar
