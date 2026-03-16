@@ -465,10 +465,12 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
             ).firstOrNull { it.isVisible }
 
         resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
+// ResultFragmentTv.kt içindeki ActorAdaptor tanımında:
 resultCastItems.adapter = ActorAdaptor(aboveCast?.id, {
     toggleEpisodes(false)
-}, { actorName -> // Senin aktör arama kodun buraya entegre edildi
-    onSearch(actorName)
+}, { actorName ->
+    // Burayı bu şekilde değiştiriyoruz:
+    QuickSearchFragment.pushSearch(activity, actorName)
 })
 
             if (isLayout(EMULATOR)) {
