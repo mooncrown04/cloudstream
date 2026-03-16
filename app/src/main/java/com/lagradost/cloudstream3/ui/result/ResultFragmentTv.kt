@@ -1,18 +1,5 @@
 package com.lagradost.cloudstream3.ui.result
 
-
-import com.lagradost.cloudstream3.SearchResponse  
-import android.content.Intent
-import android.app.SearchManager
-import com.lagradost.cloudstream3.MainActivity
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-
-
-
-
-
-
 import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -27,7 +14,6 @@ import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.widget.NestedScrollView
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -37,22 +23,26 @@ import com.lagradost.cloudstream3.DubStatus
 import com.lagradost.cloudstream3.LoadResponse
 import com.lagradost.cloudstream3.MainActivity.Companion.afterPluginsLoadedEvent
 import com.lagradost.cloudstream3.R
+import com.lagradost.cloudstream3.SearchResponse
 import com.lagradost.cloudstream3.databinding.FragmentResultTvBinding
 import com.lagradost.cloudstream3.mvvm.Resource
 import com.lagradost.cloudstream3.mvvm.observe
 import com.lagradost.cloudstream3.mvvm.observeNullable
 import com.lagradost.cloudstream3.services.SubscriptionWorkManager
+import com.lagradost.cloudstream3.ui.BaseFragment
 import com.lagradost.cloudstream3.ui.WatchType
 import com.lagradost.cloudstream3.ui.download.DownloadButtonSetup
 import com.lagradost.cloudstream3.ui.player.ExtractorLinkGenerator
 import com.lagradost.cloudstream3.ui.player.GeneratorPlayer
 import com.lagradost.cloudstream3.ui.player.NEXT_WATCH_EPISODE_PERCENTAGE
 import com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment
+import com.lagradost.cloudstream3.ui.result.ResultFragment.bindLogo
 import com.lagradost.cloudstream3.ui.result.ResultFragment.getStoredData
 import com.lagradost.cloudstream3.ui.result.ResultFragment.updateUIEvent
 import com.lagradost.cloudstream3.ui.search.SEARCH_ACTION_FOCUSED
 import com.lagradost.cloudstream3.ui.search.SearchAdapter
 import com.lagradost.cloudstream3.ui.search.SearchHelper
+import com.lagradost.cloudstream3.ui.setRecycledViewPool
 import com.lagradost.cloudstream3.ui.settings.Globals.EMULATOR
 import com.lagradost.cloudstream3.ui.settings.Globals.TV
 import com.lagradost.cloudstream3.ui.settings.Globals.isLayout
@@ -66,21 +56,24 @@ import com.lagradost.cloudstream3.utils.BackPressedCallbackHelper.detachBackPres
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 import com.lagradost.cloudstream3.utils.SingleSelectionHelper.showBottomDialog
 import com.lagradost.cloudstream3.utils.SingleSelectionHelper.showBottomDialogInstant
-import com.lagradost.cloudstream3.utils.UIHelper
-import com.lagradost.cloudstream3.utils.UIHelper.colorFromAttribute
 import com.lagradost.cloudstream3.utils.UIHelper.dismissSafe
+import com.lagradost.cloudstream3.utils.UIHelper.fixSystemBarsPadding
 import com.lagradost.cloudstream3.utils.UIHelper.hideKeyboard
 import com.lagradost.cloudstream3.utils.UIHelper.navigate
+import com.lagradost.cloudstream3.utils.UIHelper.populateChips
+import com.lagradost.cloudstream3.utils.UIHelper.setNavigationBarColorCompat
 import com.lagradost.cloudstream3.utils.getImageFromDrawable
 import com.lagradost.cloudstream3.utils.setText
 import com.lagradost.cloudstream3.utils.setTextHtml
+import com.lagradost.cloudstream3.utils.txt
 
-class ResultFragmentTv : Fragment() {
+class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
+    BindingCreator.Inflate(FragmentResultTvBinding::inflate)
+) {
+
     private lateinit var viewModel: ResultViewModel2
-    private var binding: FragmentResultTvBinding? = null
 
     override fun onDestroyView() {
-        binding = null
         updateUIEvent -= ::updateUI
         activity?.detachBackPressedCallback(this@ResultFragmentTv.toString())
         super.onDestroyView()
@@ -90,15 +83,13 @@ class ResultFragmentTv : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         viewModel =
             ViewModelProvider(this)[ResultViewModel2::class.java]
         viewModel.EPISODE_RANGE_SIZE = 50
         updateUIEvent += ::updateUI
 
-        val localBinding = FragmentResultTvBinding.inflate(inflater, container, false)
-        binding = localBinding
-        return localBinding.root
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     private fun updateUI(id: Int?) {
@@ -132,7 +123,7 @@ class ResultFragmentTv : Fragment() {
     }
 
     private fun RecyclerView?.update(data: List<SelectData>) {
-        (this?.adapter as? SelectAdaptor?)?.updateSelectionList(data)
+        (this?.adapter as? SelectAdaptor?)?.submitList(data)
         this?.isVisible = data.size > 1
     }
 
@@ -165,14 +156,14 @@ class ResultFragmentTv : Fragment() {
             resultRecommendationsList.isGone = isInvalid
             resultRecommendationsHolder.isGone = isInvalid
             val matchAgainst = validApiName ?: rec?.firstOrNull()?.apiName
-            (resultRecommendationsList.adapter as? SearchAdapter)?.updateList(rec?.filter { it.apiName == matchAgainst }
+            (resultRecommendationsList.adapter as? SearchAdapter)?.submitList(rec?.filter { it.apiName == matchAgainst }
                 ?: emptyList())
 
             rec?.map { it.apiName }?.distinct()?.let { apiNames ->
                 // very dirty selection
                 resultRecommendationsFilterSelection.isVisible = apiNames.size > 1
                 resultRecommendationsFilterSelection.update(apiNames.map {
-                    com.lagradost.cloudstream3.utils.txt(
+                    txt(
                         it
                     ) to it
                 })
@@ -201,11 +192,7 @@ class ResultFragmentTv : Fragment() {
     }
 
     override fun onResume() {
-        activity?.let {
-            @Suppress("DEPRECATION")
-            it.window?.navigationBarColor =
-                it.colorFromAttribute(R.attr.primaryBlackBackground)
-        }
+        activity?.setNavigationBarColorCompat(R.attr.primaryBlackBackground)
         afterPluginsLoadedEvent += ::reloadViewModel
         super.onResume()
     }
@@ -244,7 +231,6 @@ class ResultFragmentTv : Fragment() {
         }
     }
 
-
     private fun toggleEpisodes(show: Boolean) {
         binding?.apply {
             if (show) {
@@ -264,28 +250,12 @@ class ResultFragmentTv : Fragment() {
         }
     }
 
-
-
-
-
-
-
-
-
-
-private fun showSearchResults(results: List<SearchResponse>) {
-    val intent = Intent(requireContext(), MainActivity::class.java).apply {
-        action = Intent.ACTION_SEARCH
-        putExtra(SearchManager.QUERY, results.firstOrNull()?.name ?: "")
+    override fun fixLayout(view: View) {
+        fixSystemBarsPadding(view, padTop = false)
     }
-    startActivity(intent)
-}
 
-
-  @SuppressLint("SetTextI18n")
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+    @SuppressLint("SetTextI18n")
+    override fun onBindingCreated(binding: FragmentResultTvBinding) {
         // ===== setup =====
         val storedData = getStoredData() ?: return
         activity?.window?.decorView?.clearFocus()
@@ -303,19 +273,19 @@ private fun showSearchResults(results: List<SearchResponse>) {
         // ===== ===== =====
         var comingSoon = false
 
-        binding?.apply {
+        binding.apply {
             //episodesShadow.rotationX = 180.0f//if(episodesShadow.isRtl()) 180.0f else 0.0f
 
             // parallax on background
             resultFinishLoading.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { view, _, scrollY, _, oldScrollY ->
                 backgroundPosterHolder.translationY = -scrollY.toFloat() * 0.8f
             })
- binding?.apply {
+
             redirectToPlay.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) return@setOnFocusChangeListener
                 toggleEpisodes(false)
 
-               
+                binding.apply {
                     val views = listOf(
                         resultPlayMovieButton,
                         resultPlaySeriesButton,
@@ -330,43 +300,13 @@ private fun showSearchResults(results: List<SearchResponse>) {
                         if (!requestView.isVisible) continue
                         if (requestView.requestFocus()) break
                     }
-					}
-					// === Buraya ActorAdaptor ekleniyor === 
-					val aboveCast = listOf( 
-					resultEpisodesShow, 
-					resultBookmark, 
-					resultFavorite, 
-					resultSubscribe, 
-					).firstOrNull { it?.isVisible == true }
-					resultCastItems.adapter = ActorAdaptor(
-    nextFocusUpId = aboveCast?.id,
-    focusCallback = { toggleEpisodes(false) },
-   
-
-searchCallback = { actorName ->
-    if (!actorName.isNullOrBlank()) {
-        // MainActivity'deki statik değişkene erişim
-        com.lagradost.cloudstream3.MainActivity.nextSearchQuery = actorName
-        
-        // MainActivity örneği üzerinden navigasyonu tetikleme
-        (activity as? com.lagradost.cloudstream3.MainActivity)?.let { main ->
-            // Bottom Navigation üzerinden arama sayfasına geçiş
-            main.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(
-                com.lagradost.cloudstream3.R.id.nav_view
-            )?.selectedItemId = com.lagradost.cloudstream3.R.id.navigation_search
-        }
-    }
-}
-
-
-   
-) 
-	 }
+                }
+            }
 
             redirectToEpisodes.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) return@setOnFocusChangeListener
                 toggleEpisodes(true)
-                binding?.apply {
+                binding.apply {
                     val views = listOf(
                         resultDubSelection,
                         resultSeasonSelection,
@@ -470,24 +410,24 @@ searchCallback = { actorName ->
 
             resultCastItems.setOnFocusChangeListener { _, hasFocus ->
                 // Always escape focus
-                if (hasFocus) binding?.resultBookmarkButton?.requestFocus()
+                if (hasFocus) binding.resultBookmarkButton.requestFocus()
             }
             //resultBack.setOnClickListener {
             //    activity?.popCurrentPage()
             //}
 
             resultRecommendationsList.spanCount = 8
+            resultRecommendationsList.setRecycledViewPool(SearchAdapter.sharedPool)
             resultRecommendationsList.adapter =
                 SearchAdapter(
-                    ArrayList(),
                     resultRecommendationsList,
                 ) { callback ->
-                    if (callback.action == SEARCH_ACTION_FOCUSED)
+                    if (callback.action == SEARCH_ACTION_FOCUSED) {
                         toggleEpisodes(false)
-                    else
-                        SearchHelper.handleSearchClickCallback(callback)
+                    } else SearchHelper.handleSearchClickCallback(callback)
                 }
 
+            resultEpisodes.setRecycledViewPool(EpisodeAdapter.sharedPool)
             resultEpisodes.adapter =
                 EpisodeAdapter(
                     false,
@@ -499,8 +439,7 @@ searchCallback = { actorName ->
                     }
                 )
 
-            resultCastItems.layoutManager = object : LinearListLayout(view.context) {
-
+            resultCastItems.layoutManager = object : LinearListLayout(root.context) {
                 override fun onRequestChildFocus(
                     parent: RecyclerView,
                     state: RecyclerView.State,
@@ -516,37 +455,35 @@ searchCallback = { actorName ->
                         super.onRequestChildFocus(parent, state, child, focused)
                     }
                 }
-            }.apply {
-                setHorizontal()
-            }
+            }.apply { setHorizontal() }
 
             val aboveCast = listOf(
-                binding?.resultEpisodesShow,
-                binding?.resultBookmark,
-                binding?.resultFavorite,
-                binding?.resultSubscribe,
-            ).firstOrNull {
-                it?.isVisible == true
-            }
+                binding.resultEpisodesShow,
+                binding.resultBookmark,
+                binding.resultFavorite,
+                binding.resultSubscribe,
+            ).firstOrNull { it.isVisible }
 
-
-         
-
-
+        resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
+resultCastItems.adapter = ActorAdaptor(aboveCast?.id, {
+    toggleEpisodes(false)
+}, { actorName -> // Senin aktör arama kodun buraya entegre edildi
+    searchCallback(actorName)
+})
 
             if (isLayout(EMULATOR)) {
                 episodesShadow.setOnClickListener {
                     toggleEpisodes(false)
                 }
             }
-        } // <--- Bu parantez "binding?.apply {" bloğunu kapatır
+        }
 
         observeNullable(viewModel.resumeWatching) { resume ->
-            binding?.apply {
-
+            binding.apply {
                 if (resume == null) {
                     return@observeNullable
                 }
+
                 resultResumeSeries.isVisible = true
                 resultPlayMovie.isVisible = false
                 resultPlaySeries.isVisible = false
@@ -613,15 +550,16 @@ searchCallback = { actorName ->
         observe(viewModel.trailers) { trailersLinks ->
             context?.updateHasTrailers()
             if (!LoadResponse.isTrailersEnabled) return@observe
-            val trailers = trailersLinks.flatMap { it.mirros }
-            binding?.apply {
-                resultPlayTrailer.isGone = trailers.isEmpty()
+            val extractedTrailerLinks = trailersLinks.flatMap { it.mirros }
+                .map { (extractedTrailerLink, _) -> extractedTrailerLink }
+            binding.apply {
+                resultPlayTrailer.isGone = extractedTrailerLinks.isEmpty()
                 resultPlayTrailerButton.setOnClickListener {
-                    if (trailers.isEmpty()) return@setOnClickListener
+                    if (extractedTrailerLinks.isEmpty()) return@setOnClickListener
                     activity.navigate(
                         R.id.global_to_navigation_player, GeneratorPlayer.newInstance(
                             ExtractorLinkGenerator(
-                                trailers,
+                                extractedTrailerLinks,
                                 emptyList()
                             )
                         )
@@ -631,16 +569,13 @@ searchCallback = { actorName ->
         }
 
         observe(viewModel.watchStatus) { watchType ->
-            binding?.apply {
+            binding.apply {
                 resultBookmarkText.setText(watchType.stringRes)
 
                 resultBookmarkButton.apply {
-
                     val drawable = if (watchType.stringRes == R.string.type_none) {
                         R.drawable.outline_bookmark_add_24
-                    } else {
-                        R.drawable.ic_baseline_bookmark_24
-                    }
+                    } else R.drawable.ic_baseline_bookmark_24
                     setIconResource(drawable)
 
                     setOnClickListener { view ->
@@ -658,19 +593,13 @@ searchCallback = { actorName ->
         }
 
         observeNullable(viewModel.favoriteStatus) { isFavorite ->
-
-            binding?.resultFavorite?.isVisible = isFavorite != null
-
-            binding?.resultFavoriteButton?.apply {
-
+            binding.resultFavorite.isVisible = isFavorite != null
+            binding.resultFavoriteButton.apply {
                 if (isFavorite == null) return@observeNullable
 
                 val drawable = if (isFavorite) {
                     R.drawable.ic_baseline_favorite_24
-                } else {
-                    R.drawable.ic_baseline_favorite_border_24
-                }
-
+                } else R.drawable.ic_baseline_favorite_border_24
                 setIconResource(drawable)
 
                 setOnClickListener {
@@ -679,15 +608,13 @@ searchCallback = { actorName ->
 
                         val message = if (newStatus) {
                             R.string.favorite_added
-                        } else {
-                            R.string.favorite_removed
-                        }
+                        } else R.string.favorite_removed
 
                         val name = (viewModel.page.value as? Resource.Success)?.value?.title
-                            ?: com.lagradost.cloudstream3.utils.txt(R.string.no_data)
+                            ?: txt(R.string.no_data)
                                 .asStringNull(context) ?: ""
                         CommonActivity.showToast(
-                            com.lagradost.cloudstream3.utils.txt(
+                            txt(
                                 message,
                                 name
                             ), Toast.LENGTH_SHORT
@@ -696,28 +623,22 @@ searchCallback = { actorName ->
                 }
             }
 
-            binding?.resultFavoriteText?.apply {
+            binding.resultFavoriteText.apply {
                 val text = if (isFavorite == true) {
                     R.string.unfavorite
-                } else {
-                    R.string.favorite
-                }
+                } else R.string.favorite
                 setText(text)
             }
         }
 
         observeNullable(viewModel.subscribeStatus) { isSubscribed ->
-            binding?.resultSubscribe?.isVisible = isSubscribed != null && isLayout(EMULATOR)
-            binding?.resultSubscribeButton?.apply {
-
+            binding.resultSubscribe.isVisible = isSubscribed != null && isLayout(EMULATOR)
+            binding.resultSubscribeButton.apply {
                 if (isSubscribed == null) return@observeNullable
 
                 val drawable = if (isSubscribed) {
                     R.drawable.ic_baseline_notifications_active_24
-                } else {
-                    R.drawable.baseline_notifications_none_24
-                }
-
+                } else R.drawable.baseline_notifications_none_24
                 setIconResource(drawable)
 
                 setOnClickListener {
@@ -728,15 +649,13 @@ searchCallback = { actorName ->
                             // Kinda icky to have this here, but it works.
                             SubscriptionWorkManager.enqueuePeriodicWork(context)
                             R.string.subscription_new
-                        } else {
-                            R.string.subscription_deleted
-                        }
+                        } else R.string.subscription_deleted
 
                         val name = (viewModel.page.value as? Resource.Success)?.value?.title
-                            ?: com.lagradost.cloudstream3.utils.txt(R.string.no_data)
+                            ?: txt(R.string.no_data)
                                 .asStringNull(context) ?: ""
                         CommonActivity.showToast(
-                            com.lagradost.cloudstream3.utils.txt(
+                            txt(
                                 message,
                                 name
                             ), Toast.LENGTH_SHORT
@@ -744,12 +663,10 @@ searchCallback = { actorName ->
                     }
                 }
 
-                binding?.resultSubscribeText?.apply {
+                binding.resultSubscribeText.apply {
                     val text = if (isSubscribed) {
                         R.string.action_unsubscribe
-                    } else {
-                        R.string.action_subscribe
-                    }
+                    } else R.string.action_subscribe
                     setText(text)
                 }
             }
@@ -760,10 +677,8 @@ searchCallback = { actorName ->
                 return@observeNullable
             }
 
-            binding?.apply {
-
+            binding.apply {
                 (data as? Resource.Success)?.value?.let { (_, ep) ->
-
                     resultPlayMovieButton.setOnClickListener {
                         viewModel.handleAction(
                             EpisodeClickEvent(ACTION_CLICK_DEFAULT, ep)
@@ -777,10 +692,9 @@ searchCallback = { actorName ->
                     }
 
                     resultPlayMovie.isVisible = !comingSoon && resultResumeSeries.isGone
-                    if (comingSoon)
+                    if (comingSoon) {
                         resultBookmarkButton.requestFocus()
-                    else
-                        resultPlayMovieButton.requestFocus()
+                    } else resultPlayMovieButton.requestFocus()
 
                     // Stops last button right focus
                     resultSearchButton.nextFocusRightId = R.id.result_search_Button
@@ -849,26 +763,26 @@ searchCallback = { actorName ->
 
 
         observeNullable(viewModel.episodesCountText) { count ->
-            binding?.resultEpisodesText.setText(count)
+            binding.resultEpisodesText.setText(count)
         }
 
         observe(viewModel.selectedRangeIndex) { selected ->
-            binding?.resultRangeSelection.select(selected)
+            binding.resultRangeSelection.select(selected)
         }
         observe(viewModel.selectedSeasonIndex) { selected ->
-            binding?.resultSeasonSelection.select(selected)
+            binding.resultSeasonSelection.select(selected)
         }
         observe(viewModel.selectedDubStatusIndex) { selected ->
-            binding?.resultDubSelection.select(selected)
+            binding.resultDubSelection.select(selected)
         }
         observe(viewModel.rangeSelections) {
-            binding?.resultRangeSelection.update(it)
+            binding.resultRangeSelection.update(it)
         }
         observe(viewModel.dubSubSelections) {
-            binding?.resultDubSelection.update(it)
+            binding.resultDubSelection.update(it)
         }
         observe(viewModel.seasonSelections) {
-            binding?.resultSeasonSelection.update(it)
+            binding.resultSeasonSelection.update(it)
         }
         observe(viewModel.recommendations) { recommendations ->
             setRecommendations(recommendations, null)
@@ -876,7 +790,7 @@ searchCallback = { actorName ->
 
         if (isLayout(TV)) {
             observe(viewModel.episodeSynopsis) { description ->
-                view.context?.let { ctx ->
+                context?.let { ctx ->
                     val builder: AlertDialog.Builder =
                         AlertDialog.Builder(ctx, R.style.AlertDialogCustom)
                     builder.setMessage(description.html())
@@ -893,15 +807,11 @@ searchCallback = { actorName ->
         var hasLoadedEpisodesOnce = false
         observeNullable(viewModel.episodes) { episodes ->
             if (episodes == null) return@observeNullable
-
-            binding?.apply {
-
-                if (comingSoon)
-                    resultBookmarkButton.requestFocus()
+            binding.apply {
+                if (comingSoon) resultBookmarkButton.requestFocus()
 
                 //    resultEpisodeLoading.isVisible = episodes is Resource.Loading
                 if (episodes is Resource.Success) {
-
                     val lastWatchedIndex = episodes.value.indexOfLast { ep ->
                         ep.getWatchProgress() >= NEXT_WATCH_EPISODE_PERCENTAGE.toFloat() / 100.0f || ep.videoWatchState == VideoWatchState.Watched
                     }
@@ -944,14 +854,14 @@ searchCallback = { actorName ->
                     }
 
 
-                    (resultEpisodes.adapter as? EpisodeAdapter)?.updateList(episodes.value)
+                    (resultEpisodes.adapter as? EpisodeAdapter)?.submitList(episodes.value)
                 }
             }
         }
 
         observeNullable(viewModel.page) { data ->
             if (data == null) return@observeNullable
-            binding?.apply {
+            binding.apply {
                 when (data) {
                     is Resource.Success -> {
                         val d = data.value
@@ -981,7 +891,7 @@ searchCallback = { actorName ->
                                         Integer.MAX_VALUE
                                     } else 10
                                 } else {
-                                    view.context?.let { ctx ->
+                                    context?.let { ctx ->
                                         val builder: AlertDialog.Builder =
                                             AlertDialog.Builder(ctx, R.style.AlertDialogCustom)
                                         builder.setMessage(d.plotText.asString(ctx).html())
@@ -1005,14 +915,23 @@ searchCallback = { actorName ->
                         backgroundPoster.loadImage(d.posterBackgroundImage) {
                             error { getImageFromDrawable(context ?: return@error null, error) }
                         }
+
+                        bindLogo(
+                            url = d.logoUrl,
+                            headers = d.posterHeaders,
+                            titleView = resultTitle,
+                            logoView = backgroundPosterWatermarkBadgeHolder
+                        )
+
                         comingSoon = d.comingSoon
                         resultTvComingSoon.isVisible = d.comingSoon
 
-                        UIHelper.populateChips(resultTag, d.tags)
-                        resultCastItems.isGone = d.actors.isNullOrEmpty()
-                        (resultCastItems.adapter as? ActorAdaptor)?.updateList(
-                            d.actors ?: emptyList()
-                        )
+                        populateChips(resultTag, d.tags)
+                        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(root.context)
+                        val showCast = prefs.getBoolean(root.context.getString(R.string.show_cast_in_details_key), true)
+
+                        resultCastItems.isGone = !showCast || d.actors.isNullOrEmpty()
+                        (resultCastItems.adapter as? ActorAdaptor)?.submitList(if (showCast) d.actors else emptyList())
 
                         if (d.contentRatingText == null) {
                             // If there is no rating to display, we don't want an empty gap
@@ -1024,9 +943,7 @@ searchCallback = { actorName ->
                         }
                     }
 
-                    is Resource.Loading -> {
-
-                    }
+                    is Resource.Loading -> {}
 
                     is Resource.Failure -> {
                         resultErrorText.text =
@@ -1044,5 +961,3 @@ searchCallback = { actorName ->
         }
     }
 }
-
-
