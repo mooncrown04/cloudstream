@@ -67,13 +67,20 @@ import com.lagradost.cloudstream3.utils.setText
 import com.lagradost.cloudstream3.utils.setTextHtml
 import com.lagradost.cloudstream3.utils.txt
 
-class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
-    BindingCreator.Inflate(FragmentResultTvBinding::inflate)
-) {
+import com.lagradost.cloudstream3.SearchResponse  
+import com.lagradost.cloudstream3.MainActivity
+import android.content.Intent
+import android.app.SearchManager
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
+class ResultFragmentTv : Fragment() {
     private lateinit var viewModel: ResultViewModel2
+    private var binding: FragmentResultTvBinding? = null
 
+    
     override fun onDestroyView() {
+        binding = null          
         updateUIEvent -= ::updateUI
         activity?.detachBackPressedCallback(this@ResultFragmentTv.toString())
         super.onDestroyView()
@@ -89,7 +96,9 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
         viewModel.EPISODE_RANGE_SIZE = 50
         updateUIEvent += ::updateUI
 
-        return super.onCreateView(inflater, container, savedInstanceState)
+    val localBinding = FragmentResultTvBinding.inflate(inflater, container, false)
+        binding = localBinding
+        return localBinding.root
     }
 
     private fun updateUI(id: Int?) {
@@ -163,7 +172,7 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 // very dirty selection
                 resultRecommendationsFilterSelection.isVisible = apiNames.size > 1
                 resultRecommendationsFilterSelection.update(apiNames.map {
-                    txt(
+                   com.lagradost.cloudstream3.utils.txt(
                         it
                     ) to it
                 })
@@ -192,7 +201,11 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
     }
 
     override fun onResume() {
-        activity?.setNavigationBarColorCompat(R.attr.primaryBlackBackground)
+        activity?.let {
+            @Suppress("DEPRECATION")
+            it.window?.navigationBarColor =
+                it.colorFromAttribute(R.attr.primaryBlackBackground)
+        }
         afterPluginsLoadedEvent += ::reloadViewModel
         super.onResume()
     }
@@ -250,12 +263,21 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
         }
     }
 
-    override fun fixLayout(view: View) {
-        fixSystemBarsPadding(view, padTop = false)
-    }
+ //   override fun fixLayout(view: View) {   //kontrol
+ //       fixSystemBarsPadding(view, padTop = false)
+ //   }
 
-    @SuppressLint("SetTextI18n")
-    override fun onBindingCreated(binding: FragmentResultTvBinding) {
+    private fun showSearchResults(results: List<SearchResponse>) {
+    val intent = Intent(requireContext(), MainActivity::class.java).apply {
+        action = Intent.ACTION_SEARCH
+        putExtra(SearchManager.QUERY, results.firstOrNull()?.name ?: "")
+    }
+    startActivity(intent)
+}
+  @SuppressLint("SetTextI18n")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         // ===== setup =====
         val storedData = getStoredData() ?: return
         activity?.window?.decorView?.clearFocus()
@@ -281,11 +303,12 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 backgroundPosterHolder.translationY = -scrollY.toFloat() * 0.8f
             })
 
+           binding?.apply {
             redirectToPlay.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) return@setOnFocusChangeListener
                 toggleEpisodes(false)
 
-                binding.apply {
+               
                     val views = listOf(
                         resultPlayMovieButton,
                         resultPlaySeriesButton,
@@ -300,9 +323,39 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                         if (!requestView.isVisible) continue
                         if (requestView.requestFocus()) break
                     }
-                }
-            }
+					}
+					// === Buraya ActorAdaptor ekleniyor === 
+					val aboveCast = listOf( 
+					resultEpisodesShow, 
+					resultBookmark, 
+					resultFavorite, 
+					resultSubscribe, 
+					).firstOrNull { it?.isVisible == true }
+					resultCastItems.adapter = ActorAdaptor(
+    nextFocusUpId = aboveCast?.id,
+    focusCallback = { toggleEpisodes(false) },
+   
 
+searchCallback = { actorName ->
+    if (!actorName.isNullOrBlank()) {
+        // MainActivity'deki statik değişkene erişim
+        com.lagradost.cloudstream3.MainActivity.nextSearchQuery = actorName
+        
+        // MainActivity örneği üzerinden navigasyonu tetikleme
+        (activity as? com.lagradost.cloudstream3.MainActivity)?.let { main ->
+            // Bottom Navigation üzerinden arama sayfasına geçiş
+            main.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(
+                com.lagradost.cloudstream3.R.id.nav_view
+            )?.selectedItemId = com.lagradost.cloudstream3.R.id.navigation_search
+        }
+    }
+}
+
+
+   
+) 
+	 }
+ 
             redirectToEpisodes.setOnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) return@setOnFocusChangeListener
                 toggleEpisodes(true)
