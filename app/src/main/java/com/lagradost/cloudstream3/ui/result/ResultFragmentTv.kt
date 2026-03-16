@@ -468,7 +468,7 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
 resultCastItems.adapter = ActorAdaptor(aboveCast?.id, {
     toggleEpisodes(false)
 }, { actorName -> // Senin aktör arama kodun buraya entegre edildi
-    searchCallback(actorName)
+    onSearch(actorName)
 })
 
             if (isLayout(EMULATOR)) {
