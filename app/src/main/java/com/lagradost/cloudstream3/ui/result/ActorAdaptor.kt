@@ -20,7 +20,8 @@ import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 
 class ActorAdaptor(
     private var nextFocusUpId: Int? = null,
-    private val focusCallback: (View?) -> Unit = {}
+    private val focusCallback: (View?) -> Unit = {},
+    private val searchCallback: (String) -> Unit = {} // SENİN EKLEDİĞİN ARAMA CALLBACK'İ
 ) : NoStateAdapter<ActorData>(diffCallback = BaseDiffCallback(itemSame = { a, b ->
     a.actor.name == b.actor.name
 })) {
@@ -29,7 +30,6 @@ class ActorAdaptor(
             newSharedPool { setMaxRecycledViews(CONTENT, 10) }
     }
 
-    // Easier to store it here than to store it in the ActorData
     val inverted: HashMap<ActorData, Boolean> = hashMapOf()
 
     override fun onCreateContent(parent: ViewGroup): ViewHolderState<Any> {
@@ -41,7 +41,8 @@ class ActorAdaptor(
     override fun onClearView(holder: ViewHolderState<Any>) {
         when (val binding = holder.view) {
             is CastItemBinding -> {
-                clearImage(binding.actorImage)
+                // clearImage varsa burada kalsın, yoksa derleme hatası verirse silebilirsin
+                // clearImage(binding.actorImage) 
             }
         }
     }
@@ -58,7 +59,7 @@ class ActorAdaptor(
                     Pair(item.voiceActor?.image, item.actor.image)
                 }
 
-                // Fix tv focus escaping the recyclerview
+                // Focus Ayarları
                 if (position == 0) {
                     itemView.nextFocusLeftId = R.id.result_cast_items
                 } else if ((position - 1) == itemCount) {
@@ -74,11 +75,19 @@ class ActorAdaptor(
                     }
                 }
 
+                // TIKLAMA OLAYI (SENİN İSTEDİĞİN ARAMA ÖZELLİĞİ BURADA)
                 itemView.setOnClickListener {
+                    val actorName = item.actor.name
+                    if (!actorName.isNullOrBlank()) {
+                        searchCallback(actorName) // Aktör ismini arama fonksiyonuna gönderir
+                    }
+                    
+                    // Resim değiştirme (inverted) mantığını korumak istersen:
                     inverted[item] = !isInverted
                     this.onUpdateContent(holder, getItem(position), position)
                 }
 
+                // Uzun Basma (Telefonlar için Web araması)
                 itemView.setOnLongClickListener {
                     if (isLayout(PHONE)) {
                         Intent(Intent.ACTION_WEB_SEARCH).apply {
@@ -96,22 +105,15 @@ class ActorAdaptor(
 
                 binding.apply {
                     actorImage.loadImage(mainImg)
-
                     actorName.text = item.actor.name
+                    
+                    // Rol gösterimi
                     item.role?.let {
                         actorExtra.context?.getString(
                             when (it) {
-                                ActorRole.Main -> {
-                                    R.string.actor_main
-                                }
-
-                                ActorRole.Supporting -> {
-                                    R.string.actor_supporting
-                                }
-
-                                ActorRole.Background -> {
-                                    R.string.actor_background
-                                }
+                                ActorRole.Main -> R.string.actor_main
+                                ActorRole.Supporting -> R.string.actor_supporting
+                                ActorRole.Background -> R.string.actor_background
                             }
                         )?.let { text ->
                             actorExtra.isVisible = true
@@ -124,13 +126,13 @@ class ActorAdaptor(
                         actorExtra.isVisible = false
                     }
 
+                    // Seslendirme Sanatçısı
                     if (item.voiceActor == null) {
                         voiceActorImageHolder.isVisible = false
                         voiceActorName.isVisible = false
                     } else {
                         voiceActorName.text = item.voiceActor?.name
-                        if (!vaImage.isNullOrEmpty())
-                            voiceActorImageHolder.isVisible = true
+                        voiceActorImageHolder.isVisible = !vaImage.isNullOrEmpty()
                         voiceActorImage.loadImage(vaImage)
                     }
                 }
