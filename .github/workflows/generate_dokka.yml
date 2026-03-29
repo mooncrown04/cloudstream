@@ -1,10 +1,11 @@
-name: Dokka
+name: Dokka (Fork-Friendly)
 
 on:
   push:
     branches: [ master ]
     paths-ignore:
       - '*.md'
+  workflow_dispatch:
 
 concurrency:
   group: "dokka"
@@ -14,61 +15,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate access token
-        id: generate_token
-        uses: tibdex/github-app-token@v2
-        with:
-          app_id: ${{ secrets.GH_APP_ID }}
-          private_key: ${{ secrets.GH_APP_KEY }}
-          repository: "recloudstream/dokka"
-
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          path: "src"
-
-      - name: Checkout dokka
-        uses: actions/checkout@v6
-        with:
-          repository: "recloudstream/dokka"
-          path: "dokka"
-          token: ${{ steps.generate_token.outputs.token }}
-
-      - name: Clean old builds
-        run: |
-          cd $GITHUB_WORKSPACE/dokka/
-          rm -rf "./app"
-          rm -rf "./library"
+      - name: Checkout Source
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
-        with:
-          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Generate Dokka
         run: |
-          cd $GITHUB_WORKSPACE/src/
           chmod +x gradlew
-          ./gradlew docs:dokkaGeneratePublicationHtml
+          ./gradlew :docs:dokkaGeneratePublicationHtml || ./gradlew dokkaHtml
+        # Not: Bazı projelerde komut farklı olabilir, hata verirse gradlew yanındaki komutu kontrol et.
 
-      - name: Copy Dokka
-        run: cp -r $GITHUB_WORKSPACE/src/docs/build/dokka/html/* $GITHUB_WORKSPACE/dokka/
-
-      - name: Push builds
-        run: |
-          cd $GITHUB_WORKSPACE/dokka
-          touch .nojekyll
-          git config --local user.email "111277985+recloudstream[bot]@users.noreply.github.com"
-          git config --local user.name "recloudstream[bot]"
-          git add .
-          git commit --amend -m "Generate dokka for recloudstream/cloudstream@${GITHUB_SHA}" || exit 0   # do not error if nothing to commit
-          git push --force
+      - name: Upload Documentation Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CloudStream-Documentation
+          path: |
+            docs/build/dokka/html/
+            app/build/dokka/html/
+            build/dokka/html/
