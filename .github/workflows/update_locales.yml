@@ -1,4 +1,4 @@
-name: Fix locale issues
+name: Fix locale issues (Fork-Friendly)
 
 on:
   push:
@@ -15,29 +15,38 @@ jobs:
   create:
     runs-on: ubuntu-latest
     steps:
-    - name: Generate access token
-      id: generate_token
-      uses: tibdex/github-app-token@v2
+    - name: Checkout
+      uses: actions/checkout@v4
       with:
-        app_id: ${{ secrets.GH_APP_ID }}
-        private_key: ${{ secrets.GH_APP_KEY }}
-        repository: "recloudstream/cloudstream"
+        # Kendi depona yazma yetkisi için varsayılan tokenı kullanıyoruz
+        token: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: actions/checkout@v6
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        token: ${{ steps.generate_token.outputs.token }}
+        python-version: '3.x'
 
     - name: Install dependencies
       run: pip3 install lxml requests
 
     - name: Edit files
-      run: python3 .github/locales.py
+      run: |
+        # Eğer locales.py dosyası deponda varsa çalıştırır
+        if [ -f .github/locales.py ]; then
+          python3 .github/locales.py
+        else
+          echo "locales.py bulunamadı, bu adım atlanıyor."
+        fi
 
     - name: Commit to the repo
       run: |
-        git config --local user.email "111277985+recloudstream[bot]@users.noreply.github.com"
-        git config --local user.name "recloudstream[bot]"
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
         git add .
-        # "echo" returns true so the build succeeds, even if no changed files
-        git commit -m 'chore(locales): fix locale issues' || echo
-        git push
+        # Eğer bir değişiklik varsa commit yap ve pushla
+        if ! git diff-index --quiet HEAD; then
+          git commit -m 'chore(locales): fix locale issues'
+          git push
+        else
+          echo "Değişiklik yok, push atlanıyor."
+        fi
