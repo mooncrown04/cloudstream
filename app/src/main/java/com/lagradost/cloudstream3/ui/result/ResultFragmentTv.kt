@@ -133,16 +133,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
         }
     }
 
-//    private fun hasNoFocus(): Boolean {
-//        val focus = activity?.currentFocus
-//        if (focus == null || !focus.isVisible) return true
-//        return focus == binding?.resultRoot
-//    }
-
-    /**
-     * Force focus any play button.
-     * Note that this will steal any focus if the episode loading is too slow (unlikely).
-     */
     private fun focusPlayButton() {
         binding?.resultPlayMovieButton?.requestFocus()
         binding?.resultPlaySeriesButton?.requestFocus()
@@ -160,7 +150,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 ?: emptyList())
 
             rec?.map { it.apiName }?.distinct()?.let { apiNames ->
-                // very dirty selection
                 resultRecommendationsFilterSelection.isVisible = apiNames.size > 1
                 resultRecommendationsFilterSelection.update(apiNames.map {
                     txt(
@@ -256,7 +245,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
 
     @SuppressLint("SetTextI18n")
     override fun onBindingCreated(binding: FragmentResultTvBinding) {
-        // ===== setup =====
         val storedData = getStoredData() ?: return
         activity?.window?.decorView?.clearFocus()
         activity?.loadCache()
@@ -270,13 +258,10 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 storedData.dubStatus,
                 storedData.start
             )
-        // ===== ===== =====
+        
         var comingSoon = false
 
         binding.apply {
-            //episodesShadow.rotationX = 180.0f//if(episodesShadow.isRtl()) 180.0f else 0.0f
-
-            // parallax on background
             resultFinishLoading.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { view, _, scrollY, _, oldScrollY ->
                 backgroundPosterHolder.translationY = -scrollY.toFloat() * 0.8f
             })
@@ -316,7 +301,7 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                     )
                     for (requestView in views) {
                         if (!requestView.isShown) continue
-                        if (requestView.requestFocus()) break // View.FOCUS_RIGHT
+                        if (requestView.requestFocus()) break
                     }
                 }
             }
@@ -357,8 +342,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
             }
 
             resultEpisodesShowButton.setOnClickListener {
-                // toggle, to make it more touch accessible just in case someone thinks that a
-                // tv layout is better but is using a touch device
                 toggleEpisodes(!episodeHolderTv.isVisible)
             }
 
@@ -384,11 +367,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 nextDown = FOCUS_SELF,
             )
 
-            /*.layoutManager =
-                LinearListLayout(resultEpisodes.context, resultEpisodes.isRtl()).apply {
-                    setVertical()
-                }*/
-
             resultReloadConnectionerror.setOnClickListener {
                 viewModel.load(
                     activity,
@@ -409,12 +387,8 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
             resultRecommendationsFilterSelection.setAdapter()
 
             resultCastItems.setOnFocusChangeListener { _, hasFocus ->
-                // Always escape focus
                 if (hasFocus) binding.resultBookmarkButton.requestFocus()
             }
-            //resultBack.setOnClickListener {
-            //    activity?.popCurrentPage()
-            //}
 
             resultRecommendationsList.spanCount = 8
             resultRecommendationsList.setRecycledViewPool(SearchAdapter.sharedPool)
@@ -446,8 +420,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                     child: View,
                     focused: View?
                 ): Boolean {
-                    // Make the cast always focus the first visible item when focused
-                    // from somewhere else. Otherwise it jumps to the last item.
                     return if (parent.focusedChild == null) {
                         scrollToPosition(this.findFirstCompletelyVisibleItemPosition())
                         true
@@ -464,10 +436,15 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 binding.resultSubscribe,
             ).firstOrNull { it.isVisible }
 
+            // ACTOR TIKLAMA OLAYI BURAYA EKLENDİ
             resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
-            resultCastItems.adapter = ActorAdaptor(aboveCast?.id) {
+            resultCastItems.adapter = ActorAdaptor(aboveCast?.id, {
                 toggleEpisodes(false)
-            }
+            }, { actorName ->
+                if (!actorName.isNullOrBlank()) {
+                    QuickSearchFragment.pushSearch(activity, actorName)
+                }
+            })
 
             if (isLayout(EMULATOR)) {
                 episodesShadow.setOnClickListener {
@@ -486,7 +463,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 resultPlayMovie.isVisible = false
                 resultPlaySeries.isVisible = false
 
-                // show progress no matter if series or movie
                 resume.progress?.let { progress ->
                     resultResumeSeriesTitle.apply {
                         isVisible = !resume.isMovie
@@ -509,7 +485,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 }
 
                 focusPlayButton()
-                // Stops last button right focus if it is a movie
                 if (resume.isMovie)
                     resultSearchButton.nextFocusRightId = R.id.result_search_Button
 
@@ -529,7 +504,7 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 resultResumeSeriesButton.setOnClickListener {
                     viewModel.handleAction(
                         EpisodeClickEvent(
-                            storedData.playerAction, //?: ACTION_PLAY_EPISODE_IN_PLAYER,
+                            storedData.playerAction,
                             resume.result
                         )
                     )
@@ -644,7 +619,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                         if (newStatus == null) return@toggleSubscriptionStatus
 
                         val message = if (newStatus) {
-                            // Kinda icky to have this here, but it works.
                             SubscriptionWorkManager.enqueuePeriodicWork(context)
                             R.string.subscription_new
                         } else R.string.subscription_deleted
@@ -694,7 +668,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                         resultBookmarkButton.requestFocus()
                     } else resultPlayMovieButton.requestFocus()
 
-                    // Stops last button right focus
                     resultSearchButton.nextFocusRightId = R.id.result_search_Button
                 }
             }
@@ -801,14 +774,12 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
             }
         }
 
-        // Used to request focus the first time the episodes are loaded.
         var hasLoadedEpisodesOnce = false
         observeNullable(viewModel.episodes) { episodes ->
             if (episodes == null) return@observeNullable
             binding.apply {
                 if (comingSoon) resultBookmarkButton.requestFocus()
 
-                //    resultEpisodeLoading.isVisible = episodes is Resource.Loading
                 if (episodes is Resource.Success) {
                     val lastWatchedIndex = episodes.value.indexOfLast { ep ->
                         ep.getWatchProgress() >= NEXT_WATCH_EPISODE_PERCENTAGE.toFloat() / 100.0f || ep.videoWatchState == VideoWatchState.Watched
@@ -850,7 +821,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                             resultPlaySeriesButton.requestFocus()
                         }
                     }
-
 
                     (resultEpisodes.adapter as? EpisodeAdapter)?.submitList(episodes.value)
                 }
@@ -932,7 +902,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                         (resultCastItems.adapter as? ActorAdaptor)?.submitList(if (showCast) d.actors else emptyList())
 
                         if (d.contentRatingText == null) {
-                            // If there is no rating to display, we don't want an empty gap
                             resultMetaContentRating.width = 0
                         }
 
@@ -950,11 +919,8 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 }
 
                 resultFinishLoading.isVisible = data is Resource.Success
-
                 resultLoading.isVisible = data is Resource.Loading
-
                 resultLoadingError.isVisible = data is Resource.Failure
-                //resultReloadConnectionOpenInBrowser.isVisible = data is Resource.Failure
             }
         }
     }
