@@ -16,21 +16,21 @@ def apply_player_patch():
         for line in lines:
             new_lines.append(line)
             
-            # onKeyDown içine senin çalışan mantığını ve Opsiyon tuşunu ekliyoruz
+            # onKeyDown fonksiyonuna senin çalışan mantığını ve Opsiyon tuşunu ekle
             if "override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {" in line and not keydown_patched:
                 new_lines.append("        if (!isShowingEpisodeOverlay) {\n")
                 new_lines.append("            when (keyCode) {\n")
-                # Üst Tuş: Sonraki Kanal
+                # Üst Tuş: Kanal Değiştir
                 new_lines.append("                KeyEvent.KEYCODE_DPAD_UP -> {\n")
                 new_lines.append("                    player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)\n")
                 new_lines.append("                    return true\n")
                 new_lines.append("                }\n")
-                # Alt Tuş: Önceki Kanal
+                # Alt Tuş: Kanal Değiştir
                 new_lines.append("                KeyEvent.KEYCODE_DPAD_DOWN -> {\n")
                 new_lines.append("                    player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)\n")
                 new_lines.append("                    return true\n")
                 new_lines.append("                }\n")
-                # 3 Çizgili Opsiyon Tuşu: Sekmeleri/Menüyü Aç
+                # 3 Çizgili Menü Tuşu: Sekmeleri Aç/Kapat
                 new_lines.append("                KeyEvent.KEYCODE_MENU -> {\n")
                 new_lines.append("                    toggleEpisodesOverlay(true)\n")
                 new_lines.append("                    return true\n")
@@ -41,14 +41,37 @@ def apply_player_patch():
 
         with open(full_path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)
-        print("FullScreenPlayer: D-Pad ve Opsiyon (Menu) tuşu sisteme eklendi.")
+        print("FullScreenPlayer: D-Pad ve Opsiyon tuşu başarıyla eklendi.")
 
-    # --- 2. GeneratorPlayer.kt (Senin Çalışan Canlı TV Mantığın) ---
+    # --- 2. GeneratorPlayer.kt (Senin Çalışan Canlı TV Mantığın + Importlar) ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
-            content = f.read()
+            lines = f.readlines()
 
-        # Senin çalışan hashCode ve Live TV blok yapın
+        new_lines = []
+        added_imports = False
+        # Senin çalışan kodun için gereken tüm kütüphaneler
+        special_imports = [
+            "import android.view.KeyEvent\n",
+            "import android.os.Looper\n",
+            "import com.lagradost.cloudstream3.SearchResponse\n",
+            "import com.lagradost.cloudstream3.ui.result.VideoWatchState\n",
+            "import android.net.Uri\n",
+            "import com.lagradost.cloudstream3.utils.newExtractorLink\n",
+            "import androidx.lifecycle.lifecycleScope\n",
+            "import kotlinx.coroutines.runBlocking\n"
+        ]
+
+        for line in lines:
+            new_lines.append(line)
+            # Paket isminden sonra kütüphaneleri enjekte et
+            if "package com.lagradost.cloudstream3.ui.player" in line and not added_imports:
+                new_lines.extend(special_imports)
+                added_imports = True
+
+        content = "".join(new_lines)
+
+        # Senin "HashCode" ve "Live TV" mantığını içeren ana kod bloğu
         target_code = """                    val newMeta = AnySampleMetadata(
                         name = result.name,
                         headerName = result.name,
@@ -73,13 +96,14 @@ def apply_player_patch():
                     loadLink(Pair(linkToLoad, null), sameEpisode = false)
                     player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)"""
 
-        # Orijinal dosyada değiştirilecek alanı senin kodunla günceller
+        # Orijinaldeki eski yapıyı bul ve senin bu yeni yapınla değiştir
+        # Regex (re.sub) kullanarak tam blok eşleşmesi yapıyoruz
         pattern = r'val newMeta = AnySampleMetadata\(.*?\)\s+currentMeta = newMeta.*?loadLink\(.*?\)'
         if "loadLink" in content:
-            updated_content = re.sub(pattern, target_code, content, flags=re.DOTALL)
+            content = re.sub(pattern, target_code, content, flags=re.DOTALL)
             with open(gen_path, "w", encoding="utf-8") as f:
-                f.write(updated_content)
-            print("GeneratorPlayer: Senin çalışan canlı TV yapın uygulandı.")
+                f.write(content)
+            print("GeneratorPlayer: Canlı TV geçiş mantığı senin kodunla güncellendi.")
 
 if __name__ == "__main__":
     apply_player_patch()
