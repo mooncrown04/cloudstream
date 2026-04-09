@@ -3,8 +3,7 @@ package com.lagradost.cloudstream3.ui.player
 import android.view.KeyEvent
 import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
 import com.lagradost.cloudstream3.ui.player.PlayerEventSource
-import com.lagradost.cloudstream3.ui.result.AnySampleMetadata
-import com.lagradost.cloudstream3.ui.result.ResultEpisode
+import com.lagradost.cloudstream3.ui.result.*
 //yenii
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -498,12 +497,13 @@ class GeneratorPlayer : FullScreenPlayer() {
         if (link == null) return
 //yenii
 val result = viewModel.getMeta()
-        if (result is ResultEpisode) {
-            currentMeta = AnySampleMetadata(
+        // ResultEpisode tipini tam paketiyle kontrol ediyoruz (çakışmayı önler)
+        if (result is com.lagradost.cloudstream3.ui.result.ResultEpisode) {
+            currentMeta = com.lagradost.cloudstream3.ui.result.AnySampleMetadata(
                 name = result.name,
                 headerName = result.name,
                 tvType = TvType.TvSeries,
-                id = result.hashCode() // url.hashCode() yerine doğrudan nesnenin hashCode'unu kullanıyoruz
+                id = result.hashCode()
             )
         }
 //yenii
