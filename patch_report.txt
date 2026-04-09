@@ -1,4 +1,4 @@
---- Z RAPORU (2026-04-09 12:44:37) ---
-[SUCCESS] FullScreenPlayer: Tuş yaması eklendi.
-[ERROR] GeneratorPlayer: Hedef satır (loadLink) bulunamadı!
+--- Z RAPORU (2026-04-09 12:58:50) ---
+[SUCCESS] FullScreenPlayer: Tus yamasi uygulandi.
+[ERROR] GeneratorPlayer: Hedef blok bulunamadı!
 --- RAPOR SONU ---
