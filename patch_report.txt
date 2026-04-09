@@ -1,4 +1,4 @@
---- Z RAPORU (2026-04-09 12:42:14) ---
+--- Z RAPORU (2026-04-09 12:44:37) ---
 [SUCCESS] FullScreenPlayer: Tuş yaması eklendi.
-[ERROR] GeneratorPlayer: Kod yapısı hala eşleşmiyor. Manuel müdahale gerekebilir.
+[ERROR] GeneratorPlayer: Hedef satır (loadLink) bulunamadı!
 --- RAPOR SONU ---
