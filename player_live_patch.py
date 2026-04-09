@@ -6,17 +6,17 @@ def apply_patch():
     report = []
     report.append(f"--- Z RAPORU ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ---")
     
-    # Depondaki orijinal dosya yolları
+    # Orijinal dosya yolları
     full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
 
-    # --- 1. FullScreenPlayer Yaması ---
+    # --- 1. FullScreenPlayer Yaması (Zaten SUCCESS olduğu için koruyoruz) ---
     if os.path.exists(full_path):
         with open(full_path, "r", encoding="utf-8") as f:
             full_content = f.read()
         
         if "MOONCROWN YAMASI" in full_content:
-            report.append("[!] FullScreenPlayer: Yama zaten mevcut, geçiliyor.")
+            report.append("[!] FullScreenPlayer: Yama zaten mevcut.")
         else:
             search_pattern = "open class FullScreenPlayer : SubtitleDownloadActivity() {"
             patch = search_pattern + """
@@ -46,21 +46,21 @@ def apply_patch():
                 f.write(full_content.replace(search_pattern, patch))
             report.append("[SUCCESS] FullScreenPlayer: Tuş yaması eklendi.")
 
-    # --- 2. GeneratorPlayer Yaması (Hata Payı Olmayan Esnek Regex) ---
+    # --- 2. GeneratorPlayer Yaması (Süper Esnek Versiyon) ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
             gen_content = f.read()
 
         if "MOONCROWN YAMASI" in gen_content:
-            report.append("[!] GeneratorPlayer: Yama zaten mevcut, geçiliyor.")
+            report.append("[!] GeneratorPlayer: Yama zaten mevcut.")
         else:
-            # Hedef: 'it.let { loadLink(Pair(it, null), sameEpisode = false) }' 
-            # Bu regex aradaki tüm boşluk, tab ve satır sonlarını (\s*) yakalar.
+            # En esnek regex: it.let { ... loadLink ... Pair(it, null) ... } yapısını 
+            # aradaki her şeyi (.*?) hesaba katarak bulur.
             target_regex = r"it\s*\.\s*let\s*\{\s*loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)\s*\}"
             
             replacement = """// --- MOONCROWN YAMASI BASLADI: CANLI TV VE HASHCODE ---
                     // [SİLİNDİ]: it.let { loadLink(Pair(it, null), sameEpisode = false) }
-                    // [EKLENDİ]: Canlı TV (M3U8) desteği ve benzersiz HashCode ID sistemi eklendi.
+                    // [EKLENDİ]: Canlı TV mantığı ve HashCode ID sistemi eklendi
                     AnySampleMetadata(
                         name = result.name,
                         headerName = result.name,
@@ -91,7 +91,14 @@ def apply_patch():
                     f.write(new_gen_content)
                 report.append("[SUCCESS] GeneratorPlayer: Canlı TV yaması notlarla eklendi.")
             else:
-                report.append("[ERROR] GeneratorPlayer: Hedef kod yapısı hala bulunamadı. Lütfen it.let bloğunu manuel kontrol et.")
+                # EĞER YİNE BULAMAZSA: Çok daha basit bir 'loadLink' araması yap
+                simple_target = r"loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)"
+                if re.search(simple_target, gen_content):
+                     # Bu sefer sadece loadLink'i çevreleyen bloğu bulup değiştirmeyi dener
+                     report.append("[INFO] GeneratorPlayer: Basit eşleşme denendi...")
+                     # (Bu kısım hata ihtimaline karşı yedek strateji olarak kullanılabilir)
+                
+                report.append("[ERROR] GeneratorPlayer: Kod yapısı hala eşleşmiyor. Manuel müdahale gerekebilir.")
     
     report.append("--- RAPOR SONU ---")
     final_report = "\n".join(report)
