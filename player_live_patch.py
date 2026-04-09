@@ -1,62 +1,69 @@
 import os
-import re
-from datetime import datetime
 
 def apply_patch():
-    report = []
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    report.append(f"--- Z RAPORU ({now}) ---")
-
-    gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
+    # Dosya adını senin paylaştığın "GeneratorPlayer (1).kt" olarak veya 
+    # projedeki orijinal adı olan "GeneratorPlayer.kt" olarak düzeltebilirsin.
+    path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
     
-    if os.path.exists(gen_path):
-        with open(gen_path, "r", encoding="utf-8") as f:
-            content = f.read()
+    if not os.path.exists(path):
+        path = "GeneratorPlayer (1).kt" # Test için senin yüklediğin isim
 
-        if "MOONCROWN YAMASI" in content:
-            report.append("[!] GeneratorPlayer: Yama zaten uygulanmış.")
-        else:
-            # DİKKAT: Senin dosyandaki 'loadLink(Pair(it, null))' yapısını yakalar.
-            # İçinde 'false' olsa da olmasa da bu regex orayı bulur.
-            target_regex = r"set\.firstOrNull\(\)\?\.let\s*\{\s*loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*\)\s*\}"
-            
-            replacement = """set.firstOrNull()?.let {
-                // --- MOONCROWN YAMASI BASLADI ---
-                // [SILINDI]: loadLink(Pair(it, null))
-                AnySampleMetadata(
-                    name = result.name,
-                    headerName = result.name,
-                    tvType = TvType.Live,
-                    parentId = 0,
-                    episode = null,
-                    season = null,
-                    id = result.url.hashCode()
-                ).let { newMeta ->
-                    currentMeta = newMeta
-                    val linkToLoad = ExtractorLink(
-                        source = apiSource,
+    if not os.path.exists(path):
+        print("[HATA] Dosya bulunamadı!")
+        return
+
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    # Orijinal dosyadaki 454. satır ve çevresi tam olarak budur:
+    old_code = """        observe(viewModel.currentLinks) { set ->
+            set.firstOrNull()?.let {
+                loadLink(Pair(it, null))
+            }
+        }"""
+
+    # Canlı TV desteği eklenmiş yeni hali:
+    new_code = """        observe(viewModel.currentLinks) { set ->
+            set.firstOrNull()?.let {
+                // --- MOONCROWN CANLI TV YAMASI ---
+                val result = viewModel.getMeta()
+                if (result is ResultEpisode) {
+                    AnySampleMetadata(
                         name = result.name,
-                        url = result.url,
-                        referer = "", 
-                        quality = Qualities.Unknown.value,
-                        type = if (result.url.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
-                        headers = emptyMap()
-                    )
-                    loadLink(Pair(linkToLoad, null), sameEpisode = false)
-                    player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
+                        headerName = result.name,
+                        tvType = TvType.Live,
+                        parentId = 0,
+                        episode = null,
+                        season = null,
+                        id = result.url.hashCode()
+                    ).let { newMeta ->
+                        currentMeta = newMeta
+                        val linkToLoad = ExtractorLink(
+                            source = it.source,
+                            name = result.name,
+                            url = it.url,
+                            referer = it.referer,
+                            quality = Qualities.Unknown.value,
+                            type = if (it.url.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
+                            headers = it.headers
+                        )
+                        loadLink(Pair(linkToLoad, null), sameEpisode = false)
+                        player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
+                    }
+                } else {
+                    loadLink(Pair(it, null))
                 }
-                // --- MOONCROWN YAMASI BITTI ---
-            }"""
+                // --- MOONCROWN CANLI TV YAMASI BITTI ---
+            }
+        }"""
 
-            if re.search(target_regex, content, re.DOTALL):
-                new_content = re.sub(target_regex, replacement, content, count=1, flags=re.DOTALL)
-                with open(gen_path, "w", encoding="utf-8") as f:
-                    f.write(new_content)
-                report.append("[SUCCESS] GeneratorPlayer: Canli TV yaması eklendi.")
-            else:
-                report.append("[ERROR] GeneratorPlayer: Orijinal kod (loadLink) bulunamadı!")
-
-    print("\n".join(report))
+    if old_code in content:
+        updated_content = content.replace(old_code, new_code)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(updated_content)
+        print("[SUCCESS] GeneratorPlayer başarıyla yamalandı!")
+    else:
+        print("[ERROR] Orijinal kod yapısı bulunamadı. Lütfen dosyanın değiştirilmediğinden emin ol.")
 
 if __name__ == "__main__":
     apply_patch()
