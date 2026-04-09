@@ -498,11 +498,12 @@ class GeneratorPlayer : FullScreenPlayer() {
 //yenii
 val result = viewModel.getMeta()
         if (result is com.lagradost.cloudstream3.ui.result.ResultEpisode) {
-            currentMeta = com.lagradost.cloudstream3.ui.result.AnySampleMetadata(
+            // Eğer AnySampleMetadata bulunamıyorsa, direkt Metadata sınıfını deneyelim
+            currentMeta = com.lagradost.cloudstream3.ui.Metadata(
                 name = result.name ?: "",
                 headerName = result.name ?: "",
                 tvType = TvType.TvSeries,
-                id = result.hashCode()
+                id = result.url.hashCode()
             )
         }
 //yenii
@@ -2282,30 +2283,34 @@ val result = viewModel.getMeta()
                 autoSelectSubtitles()
             }
         }
+//yenii
 
-        // Tuş Dinleyici - onViewCreated içinde
-        binding?.root?.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                when (keyCode) {
-                    KeyEvent.KEYCODE_DPAD_UP -> {
-                        player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
-                        true
-                    }
-                    KeyEvent.KEYCODE_DPAD_DOWN -> {
-                        player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)
-                        true
-                    }
-                    KeyEvent.KEYCODE_MENU -> {
-                        // CSPlayerEvent içinde ToggleShowEpisodes yoksa NextEpisode (liste açar) kullanıyoruz
-                        player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
-                        true
-                    }
-                    else -> false
+// Tuş Dinleyici - onViewCreated içinde
+binding?.root?.setOnKeyListener { _, keyCode, event ->
+    if (event.action == KeyEvent.ACTION_DOWN) {
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
+                true
+            }
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)
+                true
+            }
+            KeyEvent.KEYCODE_MENU -> {
+                // Bölüm listesini aç
+                if (isThereEpisodes()) {
+                    showEpisodesOverlay()
                 }
-            } else false
+                true
+            }
+            else -> false
         }
- }
- 
+    } else false
+}
+
+
+ //yenii
    }
 	
 	@Suppress("DEPRECATION")
