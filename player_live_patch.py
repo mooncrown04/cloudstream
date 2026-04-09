@@ -10,7 +10,7 @@ def apply_patch():
     full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
 
-    # --- 1. FullScreenPlayer Yaması (Zaten SUCCESS olduğu için koruyoruz) ---
+    # --- 1. FullScreenPlayer Yaması (Zaten Başarılı) ---
     if os.path.exists(full_path):
         with open(full_path, "r", encoding="utf-8") as f:
             full_content = f.read()
@@ -46,22 +46,29 @@ def apply_patch():
                 f.write(full_content.replace(search_pattern, patch))
             report.append("[SUCCESS] FullScreenPlayer: Tuş yaması eklendi.")
 
-    # --- 2. GeneratorPlayer Yaması (Süper Esnek Versiyon) ---
+    # --- 2. GeneratorPlayer Yaması (Satır Bazlı Garantili Yöntem) ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
-            gen_content = f.read()
+            lines = f.readlines()
 
-        if "MOONCROWN YAMASI" in gen_content:
+        if any("MOONCROWN YAMASI" in line for line in lines):
             report.append("[!] GeneratorPlayer: Yama zaten mevcut.")
         else:
-            # En esnek regex: it.let { ... loadLink ... Pair(it, null) ... } yapısını 
-            # aradaki her şeyi (.*?) hesaba katarak bulur.
-            target_regex = r"it\s*\.\s*let\s*\{\s*loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)\s*\}"
-            
-            replacement = """// --- MOONCROWN YAMASI BASLADI: CANLI TV VE HASHCODE ---
-                    // [SİLİNDİ]: it.let { loadLink(Pair(it, null), sameEpisode = false) }
-                    // [EKLENDİ]: Canlı TV mantığı ve HashCode ID sistemi eklendi
-                    AnySampleMetadata(
+            new_lines = []
+            patched = False
+            i = 0
+            while i < len(lines):
+                # Hedef satırı bul: loadLink ve sameEpisode = false içeren satır
+                if "loadLink" in lines[i] and "sameEpisode = false" in lines[i] and not patched:
+                    # Bu satırı ve onu sarmalayan 'it.let {' bloğunu değiştireceğiz.
+                    # Genelde bir önceki satır 'it.let {' olur.
+                    if "it.let {" in lines[i-1]:
+                        new_lines.pop() # 'it.let {' satırını sil/çıkar
+                        
+                    new_lines.append("                    // --- MOONCROWN YAMASI BASLADI: CANLI TV VE HASHCODE ---\n")
+                    new_lines.append("                    // [SILINDI]: it.let { loadLink(Pair(it, null), sameEpisode = false) }\n")
+                    new_lines.append("                    // [EKLENDI]: Canlı TV mantığı ve HashCode ID sistemi eklendi\n")
+                    new_lines.append("""                    AnySampleMetadata(
                         name = result.name,
                         headerName = result.name,
                         tvType = TvType.Live,
@@ -82,24 +89,27 @@ def apply_patch():
                         )
                         loadLink(Pair(linkToLoad, null), sameEpisode = false)
                         player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
-                    }
-                    // --- MOONCROWN YAMASI BITTI ---"""
+                    }\n""")
+                    new_lines.append("                    // --- MOONCROWN YAMASI BITTI ---\n")
+                    
+                    # Eğer it.let bloğu tek satırda değilse ve sonunda '}' varsa onu atla
+                    if "}" in lines[i]: 
+                        pass # Satırın kendisini zaten değiştirdik
+                    elif i+1 < len(lines) and "}" in lines[i+1]:
+                        i += 1 # Bir sonraki kapatma parantezini atla
+                        
+                    patched = True
+                else:
+                    new_lines.append(lines[i])
+                i += 1
 
-            if re.search(target_regex, gen_content, re.DOTALL):
-                new_gen_content = re.sub(target_regex, replacement, gen_content, flags=re.DOTALL)
+            if patched:
                 with open(gen_path, "w", encoding="utf-8") as f:
-                    f.write(new_gen_content)
+                    f.writelines(new_lines)
                 report.append("[SUCCESS] GeneratorPlayer: Canlı TV yaması notlarla eklendi.")
             else:
-                # EĞER YİNE BULAMAZSA: Çok daha basit bir 'loadLink' araması yap
-                simple_target = r"loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)"
-                if re.search(simple_target, gen_content):
-                     # Bu sefer sadece loadLink'i çevreleyen bloğu bulup değiştirmeyi dener
-                     report.append("[INFO] GeneratorPlayer: Basit eşleşme denendi...")
-                     # (Bu kısım hata ihtimaline karşı yedek strateji olarak kullanılabilir)
-                
-                report.append("[ERROR] GeneratorPlayer: Kod yapısı hala eşleşmiyor. Manuel müdahale gerekebilir.")
-    
+                report.append("[ERROR] GeneratorPlayer: Hedef satır (loadLink) bulunamadı!")
+
     report.append("--- RAPOR SONU ---")
     final_report = "\n".join(report)
     print(final_report)
