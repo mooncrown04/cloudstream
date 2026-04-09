@@ -1,4 +1,3 @@
---- Z RAPORU (2026-04-09 12:58:50) ---
-[SUCCESS] FullScreenPlayer: Tus yamasi uygulandi.
-[ERROR] GeneratorPlayer: Hedef blok bulunamadı!
---- RAPOR SONU ---
+--- Z RAPORU (2026-04-09 13:37:36) ---
+[SUCCESS] FullScreenPlayer: Tus yaması eklendi.
+[ERROR] GeneratorPlayer: Hedef kod yapısı bulunamadı!
