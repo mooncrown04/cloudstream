@@ -1,4 +1,4 @@
---- Z RAPORU (2026-04-09 12:30:27) ---
-[!] FullScreenPlayer: Yama zaten mevcut.
-[ERROR] GeneratorPlayer: Hedef kod yapısı bulunamadı.
+--- Z RAPORU (2026-04-09 12:36:35) ---
+[SUCCESS] FullScreenPlayer: Tuş yaması eklendi.
+[ERROR] GeneratorPlayer: Hedef kod yapısı bulunamadı (Regex uyuşmazlığı).
 --- RAPOR SONU ---
