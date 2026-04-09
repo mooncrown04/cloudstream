@@ -1,4 +1,4 @@
---- Z RAPORU (2026-04-09 12:09:33) ---
-[!] FullScreenPlayer: Yama zaten mevcut, işlem yapılmadı.
-[ERROR] GeneratorPlayer: Hedef kod bloğu bulunamadı! Lütfen dosya içeriğini kontrol et.
+--- Z RAPORU (2026-04-09 12:13:27) ---
+[!] FullScreenPlayer: Yama zaten mevcut.
+[ERROR] GeneratorPlayer: Kod bloğu otomatik eşleşmedi. Yapı farklı olabilir.
 --- RAPOR SONU ---
