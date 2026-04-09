@@ -3,27 +3,24 @@ import re
 from datetime import datetime
 
 def apply_patch():
-    # Z Raporu ve Ayrıntılı Günlük için hazırlık
     report = []
-    log_details = []
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     report.append(f"--- Z RAPORU ({now}) ---")
-    log_details.append(f"=== MOONCROWN YAMA AYRINTILARI ({now}) ===\n")
 
     full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
 
-    # --- 1. FullScreenPlayer (Kumanda Tuşları) ---
+    # --- 1. FullScreenPlayer Yaması (Kumanda Tuşları) ---
     if os.path.exists(full_path):
         with open(full_path, "r", encoding="utf-8") as f:
-            full_content = f.read()
+            content = f.read()
         
-        if "MOONCROWN YAMASI" in full_content:
+        if "MOONCROWN YAMASI" in content:
             report.append("[!] FullScreenPlayer: Yama zaten mevcut.")
         else:
             search_pattern = "open class FullScreenPlayer : SubtitleDownloadActivity() {"
             patch = search_pattern + """
-    // --- MOONCROWN YAMASI BASLADI ---
+    // --- MOONCROWN YAMASI BASLADI: KUMANDA TUSLARI ---
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (!isShowingEpisodeOverlay) {
             when (keyCode) {
@@ -46,23 +43,24 @@ def apply_patch():
     // --- MOONCROWN YAMASI BITTI ---
             """
             with open(full_path, "w", encoding="utf-8") as f:
-                f.write(full_content.replace(search_pattern, patch))
-            report.append("[SUCCESS] FullScreenPlayer: Tus yamasi uygulandi.")
-            log_details.append(f"DOSYA: {full_path}\nISLEM: Yeni onKeyDown fonksiyonu eklendi.\nKONUM: Class baslangici.\n")
+                f.write(content.replace(search_pattern, patch))
+            report.append("[SUCCESS] FullScreenPlayer: Tus yaması eklendi.")
 
-    # --- 2. GeneratorPlayer (Canlı TV & HashCode) ---
+    # --- 2. GeneratorPlayer Yaması (Canlı TV & HashCode) ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
-            gen_content = f.read()
+            content = f.read()
 
-        if "MOONCROWN YAMASI" in gen_content:
+        if "MOONCROWN YAMASI" in content:
             report.append("[!] GeneratorPlayer: Yama zaten mevcut.")
         else:
-            # Senin bulamadığın o karmaşık bloğu (loadLink ve çevresini) hedef alıyoruz
-            # Regex: loadLink kelimesinden başlar, sameEpisode = false görene kadar her şeyi (satır atlamaları dahil) kapsar.
-            target_regex = r"loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)"
+            # Senin Note++ ile 2200. satır civarında gördüğün o gizli loadLink satırını hedefliyoruz.
+            # Regex: Aradaki boşluklar veya satır atlamaları ne olursa olsun yakalar.
+            target_regex = r"it\.let\s*\{\s*loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)\s*\}"
             
-            replacement = """// --- MOONCROWN YAMASI BASLADI ---
+            replacement = """// --- MOONCROWN YAMASI BASLADI: CANLI TV VE HASHCODE ---
+                    // [SILINDI]: it.let { loadLink(Pair(it, null), sameEpisode = false) }
+                    // [EKLENDI]: Canlı TV mantığı ve HashCode ID sistemi eklendi
                     AnySampleMetadata(
                         name = result.name,
                         headerName = result.name,
@@ -87,29 +85,19 @@ def apply_patch():
                     }
                     // --- MOONCROWN YAMASI BITTI ---"""
 
-            if re.search(target_regex, gen_content, re.DOTALL):
-                # Bulduğumuz o karışık bloğun ne olduğunu günlüğe kaydedelim
-                found_block = re.search(target_regex, gen_content, re.DOTALL).group(0)
-                
-                new_gen_content = re.sub(target_regex, replacement, gen_content, flags=re.DOTALL)
+            if re.search(target_regex, content, re.DOTALL):
+                new_content = re.sub(target_regex, replacement, content, flags=re.DOTALL)
                 with open(gen_path, "w", encoding="utf-8") as f:
-                    f.write(new_gen_content)
-                
-                report.append("[SUCCESS] GeneratorPlayer: Canli TV yamasi uygulandi.")
-                log_details.append(f"DOSYA: {gen_path}\nSILINEN KISIM:\n{found_block}\n\nEKLENEN KISIM:\nAnySampleMetadata ve Canli TV Link Kontrolu.\n")
+                    f.write(new_content)
+                report.append("[SUCCESS] GeneratorPlayer: Canli TV yaması uygulandı.")
             else:
-                report.append("[ERROR] GeneratorPlayer: Hedef blok bulunamadı!")
+                report.append("[ERROR] GeneratorPlayer: Hedef kod yapısı bulunamadı!")
 
-    # Raporları Dosyaya Yaz
-    report.append("--- RAPOR SONU ---")
+    # Raporu yazdır ve kaydet
     final_report = "\n".join(report)
     print(final_report)
-    
     with open("patch_report.txt", "w", encoding="utf-8") as f:
         f.write(final_report)
-    
-    with open("patch_log.txt", "w", encoding="utf-8") as f:
-        f.writelines(log_details)
 
 if __name__ == "__main__":
     apply_patch()
