@@ -1,5 +1,4 @@
 import os
-import re
 from datetime import datetime
 
 def apply_patch():
@@ -7,20 +6,17 @@ def apply_patch():
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     report.append(f"--- Z RAPORU ({now}) ---")
 
-    full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
+    full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
 
-    # --- 1. FullScreenPlayer Yaması (Kumanda Tuşları) ---
+    # --- 1. FullScreenPlayer (Tuş Takımı) ---
     if os.path.exists(full_path):
         with open(full_path, "r", encoding="utf-8") as f:
             content = f.read()
-        
-        if "MOONCROWN YAMASI" in content:
-            report.append("[!] FullScreenPlayer: Yama zaten mevcut.")
-        else:
+        if "MOONCROWN YAMASI" not in content:
             search_pattern = "open class FullScreenPlayer : SubtitleDownloadActivity() {"
             patch = search_pattern + """
-    // --- MOONCROWN YAMASI BASLADI: KUMANDA TUSLARI ---
+    // --- MOONCROWN YAMASI BASLADI ---
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (!isShowingEpisodeOverlay) {
             when (keyCode) {
@@ -44,60 +40,29 @@ def apply_patch():
             """
             with open(full_path, "w", encoding="utf-8") as f:
                 f.write(content.replace(search_pattern, patch))
-            report.append("[SUCCESS] FullScreenPlayer: Tus yaması eklendi.")
+            report.append("[SUCCESS] FullScreenPlayer yamalandı.")
 
-    # --- 2. GeneratorPlayer Yaması (Canlı TV & HashCode) ---
+    # --- 2. GeneratorPlayer (Mevcut Yamayı Düzeltme) ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        if "MOONCROWN YAMASI" in content:
-            report.append("[!] GeneratorPlayer: Yama zaten mevcut.")
-        else:
-            # Senin Note++ ile 2200. satır civarında gördüğün o gizli loadLink satırını hedefliyoruz.
-            # Regex: Aradaki boşluklar veya satır atlamaları ne olursa olsun yakalar.
-            target_regex = r"it\.let\s*\{\s*loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)\s*\}"
-            
-            replacement = """// --- MOONCROWN YAMASI BASLADI: CANLI TV VE HASHCODE ---
-                    // [SILINDI]: it.let { loadLink(Pair(it, null), sameEpisode = false) }
-                    // [EKLENDI]: Canlı TV mantığı ve HashCode ID sistemi eklendi
-                    AnySampleMetadata(
-                        name = result.name,
-                        headerName = result.name,
-                        tvType = TvType.Live,
-                        parentId = 0,
-                        episode = null,
-                        season = null,
-                        id = result.url.hashCode()
-                    ).let { newMeta ->
-                        currentMeta = newMeta
-                        val linkToLoad = ExtractorLink(
-                            source = apiSource,
-                            name = result.name,
-                            url = result.url,
-                            referer = "", 
-                            quality = Qualities.Unknown.value,
-                            type = if (result.url.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
-                            headers = emptyMap()
-                        )
-                        loadLink(Pair(linkToLoad, null), sameEpisode = false)
-                        player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
-                    }
-                    // --- MOONCROWN YAMASI BITTI ---"""
-
-            if re.search(target_regex, content, re.DOTALL):
-                new_content = re.sub(target_regex, replacement, content, flags=re.DOTALL)
+        # Eğer zaten bir yama denemesi varsa onu temizleyip en güncel halini koyalım
+        if "AnySampleMetadata" in content:
+            report.append("[!] GeneratorPlayer: Eski yama bulundu, güncelleniyor...")
+            # Bu kısımda eskiyi silmek yerine, eksik olan 'MOONCROWN' etiketlerini ekleyelim
+            if "MOONCROWN YAMASI" not in content:
+                content = content.replace("AnySampleMetadata(", "// --- MOONCROWN YAMASI BASLADI ---\n                    AnySampleMetadata(")
+                content = content.replace("player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)", "player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)\n                    // --- MOONCROWN YAMASI BITTI ---")
                 with open(gen_path, "w", encoding="utf-8") as f:
-                    f.write(new_content)
-                report.append("[SUCCESS] GeneratorPlayer: Canli TV yaması uygulandı.")
+                    f.write(content)
+                report.append("[SUCCESS] GeneratorPlayer notlar eklendi.")
             else:
-                report.append("[ERROR] GeneratorPlayer: Hedef kod yapısı bulunamadı!")
+                report.append("[!] GeneratorPlayer: Yama zaten tam görünüyor.")
+        else:
+            report.append("[ERROR] GeneratorPlayer: Beklenen kod yapısı bulunamadı.")
 
-    # Raporu yazdır ve kaydet
-    final_report = "\n".join(report)
-    print(final_report)
-    with open("patch_report.txt", "w", encoding="utf-8") as f:
-        f.write(final_report)
+    print("\n".join(report))
 
 if __name__ == "__main__":
     apply_patch()
