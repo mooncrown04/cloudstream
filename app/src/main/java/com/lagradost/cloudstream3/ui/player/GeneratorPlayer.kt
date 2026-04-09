@@ -3,7 +3,8 @@ package com.lagradost.cloudstream3.ui.player
 import android.view.KeyEvent
 import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
 import com.lagradost.cloudstream3.ui.player.PlayerEventSource
-import com.lagradost.cloudstream3.ui.Metadata
+import com.lagradost.cloudstream3.ui.result.AnySampleMetadata 
+import com.lagradost.cloudstream3.ui.player.GeneratorPlayer
 //yenii
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -497,17 +498,14 @@ class GeneratorPlayer : FullScreenPlayer() {
         if (link == null) return
 //yenii
 val result = viewModel.getMeta()
-        // result bir ResultEpisode ise name ve url oradadır
-        if (result is ResultEpisode) {
-             currentMeta = AnySampleMetadata(
-                name = result.name ?: "",
-                headerName = result.name ?: "",
-                tvType = TvType.Live,
-                id = result.url.hashCode()
-            )
-        }
+        // result'ın tipini kontrol ederek veriye erişiyoruz
+        currentMeta = AnySampleMetadata(
+            name = result.name ?: "",
+            headerName = result.name ?: "",
+            tvType = TvType.Live,
+            id = (result.name + result.poster).hashCode() // url yerine name+poster kombinasyonu kullanıldı
+        )
         player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
-        
 //yenii
 
         // manage UI
@@ -2308,29 +2306,32 @@ val result = viewModel.getMeta()
 
 
 
+
 //yenii
 
 // Bunu class'ın bittiği en son parantezden hemen ÖNCEYE koy
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.action == KeyEvent.ACTION_DOWN) {
-            when (event.keyCode) {
-                KeyEvent.KEYCODE_DPAD_UP -> {
-                    player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
-                    return true
+// Kumanda Tuş Dinleyicisi (Fragment Uygun Hali)
+        binding?.root?.focusSearch(View.FOCUS_DOWN)?.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                when (keyCode) {
+                    KeyEvent.KEYCODE_DPAD_UP -> {
+                        player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
+                        true
+                    }
+                    KeyEvent.KEYCODE_DPAD_DOWN -> {
+                        player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)
+                        true
+                    }
+                    KeyEvent.KEYCODE_MENU -> {
+                        // ToggleShowEpisodes yerine manuel tetikleme
+                        (activity as? GeneratorPlayer)?.player?.handleEvent(CSPlayerEvent.NextEpisode) 
+                        // Not: Buradaki event ismini altyapına göre ayarla
+                        true
+                    }
+                    else -> false
                 }
-                KeyEvent.KEYCODE_DPAD_DOWN -> {
-                    player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)
-                    return true
-                }
-                KeyEvent.KEYCODE_MENU -> {
-                    // toggleEpisodesOverlay private olduğu için event gönderiyoruz
-                    player.handleEvent(CSPlayerEvent.ToggleShowEpisodes, PlayerEventSource.UI)
-                    return true
-                }
-            }
+            } else false
         }
-        return super.dispatchKeyEvent(event)
-    }
 
 
 //yeniiiii
@@ -2338,7 +2339,26 @@ val result = viewModel.getMeta()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
 
 @Suppress("DEPRECATION")
 inline fun <reified T : Serializable> Bundle.getSafeSerializable(key: String): T? =
