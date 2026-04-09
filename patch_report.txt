@@ -1,4 +1,4 @@
---- Z RAPORU (2026-04-09 11:41:49) ---
-[!] FullScreenPlayer: Tuş yaması zaten mevcut.
-[ERROR] GeneratorPlayer: 'it.toMetadata()' bloğu bulunamadı!
+--- Z RAPORU (2026-04-09 11:51:49) ---
+[!] FullScreenPlayer: Yama zaten mevcut, işlem yapılmadı.
+[ERROR] GeneratorPlayer: Hedef kod bloğu bulunamadı! Lütfen dosya içeriğini kontrol et.
 --- RAPOR SONU ---
