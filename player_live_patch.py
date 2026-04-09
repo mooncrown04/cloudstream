@@ -1,7 +1,12 @@
 import os
 import re
+from datetime import datetime
 
 def apply_patch():
+    report = []
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    report.append(f"--- Z RAPORU ({now}) ---")
+
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
     
     if os.path.exists(gen_path):
@@ -9,50 +14,49 @@ def apply_patch():
             content = f.read()
 
         if "MOONCROWN YAMASI" in content:
-            print("[!] Yama zaten uygulanmış.")
-            return
-
-        # SENİN KODUNDAKİ 522. SATIRI HEDEF ALIYORUZ
-        # 'private fun loadLink' fonksiyonunun hemen girişine yamayı ekliyoruz.
-        target = "private fun loadLink(link: Pair<ExtractorLink?, ExtractorUri?>?, sameEpisode: Boolean) {"
-        
-        patch = target + """
-        // --- MOONCROWN YAMASI BASLADI ---
-        val result = viewModel.getMeta() 
-        if (result is ResultEpisode && result.name.contains("TV", ignoreCase = true)) {
-             AnySampleMetadata(
-                name = result.name,
-                headerName = result.name,
-                tvType = TvType.Live,
-                parentId = 0,
-                episode = null,
-                season = null,
-                id = result.url.hashCode()
-            ).let { newMeta ->
-                currentMeta = newMeta
-                val linkToLoad = ExtractorLink(
-                    source = link?.first?.source ?: "",
-                    name = result.name,
-                    url = link?.first?.url ?: "",
-                    referer = link?.first?.referer ?: "", 
-                    quality = Qualities.Unknown.value,
-                    type = if (link?.first?.url?.contains(".m3u8") == true) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
-                    headers = link?.first?.headers ?: emptyMap()
-                )
-                // Orijinal akışın devam etmesi için değişkenleri güncelliyoruz
-                // Bu kısım canlı yayınlar için meta veriyi zorlar
-            }
-        }
-        // --- MOONCROWN YAMASI BITTI ---
-        """
-
-        if target in content:
-            new_content = content.replace(target, patch)
-            with open(gen_path, "w", encoding="utf-8") as f:
-                f.write(new_content)
-            print("[SUCCESS] GeneratorPlayer 522. satıra yama yapıldı.")
+            report.append("[!] GeneratorPlayer: Yama zaten uygulanmış.")
         else:
-            print("[ERROR] Hedef fonksiyon (loadLink) bulunamadı!")
+            # DİKKAT: Senin dosyandaki 'loadLink(Pair(it, null))' yapısını yakalar.
+            # İçinde 'false' olsa da olmasa da bu regex orayı bulur.
+            target_regex = r"set\.firstOrNull\(\)\?\.let\s*\{\s*loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*\)\s*\}"
+            
+            replacement = """set.firstOrNull()?.let {
+                // --- MOONCROWN YAMASI BASLADI ---
+                // [SILINDI]: loadLink(Pair(it, null))
+                AnySampleMetadata(
+                    name = result.name,
+                    headerName = result.name,
+                    tvType = TvType.Live,
+                    parentId = 0,
+                    episode = null,
+                    season = null,
+                    id = result.url.hashCode()
+                ).let { newMeta ->
+                    currentMeta = newMeta
+                    val linkToLoad = ExtractorLink(
+                        source = apiSource,
+                        name = result.name,
+                        url = result.url,
+                        referer = "", 
+                        quality = Qualities.Unknown.value,
+                        type = if (result.url.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
+                        headers = emptyMap()
+                    )
+                    loadLink(Pair(linkToLoad, null), sameEpisode = false)
+                    player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
+                }
+                // --- MOONCROWN YAMASI BITTI ---
+            }"""
+
+            if re.search(target_regex, content, re.DOTALL):
+                new_content = re.sub(target_regex, replacement, content, count=1, flags=re.DOTALL)
+                with open(gen_path, "w", encoding="utf-8") as f:
+                    f.write(new_content)
+                report.append("[SUCCESS] GeneratorPlayer: Canli TV yaması eklendi.")
+            else:
+                report.append("[ERROR] GeneratorPlayer: Orijinal kod (loadLink) bulunamadı!")
+
+    print("\n".join(report))
 
 if __name__ == "__main__":
     apply_patch()
