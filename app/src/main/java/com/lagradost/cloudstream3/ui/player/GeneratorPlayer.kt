@@ -495,13 +495,7 @@ class GeneratorPlayer : FullScreenPlayer() {
 
     private fun loadLink(link: Pair<ExtractorLink?, ExtractorUri?>?, sameEpisode: Boolean) {
         if (link == null) return
-//yenii
-   val result = viewModel.getMeta()
-        if (result is ResultEpisode) {
-            // ResultEpisode doğrudan currentMeta olarak kullanılabilir
-            currentMeta = result
-        }
-//yenii
+
 
         // manage UI
         binding?.playerLoadingOverlay?.isVisible = false
@@ -2280,33 +2274,34 @@ class GeneratorPlayer : FullScreenPlayer() {
         }
 //yenii
 
-// Tuş Dinleyici - onViewCreated içinde
-binding?.root?.setOnKeyListener { _, keyCode, event ->
-    if (event.action == KeyEvent.ACTION_DOWN) {
-        when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
-                true
-            }
-            KeyEvent.KEYCODE_DPAD_DOWN -> {
-                player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)
-                true
-            }
-            KeyEvent.KEYCODE_MENU -> {
-                // Bölüm listesini aç
-                if (isThereEpisodes()) {
-                    showEpisodesOverlay()
+//yenii
+        // Tuş Dinleyici - onViewCreated içinde
+        binding?.root?.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                when (keyCode) {
+                    KeyEvent.KEYCODE_DPAD_UP -> {
+                        // ↑ Yukarı = Sonraki Bölüm
+                        player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
+                        true
+                    }
+                    KeyEvent.KEYCODE_DPAD_DOWN -> {
+                        // ↓ Aşağı = Önceki Bölüm
+                        player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)
+                        true
+                    }
+                    KeyEvent.KEYCODE_MENU -> {
+                        // Menü = Bölüm Listesi Aç
+                        if (isThereEpisodes()) {
+                            showEpisodesOverlay()
+                        }
+                        true
+                    }
+                    else -> false
                 }
-                true
-            }
-            else -> false
+            } else false
         }
-    } else false
-}
-
-
- //yenii
-   }
+//yenii
+    }  // ← SADECE BİR TANE } (onViewCreated kapanışı)
 	
 	@Suppress("DEPRECATION")
 inline fun <reified T : Serializable> Bundle.getSafeSerializable(key: String): T? =
