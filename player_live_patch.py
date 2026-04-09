@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 
 def apply_patch():
@@ -6,33 +7,19 @@ def apply_patch():
     report.append(f"--- Z RAPORU ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ---")
     
     # Dosya Yolları
-    full_player_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
-    gen_player_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
+    full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
+    gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
 
-    def patch_file(path, search_pattern, patch_code, label):
-        if os.path.exists(path):
-            with open(path, "r", encoding="utf-8") as f:
-                content = f.read()
-            
-            if "KeyEvent.KEYCODE_DPAD_UP" in content:
-                report.append(f"[!] {label}: Yama zaten mevcut, geçiliyor.")
-                return False
-            
-            if search_pattern in content:
-                new_content = content.replace(search_pattern, search_pattern + patch_code)
-                with open(path, "w", encoding="utf-8") as f:
-                    f.write(new_content)
-                report.append(f"[SUCCESS] {label}: Yama başarıyla uygulandı.")
-                return True
-            else:
-                report.append(f"[ERROR] {label}: Hedef satır bulunamadı!")
-                return False
+    # --- 1. FullScreenPlayer Yaması (D-Pad Tuşları) ---
+    if os.path.exists(full_path):
+        with open(full_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        
+        if "KeyEvent.KEYCODE_DPAD_UP" in content:
+            report.append("[!] FullScreenPlayer: Tuş yaması zaten mevcut.")
         else:
-            report.append(f"[ERROR] {label}: Dosya bulunamadı!")
-            return False
-
-    # --- 1. FullScreenPlayer Yaması (Ana Kumanda Kontrolü) ---
-    full_player_patch = """
+            search_pattern = "open class FullScreenPlayer : SubtitleDownloadActivity() {"
+            patch = search_pattern + """
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (!isShowingEpisodeOverlay) {
             when (keyCode) {
@@ -52,15 +39,64 @@ def apply_patch():
         }
         return super.onKeyDown(keyCode, event)
     }
-    """
-    patch_file(full_player_path, "open class FullScreenPlayer : SubtitleDownloadActivity() {", full_player_patch, "FullScreenPlayer")
+            """
+            if search_pattern in content:
+                with open(full_path, "w", encoding="utf-8") as f:
+                    f.write(content.replace(search_pattern, patch))
+                report.append("[SUCCESS] FullScreenPlayer: Tuş yaması uygulandı.")
+            else:
+                report.append("[ERROR] FullScreenPlayer: Hedef satır bulunamadı!")
+    else:
+        report.append("[ERROR] FullScreenPlayer.kt bulunamadı!")
 
-    # --- 2. GeneratorPlayer Yaması (Eğer gerekliyse) ---
-    # Not: FullScreen'e eklediğimiz için Generator bunu miras alır, 
-    # ama özel bir durum varsa buraya da ekleme yapılabilir.
-    report.append("[INFO] GeneratorPlayer kontrol edildi (Miras yoluyla aktif).")
+    # --- 2. GeneratorPlayer Yaması (Canlı TV & HashCode - ÖZEL ENJEKSİYON) ---
+    if os.path.exists(gen_path):
+        with open(gen_path, "r", encoding="utf-8") as f:
+            content = f.read()
 
-    # Raporu Kaydet
+        if "val newMeta = AnySampleMetadata" in content:
+            report.append("[!] GeneratorPlayer: Canlı TV yaması zaten mevcut.")
+        else:
+            # Senin paylaştığın dosyadaki spesifik bloğu hedef alıyoruz
+            target_regex = r"it\.toMetadata\(\)\.let\s*\{\s*meta\s*->.*?loadLink\(Pair\(it, null\), sameEpisode = false\)\s*\}"
+            
+            replacement = """AnySampleMetadata(
+                        name = result.name,
+                        headerName = result.name,
+                        tvType = TvType.Live,
+                        parentId = 0,
+                        episode = null,
+                        season = null,
+                        id = result.url.hashCode()
+                    ).let { newMeta ->
+                        currentMeta = newMeta
+                        val linkToLoad = ExtractorLink(
+                            source = apiSource,
+                            name = result.name,
+                            url = result.url,
+                            referer = "", 
+                            quality = Qualities.Unknown.value,
+                            type = if (result.url.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
+                            headers = emptyMap()
+                        )
+                        loadLink(Pair(linkToLoad, null), sameEpisode = false)
+                        player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
+                    }"""
+
+            if "it.toMetadata()" in content:
+                # Regex ile bloğu bulup değiştiriyoruz
+                new_content = re.sub(target_regex, replacement, content, flags=re.DOTALL)
+                with open(gen_path, "w", encoding="utf-8") as f:
+                    f.write(new_content)
+                report.append("[SUCCESS] GeneratorPlayer: Canlı TV ve HashCode mantığı eklendi.")
+            else:
+                report.append("[ERROR] GeneratorPlayer: 'it.toMetadata()' bloğu bulunamadı!")
+    else:
+        report.append("[ERROR] GeneratorPlayer.kt bulunamadı!")
+
+    report.append("--- RAPOR SONU ---")
+    
+    # Raporu yazdır ve dosyaya kaydet
     final_report = "\n".join(report)
     print(final_report)
     with open("patch_report.txt", "w", encoding="utf-8") as f:
