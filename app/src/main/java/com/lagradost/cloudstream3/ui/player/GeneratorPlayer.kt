@@ -1,5 +1,9 @@
 package com.lagradost.cloudstream3.ui.player
-
+//yenii
+import android.view.KeyEvent
+import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
+import com.lagradost.cloudstream3.ui.player.PlayerEventSource
+//yenii
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -490,6 +494,18 @@ class GeneratorPlayer : FullScreenPlayer() {
 
     private fun loadLink(link: Pair<ExtractorLink?, ExtractorUri?>?, sameEpisode: Boolean) {
         if (link == null) return
+//yenii
+
+val result = viewModel.getMeta()
+        currentMeta = AnySampleMetadata(
+            name = result.name,
+            headerName = result.name,
+            tvType = TvType.Live,
+            id = result.url.hashCode()
+        )
+        player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
+
+//yenii
 
         // manage UI
         binding?.playerLoadingOverlay?.isVisible = false
@@ -2285,6 +2301,37 @@ class GeneratorPlayer : FullScreenPlayer() {
             }
         }
     }
+
+
+
+
+//yenii
+
+override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (!isShowingEpisodeOverlay) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> { // Yukarı tuşu
+                    player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
+                    return true
+                }
+                KeyEvent.KEYCODE_DPAD_DOWN -> { // Aşağı tuşu
+                    player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)
+                    return true
+                }
+                KeyEvent.KEYCODE_MENU -> { // Menü (3 Çizgi) tuşu
+                    toggleEpisodesOverlay(true)
+                    return true
+                }
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+
+//yeniiiii
+
+
+
 
 }
 
