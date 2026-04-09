@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 
 def apply_patch():
@@ -9,7 +10,7 @@ def apply_patch():
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
     full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
 
-    # --- 1. FullScreenPlayer (Tuş Takımı) ---
+    # --- 1. FullScreenPlayer Yaması ---
     if os.path.exists(full_path):
         with open(full_path, "r", encoding="utf-8") as f:
             content = f.read()
@@ -42,25 +43,51 @@ def apply_patch():
                 f.write(content.replace(search_pattern, patch))
             report.append("[SUCCESS] FullScreenPlayer yamalandı.")
 
-    # --- 2. GeneratorPlayer (Mevcut Yamayı Düzeltme) ---
+    # --- 2. GeneratorPlayer Yaması (Esnek ve Akıllı Arama) ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
-            content = f.read()
+            full_text = f.read()
 
-        # Eğer zaten bir yama denemesi varsa onu temizleyip en güncel halini koyalım
-        if "AnySampleMetadata" in content:
-            report.append("[!] GeneratorPlayer: Eski yama bulundu, güncelleniyor...")
-            # Bu kısımda eskiyi silmek yerine, eksik olan 'MOONCROWN' etiketlerini ekleyelim
-            if "MOONCROWN YAMASI" not in content:
-                content = content.replace("AnySampleMetadata(", "// --- MOONCROWN YAMASI BASLADI ---\n                    AnySampleMetadata(")
-                content = content.replace("player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)", "player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)\n                    // --- MOONCROWN YAMASI BITTI ---")
-                with open(gen_path, "w", encoding="utf-8") as f:
-                    f.write(content)
-                report.append("[SUCCESS] GeneratorPlayer notlar eklendi.")
-            else:
-                report.append("[!] GeneratorPlayer: Yama zaten tam görünüyor.")
+        if "MOONCROWN YAMASI" in full_text:
+            report.append("[!] GeneratorPlayer: Yama zaten mevcut.")
         else:
-            report.append("[ERROR] GeneratorPlayer: Beklenen kod yapısı bulunamadı.")
+            # Hem 'it.let' olanı hem de sadece 'loadLink' olan orijinal yapıyı yakalar.
+            # sameEpisode = false içeren bloğun tamamını hedef alır.
+            target_regex = r"(?:it\.let\s*\{\s*)?loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)\s*\}?"
+            
+            replacement = """// --- MOONCROWN YAMASI BASLADI ---
+                    // [SILINDI]: Orijinal loadLink yapısı
+                    AnySampleMetadata(
+                        name = result.name,
+                        headerName = result.name,
+                        tvType = TvType.Live,
+                        parentId = 0,
+                        episode = null,
+                        season = null,
+                        id = result.url.hashCode()
+                    ).let { newMeta ->
+                        currentMeta = newMeta
+                        val linkToLoad = ExtractorLink(
+                            source = apiSource,
+                            name = result.name,
+                            url = result.url,
+                            referer = "", 
+                            quality = Qualities.Unknown.value,
+                            type = if (result.url.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
+                            headers = emptyMap()
+                        )
+                        loadLink(Pair(linkToLoad, null), sameEpisode = false)
+                        player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
+                    }
+                    // --- MOONCROWN YAMASI BITTI ---"""
+
+            if re.search(target_regex, full_text, re.DOTALL):
+                new_text = re.sub(target_regex, replacement, full_text, count=1, flags=re.DOTALL)
+                with open(gen_path, "w", encoding="utf-8") as f:
+                    f.write(new_text)
+                report.append("[SUCCESS] GeneratorPlayer yamalandı.")
+            else:
+                report.append("[ERROR] GeneratorPlayer: Hedef kod bloğu bulunamadı.")
 
     print("\n".join(report))
 
