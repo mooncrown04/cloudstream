@@ -1,4 +1,12 @@
 package com.lagradost.cloudstream3.ui.player
+import android.view.KeyEvent
+import android.os.Looper
+import com.lagradost.cloudstream3.SearchResponse
+import com.lagradost.cloudstream3.ui.result.VideoWatchState
+import android.net.Uri
+import com.lagradost.cloudstream3.utils.newExtractorLink
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.runBlocking
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
