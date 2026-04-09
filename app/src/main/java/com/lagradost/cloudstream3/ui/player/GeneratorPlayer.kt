@@ -3,6 +3,7 @@ package com.lagradost.cloudstream3.ui.player
 import android.view.KeyEvent
 import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
 import com.lagradost.cloudstream3.ui.player.PlayerEventSource
+import com.lagradost.cloudstream3.ui.Metadata
 //yenii
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -495,16 +496,18 @@ class GeneratorPlayer : FullScreenPlayer() {
     private fun loadLink(link: Pair<ExtractorLink?, ExtractorUri?>?, sameEpisode: Boolean) {
         if (link == null) return
 //yenii
-
 val result = viewModel.getMeta()
-        currentMeta = AnySampleMetadata(
-            name = result.name,
-            headerName = result.name,
-            tvType = TvType.Live,
-            id = result.url.hashCode()
-        )
+        // result bir ResultEpisode ise name ve url oradadır
+        if (result is ResultEpisode) {
+             currentMeta = AnySampleMetadata(
+                name = result.name ?: "",
+                headerName = result.name ?: "",
+                tvType = TvType.Live,
+                id = result.url.hashCode()
+            )
+        }
         player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
-
+        
 //yenii
 
         // manage UI
@@ -2307,24 +2310,26 @@ val result = viewModel.getMeta()
 
 //yenii
 
-override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (!isShowingEpisodeOverlay) {
-            when (keyCode) {
-                KeyEvent.KEYCODE_DPAD_UP -> { // Yukarı tuşu
+// Bunu class'ın bittiği en son parantezden hemen ÖNCEYE koy
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) {
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> {
                     player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
                     return true
                 }
-                KeyEvent.KEYCODE_DPAD_DOWN -> { // Aşağı tuşu
+                KeyEvent.KEYCODE_DPAD_DOWN -> {
                     player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)
                     return true
                 }
-                KeyEvent.KEYCODE_MENU -> { // Menü (3 Çizgi) tuşu
-                    toggleEpisodesOverlay(true)
+                KeyEvent.KEYCODE_MENU -> {
+                    // toggleEpisodesOverlay private olduğu için event gönderiyoruz
+                    player.handleEvent(CSPlayerEvent.ToggleShowEpisodes, PlayerEventSource.UI)
                     return true
                 }
             }
         }
-        return super.onKeyDown(keyCode, event)
+        return super.dispatchKeyEvent(event)
     }
 
 
