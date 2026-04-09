@@ -9,16 +9,16 @@ def apply_patch():
     full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
 
-    # --- 1. FullScreenPlayer: Kumanda Tuşları ---
+    # --- 1. FullScreenPlayer: Tuş Kontrolü ---
     if os.path.exists(full_path):
         with open(full_path, "r", encoding="utf-8") as f:
             full_content = f.read()
-        
         if "KeyEvent.KEYCODE_DPAD_UP" in full_content:
             report.append("[!] FullScreenPlayer: Yama zaten mevcut.")
         else:
             search_pattern = "open class FullScreenPlayer : SubtitleDownloadActivity() {"
             patch = search_pattern + """
+    // --- MOONCROWN YAMASI BASLADI: KUMANDA TUSLARI ---
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (!isShowingEpisodeOverlay) {
             when (keyCode) {
@@ -38,26 +38,27 @@ def apply_patch():
         }
         return super.onKeyDown(keyCode, event)
     }
+    // --- MOONCROWN YAMASI BITTI ---
             """
             with open(full_path, "w", encoding="utf-8") as f:
                 f.write(full_content.replace(search_pattern, patch))
-            report.append("[SUCCESS] FullScreenPlayer: Tuş yaması eklendi.")
-    else:
-        report.append("[ERROR] FullScreenPlayer.kt yolu bulunamadı!")
+            report.append("[SUCCESS] FullScreenPlayer: Tuş yaması notlarla eklendi.")
 
-    # --- 2. GeneratorPlayer: Canlı TV & HashCode (Gelişmiş Eşleştirme) ---
+    # --- 2. GeneratorPlayer: Canlı TV ve HashCode ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
             gen_content = f.read()
 
         if "val newMeta = AnySampleMetadata" in gen_content:
-            report.append("[!] GeneratorPlayer: Canlı TV yaması zaten mevcut.")
+            report.append("[!] GeneratorPlayer: Yama zaten mevcut.")
         else:
-            # HEDEF: 'it.toMetadata()' ile başlayıp 'loadLink' içeren bloğu bulur.
-            # Boşluklara, tablara ve yeni satırlara en duyarlı regex kalıbı:
-            target_regex = r"it\.toMetadata\(\)\.let\s*\{\s*meta\s*->.*?loadLink\(Pair\(it, null\), sameEpisode = false\)\s*\}"
+            # Hedef: it.let { loadLink(...) }
+            target_pattern = r"it\.let\s*\{\s*loadLink\(Pair\(it, null\), sameEpisode = false\)\s*\}"
             
-            replacement = """AnySampleMetadata(
+            # Notlar ve yeni kod
+            replacement = """// --- MOONCROWN YAMASI BASLADI: CANLI TV VE HASHCODE ---
+                    // SILINDI: it.let { loadLink(Pair(it, null), sameEpisode = false) }
+                    AnySampleMetadata(
                         name = result.name,
                         headerName = result.name,
                         tvType = TvType.Live,
@@ -78,23 +79,18 @@ def apply_patch():
                         )
                         loadLink(Pair(linkToLoad, null), sameEpisode = false)
                         player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
-                    }"""
+                    }
+                    // --- MOONCROWN YAMASI BITTI ---"""
 
-            # Regex ile arama yap (re.DOTALL: . karakterinin yeni satırla eşleşmesini sağlar)
-            if re.search(target_regex, gen_content, re.DOTALL):
-                new_gen_content = re.sub(target_regex, replacement, gen_content, flags=re.DOTALL)
+            if re.search(target_pattern, gen_content, re.DOTALL):
+                new_gen_content = re.sub(target_pattern, replacement, gen_content, flags=re.DOTALL)
                 with open(gen_path, "w", encoding="utf-8") as f:
                     f.write(new_gen_content)
-                report.append("[SUCCESS] GeneratorPlayer: Canlı TV yaması uygulandı.")
+                report.append("[SUCCESS] GeneratorPlayer: Canlı TV mantığı notlarla eklendi.")
             else:
-                # Eğer hala bulamazsa, daha basit bir arama dene (it.toMetadata kelimesini içeren satırı bul)
-                report.append("[ERROR] GeneratorPlayer: Kod bloğu otomatik eşleşmedi. Yapı farklı olabilir.")
-
-    else:
-        report.append("[ERROR] GeneratorPlayer.kt yolu bulunamadı!")
-
-    report.append("--- RAPOR SONU ---")
+                report.append("[ERROR] GeneratorPlayer: Hedef kod yapısı bulunamadı.")
     
+    report.append("--- RAPOR SONU ---")
     final_report = "\n".join(report)
     print(final_report)
     with open("patch_report.txt", "w", encoding="utf-8") as f:
