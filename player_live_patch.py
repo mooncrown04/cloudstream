@@ -6,15 +6,17 @@ def apply_patch():
     report = []
     report.append(f"--- Z RAPORU ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ---")
     
+    # Dosya yolları (Depondaki orijinal isimler)
     full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
 
-    # --- 1. FullScreenPlayer: Tuş Kontrolü ---
+    # --- 1. FullScreenPlayer Yaması (Kumanda Tuşları) ---
     if os.path.exists(full_path):
         with open(full_path, "r", encoding="utf-8") as f:
             full_content = f.read()
-        if "KeyEvent.KEYCODE_DPAD_UP" in full_content:
-            report.append("[!] FullScreenPlayer: Yama zaten mevcut.")
+        
+        if "MOONCROWN YAMASI" in full_content:
+            report.append("[!] FullScreenPlayer: Yama zaten mevcut, geçiliyor.")
         else:
             search_pattern = "open class FullScreenPlayer : SubtitleDownloadActivity() {"
             patch = search_pattern + """
@@ -42,22 +44,25 @@ def apply_patch():
             """
             with open(full_path, "w", encoding="utf-8") as f:
                 f.write(full_content.replace(search_pattern, patch))
-            report.append("[SUCCESS] FullScreenPlayer: Tuş yaması notlarla eklendi.")
+            report.append("[SUCCESS] FullScreenPlayer: Tuş yaması eklendi.")
+    else:
+        report.append("[ERROR] FullScreenPlayer.kt bulunamadı!")
 
-    # --- 2. GeneratorPlayer: Canlı TV ve HashCode ---
+    # --- 2. GeneratorPlayer Yaması (Esnek Eşleştirme Sistemi) ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
             gen_content = f.read()
 
-        if "val newMeta = AnySampleMetadata" in gen_content:
-            report.append("[!] GeneratorPlayer: Yama zaten mevcut.")
+        if "MOONCROWN YAMASI" in gen_content:
+            report.append("[!] GeneratorPlayer: Yama zaten mevcut, geçiliyor.")
         else:
-            # Hedef: it.let { loadLink(...) }
-            target_pattern = r"it\.let\s*\{\s*loadLink\(Pair\(it, null\), sameEpisode = false\)\s*\}"
+            # HEDEF: 'it.let' ile başlayıp 'loadLink' ve 'sameEpisode = false' ile biten tüm bloğu yakalar
+            # Bu regex, aradaki tüm boşlukları veya farklı karakterleri görmezden gelir.
+            target_regex = r"it\.let\s*\{\s*loadLink\(Pair\(it,\s*null\),\s*sameEpisode\s*=\s*false\)\s*\}"
             
-            # Notlar ve yeni kod
             replacement = """// --- MOONCROWN YAMASI BASLADI: CANLI TV VE HASHCODE ---
-                    // SILINDI: it.let { loadLink(Pair(it, null), sameEpisode = false) }
+                    // [SİLİNDİ]: it.let { loadLink(Pair(it, null), sameEpisode = false) }
+                    // [EKLENDİ]: Canlı TV mantığı ve HashCode ID sistemi aşağıya eklendi
                     AnySampleMetadata(
                         name = result.name,
                         headerName = result.name,
@@ -82,15 +87,18 @@ def apply_patch():
                     }
                     // --- MOONCROWN YAMASI BITTI ---"""
 
-            if re.search(target_pattern, gen_content, re.DOTALL):
-                new_gen_content = re.sub(target_pattern, replacement, gen_content, flags=re.DOTALL)
+            if re.search(target_regex, gen_content, re.DOTALL):
+                new_gen_content = re.sub(target_regex, replacement, gen_content, flags=re.DOTALL)
                 with open(gen_path, "w", encoding="utf-8") as f:
                     f.write(new_gen_content)
-                report.append("[SUCCESS] GeneratorPlayer: Canlı TV mantığı notlarla eklendi.")
+                report.append("[SUCCESS] GeneratorPlayer: Canlı TV yaması notlarla eklendi.")
             else:
-                report.append("[ERROR] GeneratorPlayer: Hedef kod yapısı bulunamadı.")
-    
+                report.append("[ERROR] GeneratorPlayer: Hedef kod yapısı bulunamadı (Regex uyuşmazlığı).")
+    else:
+        report.append("[ERROR] GeneratorPlayer.kt bulunamadı!")
+
     report.append("--- RAPOR SONU ---")
+    
     final_report = "\n".join(report)
     print(final_report)
     with open("patch_report.txt", "w", encoding="utf-8") as f:
