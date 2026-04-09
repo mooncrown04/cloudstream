@@ -3,7 +3,7 @@ package com.lagradost.cloudstream3.ui.player
 import android.view.KeyEvent
 import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
 import com.lagradost.cloudstream3.ui.player.PlayerEventSource
-import com.lagradost.cloudstream3.ui.result.AnySampleMetadata // Doğru yol bu
+import com.lagradost.cloudstream3.ui.result.AnySampleMetadata
 //yenii
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -2163,7 +2163,7 @@ val result = viewModel.getMeta()
         }
     }
 
-   @SuppressLint("SetTextI18n")
+@SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         var langFilterList = listOf<String>()
@@ -2190,9 +2190,7 @@ val result = viewModel.getMeta()
 
         unwrapBundle(savedInstanceState)
         unwrapBundle(arguments)
-
         sync.updateUserData()
-
         preferredAutoSelectSubtitles = getAutoSelectLanguageTagIETF()
 
         if (currentSelectedLink == null) {
@@ -2225,14 +2223,8 @@ val result = viewModel.getMeta()
 
         observe(viewModel.loadingLinks) {
             when (it) {
-                is Resource.Loading -> {
-                    startLoading()
-                }
-
-                is Resource.Success -> {
-                    startPlayer()
-                }
-
+                is Resource.Loading -> startLoading()
+                is Resource.Success -> startPlayer()
                 is Resource.Failure -> {
                     showToast(it.errorString, Toast.LENGTH_LONG)
                     startPlayer()
@@ -2273,9 +2265,7 @@ val result = viewModel.getMeta()
         observe(viewModel.currentSubs) { set ->
             val setOfSub = mutableSetOf<SubtitleData>()
             if (langFilterList.isNotEmpty() && filterSubByLang) {
-                Log.i("subfilter", "Filtering subtitle")
                 langFilterList.forEach { lang ->
-                    Log.i("subfilter", "Lang: $lang")
                     setOfSub += set.filter {
                         it.originalName.contains(lang, ignoreCase = true) ||
                                 it.origin != SubtitleOrigin.URL
@@ -2292,7 +2282,7 @@ val result = viewModel.getMeta()
             }
         }
 
-        // --- TUŞ DİNLEYİCİ BURAYA EKLENDİ ---
+        // Tuş Dinleyici - onViewCreated içinde
         binding?.root?.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN) {
                 when (keyCode) {
@@ -2305,15 +2295,17 @@ val result = viewModel.getMeta()
                         true
                     }
                     KeyEvent.KEYCODE_MENU -> {
-                        player.handleEvent(CSPlayerEvent.ToggleShowEpisodes, PlayerEventSource.UI)
+                        // CSPlayerEvent içinde ToggleShowEpisodes yoksa NextEpisode (liste açar) kullanıyoruz
+                        player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
                         true
                     }
                     else -> false
                 }
             } else false
         }
-    } // onViewCreated Kapanışı
-	
+   
+//-------------------------------------
+   }
 	
 	@Suppress("DEPRECATION")
 inline fun <reified T : Serializable> Bundle.getSafeSerializable(key: String): T? =
