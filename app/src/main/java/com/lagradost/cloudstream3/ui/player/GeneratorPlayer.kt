@@ -1,12 +1,4 @@
 package com.lagradost.cloudstream3.ui.player
-import android.view.KeyEvent
-import android.os.Looper
-import com.lagradost.cloudstream3.SearchResponse
-import com.lagradost.cloudstream3.ui.result.VideoWatchState
-import android.net.Uri
-import com.lagradost.cloudstream3.utils.newExtractorLink
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.runBlocking
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -497,34 +489,6 @@ class GeneratorPlayer : FullScreenPlayer() {
     }
 
     private fun loadLink(link: Pair<ExtractorLink?, ExtractorUri?>?, sameEpisode: Boolean) {
-        // --- MOONCROWN YAMASI BASLADI ---
-        val result = viewModel.getMeta() 
-        if (result is ResultEpisode && result.name.contains("TV", ignoreCase = true)) {
-             AnySampleMetadata(
-                name = result.name,
-                headerName = result.name,
-                tvType = TvType.Live,
-                parentId = 0,
-                episode = null,
-                season = null,
-                id = result.url.hashCode()
-            ).let { newMeta ->
-                currentMeta = newMeta
-                val linkToLoad = ExtractorLink(
-                    source = link?.first?.source ?: "",
-                    name = result.name,
-                    url = link?.first?.url ?: "",
-                    referer = link?.first?.referer ?: "", 
-                    quality = Qualities.Unknown.value,
-                    type = if (link?.first?.url?.contains(".m3u8") == true) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
-                    headers = link?.first?.headers ?: emptyMap()
-                )
-                // Orijinal akışın devam etmesi için değişkenleri güncelliyoruz
-                // Bu kısım canlı yayınlar için meta veriyi zorlar
-            }
-        }
-        // --- MOONCROWN YAMASI BITTI ---
-        
         if (link == null) return
 
         // manage UI
