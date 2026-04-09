@@ -1,10 +1,10 @@
 package com.lagradost.cloudstream3.ui.player
 //yenii
 import android.view.KeyEvent
+import android.view.View
 import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
 import com.lagradost.cloudstream3.ui.player.PlayerEventSource
-import com.lagradost.cloudstream3.ui.result.AnySampleMetadata 
-import com.lagradost.cloudstream3.ui.player.GeneratorPlayer
+import com.lagradost.cloudstream3.ui.result.AnySampleMetadata // Doğru yol bu
 //yenii
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -498,12 +498,11 @@ class GeneratorPlayer : FullScreenPlayer() {
         if (link == null) return
 //yenii
 val result = viewModel.getMeta()
-        // result'ın tipini kontrol ederek veriye erişiyoruz
         currentMeta = AnySampleMetadata(
             name = result.name ?: "",
             headerName = result.name ?: "",
             tvType = TvType.Live,
-            id = (result.name + result.poster).hashCode() // url yerine name+poster kombinasyonu kullanıldı
+            id = (result.name.hashCode() ?: 0)
         )
         player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
 //yenii
@@ -2309,9 +2308,8 @@ val result = viewModel.getMeta()
 
 //yenii
 
-// Bunu class'ın bittiği en son parantezden hemen ÖNCEYE koy
-// Kumanda Tuş Dinleyicisi (Fragment Uygun Hali)
-        binding?.root?.focusSearch(View.FOCUS_DOWN)?.setOnKeyListener { _, keyCode, event ->
+// --- BU KISMI onViewCreated FONKSİYONUNUN EN SONUNA EKLE ---
+        binding?.root?.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN) {
                 when (keyCode) {
                     KeyEvent.KEYCODE_DPAD_UP -> {
@@ -2323,9 +2321,8 @@ val result = viewModel.getMeta()
                         true
                     }
                     KeyEvent.KEYCODE_MENU -> {
-                        // ToggleShowEpisodes yerine manuel tetikleme
-                        (activity as? GeneratorPlayer)?.player?.handleEvent(CSPlayerEvent.NextEpisode) 
-                        // Not: Buradaki event ismini altyapına göre ayarla
+                        // Menü tuşu için altyapındaki liste tetikleyicisi
+                        player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
                         true
                     }
                     else -> false
@@ -2337,28 +2334,7 @@ val result = viewModel.getMeta()
 //yeniiiii
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
-
-
-
-
-
 
 @Suppress("DEPRECATION")
 inline fun <reified T : Serializable> Bundle.getSafeSerializable(key: String): T? =
