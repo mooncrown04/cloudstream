@@ -1,7 +1,6 @@
 package com.lagradost.cloudstream3.ui.player
 //yenii
 import android.view.KeyEvent
-import android.view.View
 import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
 import com.lagradost.cloudstream3.ui.player.PlayerEventSource
 import com.lagradost.cloudstream3.ui.result.AnySampleMetadata // Doğru yol bu
@@ -2164,7 +2163,7 @@ val result = viewModel.getMeta()
         }
     }
 
-    @SuppressLint("SetTextI18n")
+   @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         var langFilterList = listOf<String>()
@@ -2231,10 +2230,6 @@ val result = viewModel.getMeta()
                 }
 
                 is Resource.Success -> {
-                    // provider returned false
-                    //if (it.value != true) {
-                    //    showToast(activity, R.string.unexpected_error, Toast.LENGTH_SHORT)
-                    //}
                     startPlayer()
                 }
 
@@ -2292,23 +2287,12 @@ val result = viewModel.getMeta()
             }
             player.setActiveSubtitles(set)
 
-            // If the file is downloaded then do not select auto select the subtitles
-            // Downloaded subtitles cannot be selected immediately after loading since
-            // player.getCurrentPreferredSubtitle() cannot fetch data from non-loaded subtitles
-            // Resulting in unselecting the downloaded subtitle
             if (set.lastOrNull()?.origin != SubtitleOrigin.DOWNLOADED_FILE) {
                 autoSelectSubtitles()
             }
         }
-    }
 
-
-
-
-
-//yenii
-
-// --- BU KISMI onViewCreated FONKSİYONUNUN EN SONUNA EKLE ---
+        // --- TUŞ DİNLEYİCİ BURAYA EKLENDİ ---
         binding?.root?.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN) {
                 when (keyCode) {
@@ -2321,22 +2305,17 @@ val result = viewModel.getMeta()
                         true
                     }
                     KeyEvent.KEYCODE_MENU -> {
-                        // Menü tuşu için altyapındaki liste tetikleyicisi
-                        player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
+                        player.handleEvent(CSPlayerEvent.ToggleShowEpisodes, PlayerEventSource.UI)
                         true
                     }
                     else -> false
                 }
             } else false
         }
-
-
-//yeniiiii
-
-
-}
-
-@Suppress("DEPRECATION")
+    } // onViewCreated Kapanışı
+	
+	
+	@Suppress("DEPRECATION")
 inline fun <reified T : Serializable> Bundle.getSafeSerializable(key: String): T? =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) getSerializable(key) as? T else getSerializable(
         key,
