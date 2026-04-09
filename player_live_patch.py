@@ -3,14 +3,17 @@ import re
 from datetime import datetime
 
 def apply_patch():
+    # Z Raporu ve Ayrıntılı Günlük için hazırlık
     report = []
-    report.append(f"--- Z RAPORU ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ---")
-    
-    # Orijinal dosya yolları
+    log_details = []
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    report.append(f"--- Z RAPORU ({now}) ---")
+    log_details.append(f"=== MOONCROWN YAMA AYRINTILARI ({now}) ===\n")
+
     full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
 
-    # --- 1. FullScreenPlayer Yaması (Zaten Başarılı) ---
+    # --- 1. FullScreenPlayer (Kumanda Tuşları) ---
     if os.path.exists(full_path):
         with open(full_path, "r", encoding="utf-8") as f:
             full_content = f.read()
@@ -20,7 +23,7 @@ def apply_patch():
         else:
             search_pattern = "open class FullScreenPlayer : SubtitleDownloadActivity() {"
             patch = search_pattern + """
-    // --- MOONCROWN YAMASI BASLADI: KUMANDA TUSLARI ---
+    // --- MOONCROWN YAMASI BASLADI ---
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (!isShowingEpisodeOverlay) {
             when (keyCode) {
@@ -44,31 +47,23 @@ def apply_patch():
             """
             with open(full_path, "w", encoding="utf-8") as f:
                 f.write(full_content.replace(search_pattern, patch))
-            report.append("[SUCCESS] FullScreenPlayer: Tuş yaması eklendi.")
+            report.append("[SUCCESS] FullScreenPlayer: Tus yamasi uygulandi.")
+            log_details.append(f"DOSYA: {full_path}\nISLEM: Yeni onKeyDown fonksiyonu eklendi.\nKONUM: Class baslangici.\n")
 
-    # --- 2. GeneratorPlayer Yaması (Satır Bazlı Garantili Yöntem) ---
+    # --- 2. GeneratorPlayer (Canlı TV & HashCode) ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
-            lines = f.readlines()
+            gen_content = f.read()
 
-        if any("MOONCROWN YAMASI" in line for line in lines):
+        if "MOONCROWN YAMASI" in gen_content:
             report.append("[!] GeneratorPlayer: Yama zaten mevcut.")
         else:
-            new_lines = []
-            patched = False
-            i = 0
-            while i < len(lines):
-                # Hedef satırı bul: loadLink ve sameEpisode = false içeren satır
-                if "loadLink" in lines[i] and "sameEpisode = false" in lines[i] and not patched:
-                    # Bu satırı ve onu sarmalayan 'it.let {' bloğunu değiştireceğiz.
-                    # Genelde bir önceki satır 'it.let {' olur.
-                    if "it.let {" in lines[i-1]:
-                        new_lines.pop() # 'it.let {' satırını sil/çıkar
-                        
-                    new_lines.append("                    // --- MOONCROWN YAMASI BASLADI: CANLI TV VE HASHCODE ---\n")
-                    new_lines.append("                    // [SILINDI]: it.let { loadLink(Pair(it, null), sameEpisode = false) }\n")
-                    new_lines.append("                    // [EKLENDI]: Canlı TV mantığı ve HashCode ID sistemi eklendi\n")
-                    new_lines.append("""                    AnySampleMetadata(
+            # Senin bulamadığın o karmaşık bloğu (loadLink ve çevresini) hedef alıyoruz
+            # Regex: loadLink kelimesinden başlar, sameEpisode = false görene kadar her şeyi (satır atlamaları dahil) kapsar.
+            target_regex = r"loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)"
+            
+            replacement = """// --- MOONCROWN YAMASI BASLADI ---
+                    AnySampleMetadata(
                         name = result.name,
                         headerName = result.name,
                         tvType = TvType.Live,
@@ -89,32 +84,32 @@ def apply_patch():
                         )
                         loadLink(Pair(linkToLoad, null), sameEpisode = false)
                         player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
-                    }\n""")
-                    new_lines.append("                    // --- MOONCROWN YAMASI BITTI ---\n")
-                    
-                    # Eğer it.let bloğu tek satırda değilse ve sonunda '}' varsa onu atla
-                    if "}" in lines[i]: 
-                        pass # Satırın kendisini zaten değiştirdik
-                    elif i+1 < len(lines) and "}" in lines[i+1]:
-                        i += 1 # Bir sonraki kapatma parantezini atla
-                        
-                    patched = True
-                else:
-                    new_lines.append(lines[i])
-                i += 1
+                    }
+                    // --- MOONCROWN YAMASI BITTI ---"""
 
-            if patched:
+            if re.search(target_regex, gen_content, re.DOTALL):
+                # Bulduğumuz o karışık bloğun ne olduğunu günlüğe kaydedelim
+                found_block = re.search(target_regex, gen_content, re.DOTALL).group(0)
+                
+                new_gen_content = re.sub(target_regex, replacement, gen_content, flags=re.DOTALL)
                 with open(gen_path, "w", encoding="utf-8") as f:
-                    f.writelines(new_lines)
-                report.append("[SUCCESS] GeneratorPlayer: Canlı TV yaması notlarla eklendi.")
+                    f.write(new_gen_content)
+                
+                report.append("[SUCCESS] GeneratorPlayer: Canli TV yamasi uygulandi.")
+                log_details.append(f"DOSYA: {gen_path}\nSILINEN KISIM:\n{found_block}\n\nEKLENEN KISIM:\nAnySampleMetadata ve Canli TV Link Kontrolu.\n")
             else:
-                report.append("[ERROR] GeneratorPlayer: Hedef satır (loadLink) bulunamadı!")
+                report.append("[ERROR] GeneratorPlayer: Hedef blok bulunamadı!")
 
+    # Raporları Dosyaya Yaz
     report.append("--- RAPOR SONU ---")
     final_report = "\n".join(report)
     print(final_report)
+    
     with open("patch_report.txt", "w", encoding="utf-8") as f:
         f.write(final_report)
+    
+    with open("patch_log.txt", "w", encoding="utf-8") as f:
+        f.writelines(log_details)
 
 if __name__ == "__main__":
     apply_patch()
