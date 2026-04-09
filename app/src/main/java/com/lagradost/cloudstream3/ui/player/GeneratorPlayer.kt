@@ -497,11 +497,10 @@ class GeneratorPlayer : FullScreenPlayer() {
         if (link == null) return
 //yenii
 val result = viewModel.getMeta()
-        // ResultEpisode tipini tam paketiyle kontrol ediyoruz (çakışmayı önler)
         if (result is com.lagradost.cloudstream3.ui.result.ResultEpisode) {
             currentMeta = com.lagradost.cloudstream3.ui.result.AnySampleMetadata(
-                name = result.name,
-                headerName = result.name,
+                name = result.name ?: "",
+                headerName = result.name ?: "",
                 tvType = TvType.TvSeries,
                 id = result.hashCode()
             )
