@@ -496,15 +496,10 @@ class GeneratorPlayer : FullScreenPlayer() {
     private fun loadLink(link: Pair<ExtractorLink?, ExtractorUri?>?, sameEpisode: Boolean) {
         if (link == null) return
 //yenii
-val result = viewModel.getMeta()
-        if (result is com.lagradost.cloudstream3.ui.result.ResultEpisode) {
-            // Eğer AnySampleMetadata bulunamıyorsa, direkt Metadata sınıfını deneyelim
-            currentMeta = com.lagradost.cloudstream3.ui.Metadata(
-                name = result.name ?: "",
-                headerName = result.name ?: "",
-                tvType = TvType.TvSeries,
-                id = result.url.hashCode()
-            )
+   val result = viewModel.getMeta()
+        if (result is ResultEpisode) {
+            // ResultEpisode doğrudan currentMeta olarak kullanılabilir
+            currentMeta = result
         }
 //yenii
 
