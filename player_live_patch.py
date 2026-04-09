@@ -10,7 +10,7 @@ def apply_patch():
     gen_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/GeneratorPlayer.kt"
     full_path = "app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt"
 
-    # --- 1. FullScreenPlayer (Tuş Takımı) ---
+    # --- 1. FullScreenPlayer (Kumanda Yaması) ---
     if os.path.exists(full_path):
         with open(full_path, "r", encoding="utf-8") as f:
             content = f.read()
@@ -41,11 +41,9 @@ def apply_patch():
             """
             with open(full_path, "w", encoding="utf-8") as f:
                 f.write(content.replace(search_pattern, patch))
-            report.append("[SUCCESS] FullScreenPlayer: Tus yaması eklendi.")
-        else:
-            report.append("[!] FullScreenPlayer: Yama zaten mevcut.")
+            report.append("[SUCCESS] FullScreenPlayer yamalandı.")
 
-    # --- 2. GeneratorPlayer (Esnek Arama Modu) ---
+    # --- 2. GeneratorPlayer (Esnek "Mıknatıs" Arama) ---
     if os.path.exists(gen_path):
         with open(gen_path, "r", encoding="utf-8") as f:
             content = f.read()
@@ -53,13 +51,12 @@ def apply_patch():
         if "MOONCROWN YAMASI" in content:
             report.append("[!] GeneratorPlayer: Yama zaten mevcut.")
         else:
-            # Hem 'it.let' olanı hem de orijinaldeki bölünmüş satırları yakalayan esnek Regex
-            # sameEpisode = false içeren bloğu tamamen hedef alır.
-            target_regex = r"set\.firstOrNull\(\)\?\.let\s*\{\s*(?:it\.let\s*\{\s*)?loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\)\s*,\s*sameEpisode\s*=\s*false\s*\)\s*\}?\s*\}"
+            # DİKKAT: Artık 'false' kelimesini aramıyoruz!
+            # Sadece linklerin ilk defa yüklendiği 'loadLink(Pair(it...' bloğunu hedef alıyoruz.
+            target_regex = r"loadLink\s*\(\s*Pair\s*\(\s*it\s*,\s*null\s*\).*?\)"
             
-            replacement = """set.firstOrNull()?.let {
-                // --- MOONCROWN YAMASI BASLADI: CANLI TV VE HASHCODE ---
-                // [SILINDI]: Orijinal loadLink ve it.let yapısı
+            replacement = """// --- MOONCROWN YAMASI BASLADI ---
+                // [SILINDI]: Orijinal loadLink çağrısı
                 AnySampleMetadata(
                     name = result.name,
                     headerName = result.name,
@@ -82,21 +79,18 @@ def apply_patch():
                     loadLink(Pair(linkToLoad, null), sameEpisode = false)
                     player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
                 }
-                // --- MOONCROWN YAMASI BITTI ---
-            }"""
+                // --- MOONCROWN YAMASI BITTI ---"""
 
             if re.search(target_regex, content, re.DOTALL):
+                # Sadece ilk karşılaştığı yeri (ana oynatma başlatıcıyı) değiştirir.
                 new_content = re.sub(target_regex, replacement, content, count=1, flags=re.DOTALL)
                 with open(gen_path, "w", encoding="utf-8") as f:
                     f.write(new_content)
-                report.append("[SUCCESS] GeneratorPlayer: Canli TV yaması eklendi.")
+                report.append("[SUCCESS] GeneratorPlayer yamalandı.")
             else:
-                report.append("[ERROR] GeneratorPlayer: Orijinal kod yapısı bulunamadı!")
+                report.append("[ERROR] GeneratorPlayer: 'loadLink(Pair(it, null))' bulunamadı.")
 
-    final_report = "\n".join(report)
-    print(final_report)
-    with open("patch_report.txt", "w", encoding="utf-8") as f:
-        f.write(final_report)
+    print("\n".join(report))
 
 if __name__ == "__main__":
     apply_patch()
