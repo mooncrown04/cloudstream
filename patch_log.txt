@@ -1,4 +1,0 @@
-=== MOONCROWN YAMA AYRINTILARI (2026-04-09 12:58:50) ===
-DOSYA: app/src/main/java/com/lagradost/cloudstream3/ui/player/FullScreenPlayer.kt
-ISLEM: Yeni onKeyDown fonksiyonu eklendi.
-KONUM: Class baslangici.
