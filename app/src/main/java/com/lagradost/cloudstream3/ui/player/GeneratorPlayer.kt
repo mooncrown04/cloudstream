@@ -1,10 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-//yenii
-import android.view.KeyEvent
-import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
-import com.lagradost.cloudstream3.ui.player.PlayerEventSource
-import com.lagradost.cloudstream3.ui.result.*
-//yenii
+
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -495,7 +490,6 @@ class GeneratorPlayer : FullScreenPlayer() {
 
     private fun loadLink(link: Pair<ExtractorLink?, ExtractorUri?>?, sameEpisode: Boolean) {
         if (link == null) return
-
 
         // manage UI
         binding?.playerLoadingOverlay?.isVisible = false
@@ -2154,7 +2148,7 @@ class GeneratorPlayer : FullScreenPlayer() {
         }
     }
 
-@SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         var langFilterList = listOf<String>()
@@ -2181,7 +2175,9 @@ class GeneratorPlayer : FullScreenPlayer() {
 
         unwrapBundle(savedInstanceState)
         unwrapBundle(arguments)
+
         sync.updateUserData()
+
         preferredAutoSelectSubtitles = getAutoSelectLanguageTagIETF()
 
         if (currentSelectedLink == null) {
@@ -2214,8 +2210,18 @@ class GeneratorPlayer : FullScreenPlayer() {
 
         observe(viewModel.loadingLinks) {
             when (it) {
-                is Resource.Loading -> startLoading()
-                is Resource.Success -> startPlayer()
+                is Resource.Loading -> {
+                    startLoading()
+                }
+
+                is Resource.Success -> {
+                    // provider returned false
+                    //if (it.value != true) {
+                    //    showToast(activity, R.string.unexpected_error, Toast.LENGTH_SHORT)
+                    //}
+                    startPlayer()
+                }
+
                 is Resource.Failure -> {
                     showToast(it.errorString, Toast.LENGTH_LONG)
                     startPlayer()
@@ -2256,7 +2262,9 @@ class GeneratorPlayer : FullScreenPlayer() {
         observe(viewModel.currentSubs) { set ->
             val setOfSub = mutableSetOf<SubtitleData>()
             if (langFilterList.isNotEmpty() && filterSubByLang) {
+                Log.i("subfilter", "Filtering subtitle")
                 langFilterList.forEach { lang ->
+                    Log.i("subfilter", "Lang: $lang")
                     setOfSub += set.filter {
                         it.originalName.contains(lang, ignoreCase = true) ||
                                 it.origin != SubtitleOrigin.URL
@@ -2268,42 +2276,19 @@ class GeneratorPlayer : FullScreenPlayer() {
             }
             player.setActiveSubtitles(set)
 
+            // If the file is downloaded then do not select auto select the subtitles
+            // Downloaded subtitles cannot be selected immediately after loading since
+            // player.getCurrentPreferredSubtitle() cannot fetch data from non-loaded subtitles
+            // Resulting in unselecting the downloaded subtitle
             if (set.lastOrNull()?.origin != SubtitleOrigin.DOWNLOADED_FILE) {
                 autoSelectSubtitles()
             }
         }
-//yenii
+    }
 
-//yenii
-        // Tuş Dinleyici - onViewCreated içinde
-        binding?.root?.setOnKeyListener { _, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                when (keyCode) {
-                    KeyEvent.KEYCODE_DPAD_UP -> {
-                        // ↑ Yukarı = Sonraki Bölüm
-                        player.handleEvent(CSPlayerEvent.NextEpisode, PlayerEventSource.UI)
-                        true
-                    }
-                    KeyEvent.KEYCODE_DPAD_DOWN -> {
-                        // ↓ Aşağı = Önceki Bölüm
-                        player.handleEvent(CSPlayerEvent.PrevEpisode, PlayerEventSource.UI)
-                        true
-                    }
-                    KeyEvent.KEYCODE_MENU -> {
-                        // Menü = Bölüm Listesi Aç
-                        if (isThereEpisodes()) {
-                            showEpisodesOverlay()
-                        }
-                        true
-                    }
-                    else -> false
-                }
-            } else false
-        }
-//yenii
-    }  // ← SADECE BİR TANE } (onViewCreated kapanışı)
-	
-	@Suppress("DEPRECATION")
+}
+
+@Suppress("DEPRECATION")
 inline fun <reified T : Serializable> Bundle.getSafeSerializable(key: String): T? =
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) getSerializable(key) as? T else getSerializable(
         key,
