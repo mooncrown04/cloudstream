@@ -4,6 +4,7 @@ import android.view.KeyEvent
 import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
 import com.lagradost.cloudstream3.ui.player.PlayerEventSource
 import com.lagradost.cloudstream3.ui.result.AnySampleMetadata
+import com.lagradost.cloudstream3.ui.result.ResultEpisode
 //yenii
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -498,12 +499,11 @@ class GeneratorPlayer : FullScreenPlayer() {
 //yenii
 val result = viewModel.getMeta()
         if (result is ResultEpisode) {
-            // Direkt tam paket yolunu kullanarak tanımlayalım ki hata vermesin
-            currentMeta = com.lagradost.cloudstream3.ui.result.AnySampleMetadata(
-                name = result.name ?: "",
-                headerName = result.name ?: "",
+            currentMeta = AnySampleMetadata(
+                name = result.name,
+                headerName = result.name,
                 tvType = TvType.TvSeries,
-                id = result.url.hashCode()
+                id = result.hashCode() // url.hashCode() yerine doğrudan nesnenin hashCode'unu kullanıyoruz
             )
         }
 //yenii
@@ -2305,9 +2305,9 @@ val result = viewModel.getMeta()
                 }
             } else false
         }
-   }
+  // }
 //-------------------------------------
-   }
+ //  }
 	
 	@Suppress("DEPRECATION")
 inline fun <reified T : Serializable> Bundle.getSafeSerializable(key: String): T? =
