@@ -497,13 +497,15 @@ class GeneratorPlayer : FullScreenPlayer() {
         if (link == null) return
 //yenii
 val result = viewModel.getMeta()
-        currentMeta = AnySampleMetadata(
-            name = result.name ?: "",
-            headerName = result.name ?: "",
-            tvType = TvType.Live,
-            id = (result.name.hashCode() ?: 0)
-        )
-        player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
+        if (result is ResultEpisode) {
+            // Direkt tam paket yolunu kullanarak tanımlayalım ki hata vermesin
+            currentMeta = com.lagradost.cloudstream3.ui.result.AnySampleMetadata(
+                name = result.name ?: "",
+                headerName = result.name ?: "",
+                tvType = TvType.TvSeries,
+                id = result.url.hashCode()
+            )
+        }
 //yenii
 
         // manage UI
@@ -2303,7 +2305,7 @@ val result = viewModel.getMeta()
                 }
             } else false
         }
-   
+   }
 //-------------------------------------
    }
 	
