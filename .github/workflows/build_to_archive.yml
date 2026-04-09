@@ -10,7 +10,8 @@ env:
 
 concurrency:
   group: "Archive-build"
-  cancel-in-progress: true
+  # Eğer yeni bir derleme gelirse eskisini iptal etme (Hata almamak için false yaptık)
+  cancel-in-progress: false 
 
 jobs:
   build:
@@ -29,10 +30,17 @@ jobs:
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: current
+        # Derlemeyi hızlandırmak için önbelleği açıyoruz
+        cache-read-only: false
 
     - name: Run Gradle Build
-      run: ./gradlew assembleDebug
+      # --no-daemon ve clean ekleyerek bellek hatalarının önüne geçiyoruz
+      run: ./gradlew clean assembleDebug --no-daemon --stacktrace
       env:
+        # Gradle'a daha fazla RAM veriyoruz ki JNI birleştirmede çökmesin
+        GRADLE_OPTS: -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
         SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
         SIMKL_CLIENT_SECRET: ${{ secrets.SIMKL_CLIENT_SECRET }}
         MDL_API_KEY: ${{ secrets.MDL_API_KEY }}
@@ -44,4 +52,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: CloudStream-Debug-APK
-        path: "app/build/outputs/apk/**/*.apk"
+        # APK yolunu garantiye alıyoruz
+        path: app/build/outputs/apk/**/*.apk
+        if-no-files-found: error
