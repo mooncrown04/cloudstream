@@ -28,7 +28,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Generate Dokka
         run: |
