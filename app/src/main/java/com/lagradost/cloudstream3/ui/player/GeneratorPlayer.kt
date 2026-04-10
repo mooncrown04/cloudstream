@@ -116,7 +116,9 @@ import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.runOnMainThread
 import com.lagradost.cloudstream3.utils.DataStoreHelper
 import com.lagradost.cloudstream3.utils.DataStoreHelper.getViewPos
-//import com.lagradost.cloudstream3.utils.EpisodeSkip
+
+import com.lagradost.cloudstream3.utils.EpisodeSkip
+
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.Qualities
@@ -2117,12 +2119,12 @@ override fun prevChannel() {
         }
     }
 //yeni  VideoSkipStamp
-   // override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {
-	 override fun onTimestampSkipped(timestamp: VideoSkipStamp) {	
+    override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {
+	// override fun onTimestampSkipped(timestamp: VideoSkipStamp) {	
         displayTimeStamp(false)
     }
-  // override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
-    override fun onTimestamp(timestamp: EpisodeSkip.VideoSkipStamp?) {
+   override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
+  //  override fun onTimestamp(timestamp: EpisodeSkip.VideoSkipStamp?) {
         if (timestamp != null) {
             playerBinding?.skipChapterButton?.setText(timestamp.uiText)
             displayTimeStamp(true)
