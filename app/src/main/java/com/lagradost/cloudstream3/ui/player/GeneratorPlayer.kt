@@ -153,9 +153,9 @@ class GeneratorPlayer : FullScreenPlayer() {
 
 
 //yeni
-    private var channelList: List<ResultEpisode> = emptyList()
-    private var currentChannelIndex: Int = 0
-private var currentApiName: String? = null
+//    private var channelList: List<ResultEpisode> = emptyList()
+ //   private var currentChannelIndex: Int = 0
+//  private var currentApiName: String? = null
     
 	
 	// Yeni eklenen değişkenler (Buraya ekle)
@@ -2218,8 +2218,8 @@ override fun prevChannel() {
 //yenii
  @SuppressLint("GestureBackNavigation")
  
- //override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean { 
-fun handleCustomKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
+override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean { 
+//fun handleCustomKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
     val keyCode = event.keyCode
     
     if (event.action == KeyEvent.ACTION_DOWN) {
