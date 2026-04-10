@@ -2058,128 +2058,133 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
     }
 ///yeni
 @SuppressLint("GestureBackNavigation")
-    private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
-        if (hasNavigated) {
-            autoHide()
-            return false
-        }
-        val keyCode = event.keyCode
+private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
+    if (hasNavigated) {
+        autoHide()
+        return false
+    }
+    val keyCode = event.keyCode
 
-        if (event.action == KeyEvent.ACTION_DOWN) {
-            when (keyCode) {
-                KeyEvent.KEYCODE_DPAD_CENTER -> {
-                    if (!isShowing) {
-                        if (timestampShowState) {
-                            player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
-                        } else if (!isLocked) {
-                            player.handleEvent(CSPlayerEvent.PlayPauseToggle)
-                        }
-                        onClickChange()
-                        return true
+    if (event.action == KeyEvent.ACTION_DOWN) {
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_CENTER -> {
+                if (!isShowing) {
+                    if (timestampShowState) {
+                        player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
+                    } else if (!isLocked) {
+                        player.handleEvent(CSPlayerEvent.PlayPauseToggle)
                     }
+                    onClickChange()
+                    return true
                 }
+            }
 
-                // --- EKLEME YAPILAN KISIM BAŞLANGICI (DPAD UP/DOWN) ---
-                KeyEvent.KEYCODE_DPAD_DOWN,
-                KeyEvent.KEYCODE_DPAD_UP -> {
-                    if (!isShowing && !isShowingEpisodeOverlay) {
-                        val isUp = keyCode == KeyEvent.KEYCODE_DPAD_UP
-                        val meta = currentMeta
-                        
-                        // TV Türü Kontrolü
-                        val isLive = when (meta) {
-                            is ResultEpisode -> meta.tvType == TvType.Live
-                            is ExtractorUri -> meta.tvType == TvType.Live
-                            else -> false
-                        }
+            // --- DPAD UP/DOWN KANAL VE BÖLÜM DEĞİŞTİRME ---
+            KeyEvent.KEYCODE_DPAD_DOWN,
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                if (!isShowing && !isShowingEpisodeOverlay) {
+                    val isUp = keyCode == KeyEvent.KEYCODE_DPAD_UP
+                    
+                    // GeneratorPlayer verilerine erişim
+                    val generator = (this as? GeneratorPlayer)
+                    val meta = generator?.currentMeta
+                    
+                    val isLive = when (meta) {
+                        is ResultEpisode -> meta.tvType == TvType.Live
+                        is ExtractorUri -> meta.tvType == TvType.Live
+                        else -> false
+                    }
 
-                        if (!isLive && hasEpisodes) {
-                            // Dizi/Film Bölüm Değiştirme Bildirimi
-                            val metaList = allMeta
-                            if (!metaList.isNullOrEmpty()) {
-                                val currentIdx = viewModel.getCurrentIndex() ?: 0
-                                val targetIdx = if (isUp) currentIdx + 1 else currentIdx - 1
-                                
-                                metaList.getOrNull(targetIdx)?.let { nextEpisode ->
-                                    showToast("${if (isUp) "→ SONRAKİ" else "← ÖNCEKİ"}: ${nextEpisode.name}")
-                                }
+                    if (!isLive && generator?.hasEpisodes == true) {
+                        // Dizi/Film Bölüm Değiştirme Bildirimi
+                        val metaList = generator.allMeta
+                        if (!metaList.isNullOrEmpty()) {
+                            val currentIdx = generator.getCurrentIndex() ?: 0
+                            val targetIdx = if (isUp) currentIdx + 1 else currentIdx - 1
+                            
+                            metaList.getOrNull(targetIdx)?.let { nextEpisode ->
+                                showToast("${if (isUp) "→ SONRAKİ" else "← ÖNCEKİ"}: ${nextEpisode.name}")
                             }
-                        } else if (isLive) {
-                            // Canlı TV Kanal Değiştirme Bildirimi
+                        }
+                    } else if (isLive) {
+                        // Canlı TV Kanal Değiştirme Bildirimi
+                        val recommendations = generator?.currentRecommendations
+                        if (!recommendations.isNullOrEmpty()) {
+                            val currentIndex = generator.currentRecIndex
                             val nextIndex = if (isUp) {
-                                (currentRecIndex + 1) % currentRecommendations.size
+                                (currentIndex + 1) % recommendations.size
                             } else {
-                                if (currentRecIndex > 0) currentRecIndex - 1 else currentRecommendations.size - 1
+                                if (currentIndex > 0) currentIndex - 1 else recommendations.size - 1
                             }
                             
-                            currentRecommendations.getOrNull(nextIndex)?.let {
+                            recommendations.getOrNull(nextIndex)?.let {
                                 showToast("${if (isUp) "→ SONRAKİ" else "← ÖNCEKİ"} KANAL: ${it.name}")
                             }
                         }
-
-                        // Asıl kanal/bölüm değiştirme fonksiyonunu çağırır
-                        // isUp (true) ise yukarı/ileri, (false) ise aşağı/geri
-                        playNextChannel(isUp) 
-                        return true
                     }
-                }
-                // --- EKLEME YAPILAN KISIM SONU ---
 
-                KeyEvent.KEYCODE_DPAD_LEFT -> {
-                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                        player.seekTime(-androidTVInterfaceOffSeekTime)
-                        return true
-                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
-                        player.seekTime(-androidTVInterfaceOnSeekTime)
-                        return true
-                    }
-                }
-
-                KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                        player.seekTime(androidTVInterfaceOffSeekTime)
-                        return true
-                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
-                        player.seekTime(androidTVInterfaceOnSeekTime)
-                        return true
-                    }
-                }
-
-                KeyEvent.KEYCODE_VOLUME_DOWN,
-                KeyEvent.KEYCODE_VOLUME_UP -> {
-                    if (isLayout(PHONE or EMULATOR) && isFullScreenPlayer) {
-                        verifyVolume()
-                        if (currentRequestedVolume <= 1.0f) {
-                            hasShownVolumeToast = false
-                        }
-                        isVolumeLocked = currentRequestedVolume < 1.0f
-                        handleVolumeAdjustment(
-                            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) 0.05f else -0.05f,
-                            true
-                        )
-                        return true
-                    }
-                }
-            }
-        }
-
-        when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_DOWN,
-            KeyEvent.KEYCODE_DPAD_UP,
-            KeyEvent.KEYCODE_DPAD_DOWN_LEFT,
-            KeyEvent.KEYCODE_DPAD_DOWN_RIGHT,
-            KeyEvent.KEYCODE_DPAD_UP_LEFT,
-            KeyEvent.KEYCODE_DPAD_UP_RIGHT -> {
-                if (!isShowing) {
+                    // Asıl değiştirme fonksiyonunu çağır
+                    generator?.playNextChannel(isUp) 
                     return true
-                } else {
-                    autoHide()
+                }
+            }
+
+            KeyEvent.KEYCODE_DPAD_LEFT -> {
+                if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                    player.seekTime(-androidTVInterfaceOffSeekTime)
+                    return true
+                } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                    player.seekTime(-androidTVInterfaceOnSeekTime)
+                    return true
+                }
+            }
+
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                    player.seekTime(androidTVInterfaceOnSeekTime)
+                    return true
+                } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                    player.seekTime(androidTVInterfaceOnSeekTime)
+                    return true
+                }
+            }
+
+            KeyEvent.KEYCODE_VOLUME_DOWN,
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                if (isLayout(PHONE or EMULATOR) && isFullScreenPlayer) {
+                    verifyVolume()
+                    if (currentRequestedVolume <= 1.0f) {
+                        hasShownVolumeToast = false
+                    }
+                    isVolumeLocked = currentRequestedVolume < 1.0f
+                    handleVolumeAdjustment(
+                        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) 0.05f else -0.05f,
+                        true
+                    )
+                    return true
                 }
             }
         }
-
-        return false
     }
+
+    // Navigasyon tuşlarının menü kapalıyken diğer bileşenlere odaklanmasını engelle
+    when (keyCode) {
+        KeyEvent.KEYCODE_DPAD_DOWN,
+        KeyEvent.KEYCODE_DPAD_UP,
+        KeyEvent.KEYCODE_DPAD_DOWN_LEFT,
+        KeyEvent.KEYCODE_DPAD_DOWN_RIGHT,
+        KeyEvent.KEYCODE_DPAD_UP_LEFT,
+        KeyEvent.KEYCODE_DPAD_UP_RIGHT -> {
+            if (!isShowing) {
+                return true
+            } else {
+                autoHide()
+            }
+        }
+    }
+
+    return false
+}
 //yeni
     private var loudnessEnhancer: LoudnessEnhancer? = null
 
