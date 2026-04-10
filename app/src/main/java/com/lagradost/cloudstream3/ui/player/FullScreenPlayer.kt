@@ -1,9 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-//yeni
-import com.lagradost.cloudstream3.ui.result.ResultEpisode
-import com.lagradost.cloudstream3.TvType
-import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
-//yeni
+
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -2056,7 +2052,7 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
         currentTouchLast = currentTouch
         return true
     }
-///yeni
+
 @SuppressLint("GestureBackNavigation")
 private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
     if (hasNavigated) {
@@ -2079,55 +2075,17 @@ private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
                 }
             }
 
-            // --- DPAD UP/DOWN KANAL VE BÖLÜM DEĞİŞTİRME ---
+            // --- BÖLÜM DEĞİŞTİRME EKLEMESİ ---
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_DPAD_UP -> {
                 if (!isShowing && !isShowingEpisodeOverlay) {
-                    val isUp = keyCode == KeyEvent.KEYCODE_DPAD_UP
-                    
-                    // GeneratorPlayer verilerine erişim
-                    val generator = (this as? GeneratorPlayer)
-                    val meta = generator?.currentMeta
-                    
-                    val isLive = when (meta) {
-                        is ResultEpisode -> meta.tvType == TvType.Live
-                        is ExtractorUri -> meta.tvType == TvType.Live
-                        else -> false
-                    }
-
-                    if (!isLive && generator?.hasEpisodes == true) {
-                        // Dizi/Film Bölüm Değiştirme Bildirimi
-                        val metaList = generator.allMeta
-                        if (!metaList.isNullOrEmpty()) {
-                            val currentIdx = generator.getCurrentIndex() ?: 0
-                            val targetIdx = if (isUp) currentIdx + 1 else currentIdx - 1
-                            
-                            metaList.getOrNull(targetIdx)?.let { nextEpisode ->
-                                showToast("${if (isUp) "→ SONRAKİ" else "← ÖNCEKİ"}: ${nextEpisode.name}")
-                            }
-                        }
-                    } else if (isLive) {
-                        // Canlı TV Kanal Değiştirme Bildirimi
-                        val recommendations = generator?.currentRecommendations
-                        if (!recommendations.isNullOrEmpty()) {
-                            val currentIndex = generator.currentRecIndex
-                            val nextIndex = if (isUp) {
-                                (currentIndex + 1) % recommendations.size
-                            } else {
-                                if (currentIndex > 0) currentIndex - 1 else recommendations.size - 1
-                            }
-                            
-                            recommendations.getOrNull(nextIndex)?.let {
-                                showToast("${if (isUp) "→ SONRAKİ" else "← ÖNCEKİ"} KANAL: ${it.name}")
-                            }
-                        }
-                    }
-
-                    // Asıl değiştirme fonksiyonunu çağır
-                    generator?.playNextChannel(isUp) 
+                    // Yukarı tuşu sonraki, aşağı tuşu önceki bölümü tetikler
+                    val isNext = keyCode == KeyEvent.KEYCODE_DPAD_UP
+                    (this as? GeneratorPlayer)?.playNextChannel(isNext)
                     return true
                 }
             }
+            // --------------------------------
 
             KeyEvent.KEYCODE_DPAD_LEFT -> {
                 if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
@@ -2167,7 +2125,6 @@ private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         }
     }
 
-    // Navigasyon tuşlarının menü kapalıyken diğer bileşenlere odaklanmasını engelle
     when (keyCode) {
         KeyEvent.KEYCODE_DPAD_DOWN,
         KeyEvent.KEYCODE_DPAD_UP,
@@ -2185,7 +2142,7 @@ private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
 
     return false
 }
-//yeni
+
     private var loudnessEnhancer: LoudnessEnhancer? = null
 
     private fun handleVolumeAdjustment(
