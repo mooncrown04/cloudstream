@@ -2054,94 +2054,115 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
     }
 
 @SuppressLint("GestureBackNavigation")
-private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
-    if (hasNavigated) {
-        autoHide()
+    private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
+        if (hasNavigated) {
+            autoHide()
+            return false
+        }
+        val keyCode = event.keyCode
+
+        if (event.action == KeyEvent.ACTION_DOWN) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_CENTER -> {
+                    if (!isShowing) {
+                        // If UI is not shown make click instantly skip to next chapter even if locked
+                        if (timestampShowState) {
+                            player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
+                        } else if (!isLocked) {
+                            player.handleEvent(CSPlayerEvent.PlayPauseToggle)
+                        }
+                        onClickChange()
+                        return true
+                    }
+                }
+
+                // --- OPTIONS / MENU TUŞU: DİZİ LİSTESİNİ AÇAR ---
+                KeyEvent.KEYCODE_MENU,
+                KeyEvent.KEYCODE_SETTINGS -> {
+                    toggleEpisodesOverlay(!isShowingEpisodeOverlay)
+                    return true
+                }
+
+                // --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
+                KeyEvent.KEYCODE_DPAD_DOWN,
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    if (!isShowing && !isShowingEpisodeOverlay) {
+                        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                            player.handleEvent(CSPlayerEvent.NextEpisode)
+                        } else {
+                            player.handleEvent(CSPlayerEvent.PrevEpisode)
+                        }
+                        return true
+                    }
+                }
+
+                KeyEvent.KEYCODE_DPAD_LEFT -> {
+                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                        player.seekTime(-androidTVInterfaceOffSeekTime)
+                        return true
+                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                        player.seekTime(-androidTVInterfaceOnSeekTime)
+                        return true
+                    }
+                }
+
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                        player.seekTime(androidTVInterfaceOnSeekTime)
+                        return true
+                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                        player.seekTime(androidTVInterfaceOnSeekTime)
+                        return true
+                    }
+                }
+
+                KeyEvent.KEYCODE_VOLUME_DOWN,
+                KeyEvent.KEYCODE_VOLUME_UP -> {
+                    if (isLayout(PHONE or EMULATOR) && isFullScreenPlayer) {
+                        /**
+                         * Some TVs do not support volume boosting, and overriding
+                         * the volume buttons can be inconvenient for TV users.
+                         * Since boosting volume is mainly useful on phones and emulators,
+                         * we limit this feature to those devices.
+                         */
+                        verifyVolume()
+                        if (currentRequestedVolume <= 1.0f) {
+                            hasShownVolumeToast = false
+                        }
+                        isVolumeLocked = currentRequestedVolume < 1.0f
+                        handleVolumeAdjustment(
+                            // +- 5%
+                            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                                0.05f
+                            } else {
+                                -0.05f
+                            },
+                            true
+                        )
+                        return true
+                    }
+                }
+            }
+        }
+
+        when (keyCode) {
+            // don't allow dpad move when hidden
+            KeyEvent.KEYCODE_DPAD_DOWN,
+            KeyEvent.KEYCODE_DPAD_UP,
+            KeyEvent.KEYCODE_DPAD_DOWN_LEFT,
+            KeyEvent.KEYCODE_DPAD_DOWN_RIGHT,
+            KeyEvent.KEYCODE_DPAD_UP_LEFT,
+            KeyEvent.KEYCODE_DPAD_UP_RIGHT -> {
+                if (!isShowing) {
+                    return true
+                } else {
+                    autoHide()
+                }
+            }
+        }
+
         return false
     }
-    val keyCode = event.keyCode
-
-    if (event.action == KeyEvent.ACTION_DOWN) {
-        when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_CENTER -> {
-                if (!isShowing) {
-                    if (timestampShowState) {
-                        player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
-                    } else if (!isLocked) {
-                        player.handleEvent(CSPlayerEvent.PlayPauseToggle)
-                    }
-                    onClickChange()
-                    return true
-                }
-            }
-
-            // --- BÖLÜM DEĞİŞTİRME EKLEMESİ ---
-            KeyEvent.KEYCODE_DPAD_DOWN,
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                if (!isShowing && !isShowingEpisodeOverlay) {
-                    // Yukarı tuşu sonraki, aşağı tuşu önceki bölümü tetikler
-                    val isNext = keyCode == KeyEvent.KEYCODE_DPAD_UP
-                    (this as? GeneratorPlayer)?.playNextChannel(isNext)
-                    return true
-                }
-            }
-            // --------------------------------
-
-            KeyEvent.KEYCODE_DPAD_LEFT -> {
-                if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                    player.seekTime(-androidTVInterfaceOffSeekTime)
-                    return true
-                } else if (playerBinding?.playerPausePlay?.isFocused == true) {
-                    player.seekTime(-androidTVInterfaceOnSeekTime)
-                    return true
-                }
-            }
-
-            KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                    player.seekTime(androidTVInterfaceOnSeekTime)
-                    return true
-                } else if (playerBinding?.playerPausePlay?.isFocused == true) {
-                    player.seekTime(androidTVInterfaceOnSeekTime)
-                    return true
-                }
-            }
-
-            KeyEvent.KEYCODE_VOLUME_DOWN,
-            KeyEvent.KEYCODE_VOLUME_UP -> {
-                if (isLayout(PHONE or EMULATOR) && isFullScreenPlayer) {
-                    verifyVolume()
-                    if (currentRequestedVolume <= 1.0f) {
-                        hasShownVolumeToast = false
-                    }
-                    isVolumeLocked = currentRequestedVolume < 1.0f
-                    handleVolumeAdjustment(
-                        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) 0.05f else -0.05f,
-                        true
-                    )
-                    return true
-                }
-            }
-        }
-    }
-
-    when (keyCode) {
-        KeyEvent.KEYCODE_DPAD_DOWN,
-        KeyEvent.KEYCODE_DPAD_UP,
-        KeyEvent.KEYCODE_DPAD_DOWN_LEFT,
-        KeyEvent.KEYCODE_DPAD_DOWN_RIGHT,
-        KeyEvent.KEYCODE_DPAD_UP_LEFT,
-        KeyEvent.KEYCODE_DPAD_UP_RIGHT -> {
-            if (!isShowing) {
-                return true
-            } else {
-                autoHide()
-            }
-        }
-    }
-
-    return false
-}
 
     private var loudnessEnhancer: LoudnessEnhancer? = null
 
