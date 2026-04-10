@@ -1,15 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-//yenii
-import android.view.KeyEvent
-import android.os.Looper
-import com.lagradost.cloudstream3.SearchResponse
-import com.lagradost.cloudstream3.ui.result.VideoWatchState
-import android.net.Uri
-import com.lagradost.cloudstream3.utils.newExtractorLink
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.runBlocking
-import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
-//yenii
+
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -116,9 +106,7 @@ import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.runOnMainThread
 import com.lagradost.cloudstream3.utils.DataStoreHelper
 import com.lagradost.cloudstream3.utils.DataStoreHelper.getViewPos
-
-//import com.lagradost.cloudstream3.utils.EpisodeSkip
-
+import com.lagradost.cloudstream3.utils.EpisodeSkip
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.Qualities
@@ -151,22 +139,6 @@ class GeneratorPlayer : FullScreenPlayer() {
         const val CHANNEL_ID = 7340
         const val STOP_ACTION = "stopcs3"
 
-
-//yeni
-//    private var channelList: List<ResultEpisode> = emptyList()
- //   private var currentChannelIndex: Int = 0
-//  private var currentApiName: String? = null
-    
-	
-	// Yeni eklenen değişkenler (Buraya ekle)
-    private var currentRecIndex: Int = 0
-    private var currentRecommendations: List<SearchResponse> = emptyList()
-	//sonradan
-    fun setCurrentApi(name: String?) {
-        currentApiName = name
-    }
-//yeni
-
         private var lastUsedGenerator: IGenerator? = null
         fun newInstance(generator: IGenerator, syncData: HashMap<String, String>? = null): Bundle {
             Log.i(TAG, "newInstance = $syncData")
@@ -180,45 +152,6 @@ class GeneratorPlayer : FullScreenPlayer() {
         val subsProvidersIsActive
             get() = subsProviders.isNotEmpty()
     }
-
-
-//yenii	
-override fun hasNextChannel(): Boolean {	
-    val metaList = allMeta
-    // Dizi/Film Bölüm 
-    if (!metaList.isNullOrEmpty() && metaList.size > 1) {
-        val currentIdx = viewModel.getCurrentIndex() ?: 0
-        return currentIdx + 1 < metaList.size
-    } 
-    // Canlı TV / Kanal
-    return currentRecIndex + 1 < currentRecommendations.size
-}
-override fun hasPrevChannel(): Boolean {
-    val metaList = allMeta
-    // Dizi/Film Bölüm 
-    if (!metaList.isNullOrEmpty() && metaList.size > 1) {
-        val currentIdx = viewModel.getCurrentIndex() ?: 0
-        return currentIdx > 0
-    } 
-    // Canlı TV
-    return currentRecIndex > 0
-}
- override fun nextChannel() {
-    if (currentRecommendations.isEmpty()) return
-    currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
-    val nextRec = currentRecommendations[currentRecIndex]
-    showToast("Kanal: ${nextRec.name}")
-    loadRecommendationUrl(nextRec.url)
-}
-override fun prevChannel() {
-    if (currentRecommendations.isEmpty()) return
-    currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
-    val prevRec = currentRecommendations[currentRecIndex]
-    showToast("Kanal: ${prevRec.name}")
-    loadRecommendationUrl(prevRec.url)
-}
-
-//yenii
 
 
     private var limitTitle = 0
@@ -2118,53 +2051,26 @@ override fun prevChannel() {
             }
         }
     }
-	
-//yeni  VideoSkipStamp
-  //  override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {	
-  //      displayTimeStamp(false)
-  //  }
-  // override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
-   //     if (timestamp != null) {
-   //         playerBinding?.skipChapterButton?.setText(timestamp.uiText)
-    //        displayTimeStamp(true)
-    //        val currentIndex = skipIndex
-    //        playerBinding?.skipChapterButton?.handler?.postDelayed({
-     //           if (skipIndex == currentIndex)
-     //               displayTimeStamp(false)
-     //       }, 6000)
-   //     } else {
-   //         displayTimeStamp(false)
-   //     }
-  //  }
-//VideoSkipStamp
- //yenii
- // EpisodeSkip.SkipStamp yerine doğrudan VideoSkipStamp kullanıyoruz
-override fun onTimestampSkipped(timestamp: VideoSkipStamp) {
-    displayTimeStamp(false)
-}
 
-override fun onTimestamp(timestamp: VideoSkipStamp?) {
-    if (timestamp != null) {
-        // uiText hatası alıyorsan: 
-        // 1. timestamp.text (veya label) denenebilir.
-        // 2. Eğer uiText bir resId ise context.getString(timestamp.uiText) gerekebilir.
-        // Genelde yeni sürümlerde doğrudan 'timestamp.text' kullanılır.
-        
-        playerBinding?.skipChapterButton?.text = timestamp.text ?: "" 
-        
-        displayTimeStamp(true)
-        val currentIndex = skipIndex
-        playerBinding?.skipChapterButton?.handler?.postDelayed({
-            if (skipIndex == currentIndex)
-                displayTimeStamp(false)
-        }, 6000)
-    } else {
+    override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {
         displayTimeStamp(false)
     }
-}
-//yenii
 
- override fun isThereEpisodes(): Boolean {
+    override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
+        if (timestamp != null) {
+            playerBinding?.skipChapterButton?.setText(timestamp.uiText)
+            displayTimeStamp(true)
+            val currentIndex = skipIndex
+            playerBinding?.skipChapterButton?.handler?.postDelayed({
+                if (skipIndex == currentIndex)
+                    displayTimeStamp(false)
+            }, 6000)
+        } else {
+            displayTimeStamp(false)
+        }
+    }
+
+    override fun isThereEpisodes(): Boolean {
         val meta = allMeta
         return !meta.isNullOrEmpty() && meta.size > 1
     }
@@ -2241,110 +2147,6 @@ override fun onTimestamp(timestamp: VideoSkipStamp?) {
             logError(e)
         }
     }
-//yenii
-@SuppressLint("GestureBackNavigation")
-override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-    val keyCode = event.keyCode
-    
-    // Bölüm listesi veya overlay açıkken tuşların normal (liste içi) çalışmasını sağla
-    val episodeHolder = playerBinding?.root?.findViewById<View>(com.lagradost.cloudstream3.R.id.player_episode_holder)
-    val isEpisodeVisible = episodeHolder?.visibility == View.VISIBLE || 
-                          playerBinding?.playerEpisodeOverlay?.visibility == View.VISIBLE
-
-    if (isEpisodeVisible) {
-        return super.dispatchKeyEvent(event)
-    }
-
-    if (event.action == KeyEvent.ACTION_DOWN) {
-        when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_DOWN -> {
-                // Sadece oynatıcı arayüzü kapalıyken çalışsın
-                if (!isShowing) {
-                    val meta = currentMeta
-                    val isLive = when (meta) {
-                        is ResultEpisode -> meta.tvType == TvType.Live
-                        is ExtractorUri -> meta.tvType == TvType.Live
-                        else -> false
-                    }
-                    
-                    if (!isLive && hasEpisodes) {
-                        val metaList = allMeta
-                        if (!metaList.isNullOrEmpty()) {
-                            val currentIdx = viewModel.getCurrentIndex() ?: 0
-                            if (currentIdx > 0) {
-                                val prevEpisode = metaList[currentIdx - 1]
-                                showToast("← ÖNCEKİ: ${prevEpisode.name}")
-                            } else {
-                                val currentName = when (meta) {
-                                    is ResultEpisode -> meta.name
-                                    is ExtractorUri -> meta.name
-                                    else -> "Bilinmiyor"
-                                }
-                                showToast("← İLK BÖLÜM: $currentName")
-                            }
-                        }
-                    } else if (isLive) {
-                        if (hasPrevChannel()) {
-                            val prevIndex = if (currentRecIndex > 0) currentRecIndex - 1 else currentRecommendations.size - 1
-                            val prevRec = currentRecommendations.getOrNull(prevIndex)
-                            prevRec?.let {
-                                showToast("← ÖNCEKİ KANAL: ${it.name}")
-                            }
-                        }
-                    }
-                    // Kanal değiştirme işlemini tetikle
-                    playNextChannel(true)
-                    return true // Tuşu biz işledik, alta iletme
-                }
-            }
-            
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                if (!isShowing) {
-                    val meta = currentMeta
-                    val isLive = when (meta) {
-                        is ResultEpisode -> meta.tvType == TvType.Live
-                        is ExtractorUri -> meta.tvType == TvType.Live
-                        else -> false
-                    }
-                    
-                    if (!isLive && hasEpisodes) {
-                        val metaList = allMeta
-                        if (!metaList.isNullOrEmpty()) {
-                            val currentIdx = viewModel.getCurrentIndex() ?: 0
-                            if (currentIdx + 1 < metaList.size) {
-                                val nextEpisode = metaList[currentIdx + 1]
-                                showToast("→ SONRAKİ: ${nextEpisode.name}")
-                            } else {
-                                val currentName = when (meta) {
-                                    is ResultEpisode -> meta.name
-                                    is ExtractorUri -> meta.name
-                                    else -> "Bilinmiyor"
-                                }
-                                showToast("→ SON BÖLÜM: $currentName")
-                            }
-                        }
-                    } else if (isLive) {
-                        if (hasNextChannel()) {
-                            val nextIndex = (currentRecIndex + 1) % currentRecommendations.size
-                            val nextRec = currentRecommendations.getOrNull(nextIndex)
-                            nextRec?.let {
-                                showToast("→ SONRAKİ KANAL: ${it.name}")
-                            }
-                        }
-                    }
-                    // Kanal değiştirme işlemini tetikle
-                    playNextChannel(false)
-                    return true // Tuşu biz işledik, alta iletme
-                }
-            }
-        }
-    }
-    
-    // Geri tuşu, Ses tuşları gibi diğer tüm tuşlar için orijinal işleyişi koru
-    return super.dispatchKeyEvent(event)
-}
-
-//yeni
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -2483,94 +2285,6 @@ override fun dispatchKeyEvent(event: KeyEvent): Boolean {
             }
         }
     }
-
-
-
-//yenii
-
-private fun getEpisodeFromRec(rec: com.lagradost.cloudstream3.SearchResponse): ResultEpisode {
-        return ResultEpisode(
-            name = rec.name,
-            data = rec.url,
-            index = currentRecIndex,
-            episode = currentRecIndex + 1,
-            poster = rec.posterUrl,
-            headerName = rec.name,
-            seasonIndex = 0,
-            season = 1,
-            apiName = rec.apiName ?: "Unknown",
-            id = rec.url.hashCode(),
-            position = 0L,
-            duration = 0L,
-            score = null,
-            description = null,
-            isFiller = false,
-            tvType = com.lagradost.cloudstream3.TvType.Live,
-            parentId = 0,
-            videoWatchState = com.lagradost.cloudstream3.ui.result.VideoWatchState.None
-        )
-    }
-override fun loadRecommendationUrl(url: String) {
-    if (Looper.myLooper() != Looper.getMainLooper()) {
-        activity?.runOnUiThread { loadRecommendationUrl(url) }
-        return
-    }
-
-    // Mevcut oynatıcıyı durdur
-    try { player.handleEvent(CSPlayerEvent.Pause, PlayerEventSource.UI) } catch (e: Exception) { }
-
-    ioSafe {
-        
-        val apiSource = currentSelectedLink?.first?.source ?: currentApiName ?: ""
-        val api = getApiFromNameNull(apiSource) ?: return@ioSafe        
-        try {            
-            val result = api.load(url)
-            
-            activity?.runOnUiThread {
-                if (result is LoadResponse) {
-                    showToast("KANAL: ${result.name}")
-                    
-                    val newMeta = ExtractorUri(
-                        uri = Uri.parse(result.url),
-                        name = result.name,
-                        headerName = result.name,
-                        tvType = TvType.Live,
-                        parentId = 0,
-                        episode = null,
-                        season = null,
-                        id = result.url.hashCode()
-                    )                    
-                    currentMeta = newMeta
-       
-                    val linkToLoad = ExtractorLink(
-                        source = apiSource,
-                        name = result.name,
-                        url = result.url,
-                        referer = "", 
-                        quality = Qualities.Unknown.value,
-                        type = if (result.url.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
-                        headers = emptyMap()
-                    )
-
-        
-                    loadLink(Pair(linkToLoad, null), sameEpisode = false)
-					 
-                    player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
-                   
-					
-                }
-            }
-        } catch (e: Exception) {
-            logError(e)
-            runOnMainThread { showToast("Kanal yükleme hatası") }
-        }
-    }
-}
-
-//yenii
-
-
-
 
 }
 
