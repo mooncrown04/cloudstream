@@ -2061,14 +2061,17 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
         }
         val keyCode = event.keyCode
 
+        // Sadece tuşa basılma anını yakalıyoruz (ACTION_DOWN)
         if (event.action == KeyEvent.ACTION_DOWN) {
             when (keyCode) {
+                // --- OK / ORTA TUŞ ---
                 KeyEvent.KEYCODE_DPAD_CENTER -> {
                     if (!isShowing) {
-                        // If UI is not shown make click instantly skip to next chapter even if locked
                         if (timestampShowState) {
+                            // Intro/Reklam atlama (IPlayer'daki SkipCurrentChapter)
                             player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
                         } else if (!isLocked) {
+                            // Oynat/Duraklat (IPlayer'daki PlayPauseToggle)
                             player.handleEvent(CSPlayerEvent.PlayPauseToggle)
                         }
                         onClickChange()
@@ -2076,21 +2079,38 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
                     }
                 }
 
-
+                // --- OPTIONS / MENU / SETTINGS: DİZİ LİSTESİ ---
+                KeyEvent.KEYCODE_MENU,
+                KeyEvent.KEYCODE_SETTINGS -> {
+                    if (!isShowingEpisodeOverlay) {
+                        // Liste kapalıysa aç
+                        toggleEpisodesOverlay(show = true)
+                        // ÖNEMLİ: Odağı listeye ver ki kumanda tuşları liste içinde çalışsın
+                        playerBinding?.playerEpisodeOverlay?.requestFocus()
+                    } else {
+                        // Liste açıksa kapat
+                        toggleEpisodesOverlay(show = false)
+                    }
+                    return true
+                }
 
                 // --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
                 KeyEvent.KEYCODE_DPAD_DOWN,
                 KeyEvent.KEYCODE_DPAD_UP -> {
+                    // Sadece menüler kapalıyken bölüm değiştir
                     if (!isShowing && !isShowingEpisodeOverlay) {
                         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                            // IPlayer interface'indeki NextEpisode olayını tetikler
                             player.handleEvent(CSPlayerEvent.NextEpisode)
                         } else {
+                            // IPlayer interface'indeki PrevEpisode olayını tetikler
                             player.handleEvent(CSPlayerEvent.PrevEpisode)
                         }
                         return true
                     }
                 }
 
+                // --- DPAD SOL: GERİ SARMA ---
                 KeyEvent.KEYCODE_DPAD_LEFT -> {
                     if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
                         player.seekTime(-androidTVInterfaceOffSeekTime)
@@ -2101,6 +2121,7 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
                     }
                 }
 
+                // --- DPAD SAĞ: İLERİ SARMA ---
                 KeyEvent.KEYCODE_DPAD_RIGHT -> {
                     if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
                         player.seekTime(androidTVInterfaceOnSeekTime)
@@ -2110,48 +2131,18 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
                         return true
                     }
                 }
-
-                KeyEvent.KEYCODE_VOLUME_DOWN,
-                KeyEvent.KEYCODE_VOLUME_UP -> {
-                    if (isLayout(PHONE or EMULATOR) && isFullScreenPlayer) {
-                        /**
-                         * Some TVs do not support volume boosting, and overriding
-                         * the volume buttons can be inconvenient for TV users.
-                         * Since boosting volume is mainly useful on phones and emulators,
-                         * we limit this feature to those devices.
-                         */
-                        verifyVolume()
-                        if (currentRequestedVolume <= 1.0f) {
-                            hasShownVolumeToast = false
-                        }
-                        isVolumeLocked = currentRequestedVolume < 1.0f
-                        handleVolumeAdjustment(
-                            // +- 5%
-                            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                                0.05f
-                            } else {
-                                -0.05f
-                            },
-                            true
-                        )
-                        return true
-                    }
-                }
             }
         }
 
+        // DPAD yön tuşlarının sistem tarafından tüketilmesini (focus kaymasını) engelleme
         when (keyCode) {
-            // don't allow dpad move when hidden
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_DPAD_UP,
-            KeyEvent.KEYCODE_DPAD_DOWN_LEFT,
-            KeyEvent.KEYCODE_DPAD_DOWN_RIGHT,
-            KeyEvent.KEYCODE_DPAD_UP_LEFT,
-            KeyEvent.KEYCODE_DPAD_UP_RIGHT -> {
-                if (!isShowing) {
-                    return true
-                } else {
-                    autoHide()
+            KeyEvent.KEYCODE_DPAD_LEFT,
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                // Eğer hiçbir menü açık değilse, sistemin bu tuşlarla başka yere odaklanmasını engelle
+                if (!isShowing && !isShowingEpisodeOverlay) {
+                    return true 
                 }
             }
         }
