@@ -116,7 +116,7 @@ import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.runOnMainThread
 import com.lagradost.cloudstream3.utils.DataStoreHelper
 import com.lagradost.cloudstream3.utils.DataStoreHelper.getViewPos
-import com.lagradost.cloudstream3.utils.EpisodeSkip
+//import com.lagradost.cloudstream3.utils.EpisodeSkip
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.Qualities
@@ -2218,13 +2218,15 @@ private var currentApiName: String? = null
     }
 //yenii
  @SuppressLint("GestureBackNavigation")
-override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
+//override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean { 
+ fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
     val keyCode = event.keyCode
     
     if (event.action == KeyEvent.ACTION_DOWN) {
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_DOWN -> {
-                if (!isShowing && !isEpisodeOverlayShowing()) {
+               if (!isShowing && playerBinding?.playerEpisodeHolder?.isVisible != true) {
+			  // if (!isShowing && !isEpisodeOverlayShowing()) {
                     val meta = currentMeta
                     val isLive = when (meta) {
                         is ResultEpisode -> meta.tvType == TvType.Live
@@ -2265,7 +2267,8 @@ override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
             }
             
             KeyEvent.KEYCODE_DPAD_UP -> {
-                if (!isShowing && !isEpisodeOverlayShowing()) {
+				if (!isShowing && playerBinding?.playerEpisodeHolder?.isVisible != true) {
+              //  if (!isShowing && !isEpisodeOverlayShowing()) {
                     val meta = currentMeta
                     val isLive = when (meta) {
                         is ResultEpisode -> meta.tvType == TvType.Live
