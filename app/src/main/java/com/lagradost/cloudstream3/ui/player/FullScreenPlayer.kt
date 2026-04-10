@@ -2076,12 +2076,7 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
                     }
                 }
 
-                // --- OPTIONS / MENU TUŞU: DİZİ LİSTESİNİ AÇAR ---
-                KeyEvent.KEYCODE_MENU,
-                KeyEvent.KEYCODE_SETTINGS -> {
-                    toggleEpisodesOverlay(!isShowingEpisodeOverlay)
-                    return true
-                }
+
 
                 // --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
                 KeyEvent.KEYCODE_DPAD_DOWN,
