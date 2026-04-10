@@ -180,8 +180,9 @@ private var currentApiName: String? = null
     }
 
 
-//yeni	
-override fun hasNextChannel(): Boolean {
+//yenii	
+//override fun hasNextChannel(): Boolean {
+ fun hasNextChannel(): Boolean {	
     val metaList = allMeta
     // Dizi/Film Bölüm 
     if (!metaList.isNullOrEmpty() && metaList.size > 1) {
@@ -191,8 +192,8 @@ override fun hasNextChannel(): Boolean {
     // Canlı TV / Kanal
     return currentRecIndex + 1 < currentRecommendations.size
 }
-
-override fun hasPrevChannel(): Boolean {
+//override fun hasPrevChannel(): Boolean {
+ fun hasPrevChannel(): Boolean {
     val metaList = allMeta
     // Dizi/Film Bölüm 
     if (!metaList.isNullOrEmpty() && metaList.size > 1) {
@@ -202,16 +203,16 @@ override fun hasPrevChannel(): Boolean {
     // Canlı TV
     return currentRecIndex > 0
 }
-
-override fun nextChannel() {
+//override fun nextChannel() {
+ fun nextChannel() {
     if (currentRecommendations.isEmpty()) return
     currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
     val nextRec = currentRecommendations[currentRecIndex]
     showToast("Kanal: ${nextRec.name}")
     loadRecommendationUrl(nextRec.url)
 }
-
-override fun prevChannel() {
+//override fun prevChannel() {
+ fun prevChannel() {
     if (currentRecommendations.isEmpty()) return
     currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
     val prevRec = currentRecommendations[currentRecIndex]
@@ -219,7 +220,7 @@ override fun prevChannel() {
     loadRecommendationUrl(prevRec.url)
 }
 
-//yeni
+//yenii
 
 
     private var limitTitle = 0
