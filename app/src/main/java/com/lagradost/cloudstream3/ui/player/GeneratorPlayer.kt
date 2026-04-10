@@ -117,7 +117,7 @@ import com.lagradost.cloudstream3.utils.Coroutines.runOnMainThread
 import com.lagradost.cloudstream3.utils.DataStoreHelper
 import com.lagradost.cloudstream3.utils.DataStoreHelper.getViewPos
 
-import com.lagradost.cloudstream3.utils.EpisodeSkip
+//import com.lagradost.cloudstream3.utils.EpisodeSkip
 
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
@@ -2118,27 +2118,53 @@ override fun prevChannel() {
             }
         }
     }
+	
 //yeni  VideoSkipStamp
-    override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {
-	// override fun onTimestampSkipped(timestamp: VideoSkipStamp) {	
+  //  override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {	
+  //      displayTimeStamp(false)
+  //  }
+  // override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
+   //     if (timestamp != null) {
+   //         playerBinding?.skipChapterButton?.setText(timestamp.uiText)
+    //        displayTimeStamp(true)
+    //        val currentIndex = skipIndex
+    //        playerBinding?.skipChapterButton?.handler?.postDelayed({
+     //           if (skipIndex == currentIndex)
+     //               displayTimeStamp(false)
+     //       }, 6000)
+   //     } else {
+   //         displayTimeStamp(false)
+   //     }
+  //  }
+//VideoSkipStamp
+ //yenii
+ // EpisodeSkip.SkipStamp yerine doğrudan VideoSkipStamp kullanıyoruz
+override fun onTimestampSkipped(timestamp: VideoSkipStamp) {
+    displayTimeStamp(false)
+}
+
+override fun onTimestamp(timestamp: VideoSkipStamp?) {
+    if (timestamp != null) {
+        // uiText hatası alıyorsan: 
+        // 1. timestamp.text (veya label) denenebilir.
+        // 2. Eğer uiText bir resId ise context.getString(timestamp.uiText) gerekebilir.
+        // Genelde yeni sürümlerde doğrudan 'timestamp.text' kullanılır.
+        
+        playerBinding?.skipChapterButton?.text = timestamp.text ?: "" 
+        
+        displayTimeStamp(true)
+        val currentIndex = skipIndex
+        playerBinding?.skipChapterButton?.handler?.postDelayed({
+            if (skipIndex == currentIndex)
+                displayTimeStamp(false)
+        }, 6000)
+    } else {
         displayTimeStamp(false)
     }
-   override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
-  //  override fun onTimestamp(timestamp: EpisodeSkip.VideoSkipStamp?) {
-        if (timestamp != null) {
-            playerBinding?.skipChapterButton?.setText(timestamp.uiText)
-            displayTimeStamp(true)
-            val currentIndex = skipIndex
-            playerBinding?.skipChapterButton?.handler?.postDelayed({
-                if (skipIndex == currentIndex)
-                    displayTimeStamp(false)
-            }, 6000)
-        } else {
-            displayTimeStamp(false)
-        }
-    }
-//VideoSkipStamp
-    override fun isThereEpisodes(): Boolean {
+}
+//yenii
+
+ override fun isThereEpisodes(): Boolean {
         val meta = allMeta
         return !meta.isNullOrEmpty() && meta.size > 1
     }
@@ -2216,17 +2242,24 @@ override fun prevChannel() {
         }
     }
 //yenii
- @SuppressLint("GestureBackNavigation")
- 
-override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean { 
-//fun handleCustomKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
+@SuppressLint("GestureBackNavigation")
+override fun dispatchKeyEvent(event: KeyEvent): Boolean {
     val keyCode = event.keyCode
     
+    // Bölüm listesi veya overlay açıkken tuşların normal (liste içi) çalışmasını sağla
+    val episodeHolder = playerBinding?.root?.findViewById<View>(com.lagradost.cloudstream3.R.id.player_episode_holder)
+    val isEpisodeVisible = episodeHolder?.visibility == View.VISIBLE || 
+                          playerBinding?.playerEpisodeOverlay?.visibility == View.VISIBLE
+
+    if (isEpisodeVisible) {
+        return super.dispatchKeyEvent(event)
+    }
+
     if (event.action == KeyEvent.ACTION_DOWN) {
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_DOWN -> {
-               if (!isShowing && playerBinding?.playerEpisodeHolder?.isVisible != true) {
-			  // if (!isShowing && !isEpisodeOverlayShowing()) {
+                // Sadece oynatıcı arayüzü kapalıyken çalışsın
+                if (!isShowing) {
                     val meta = currentMeta
                     val isLive = when (meta) {
                         is ResultEpisode -> meta.tvType == TvType.Live
@@ -2240,10 +2273,8 @@ override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
                             val currentIdx = viewModel.getCurrentIndex() ?: 0
                             if (currentIdx > 0) {
                                 val prevEpisode = metaList[currentIdx - 1]
-                                // ÖNCEKİ BÖLÜM İSMİNİ GÖSTER
                                 showToast("← ÖNCEKİ: ${prevEpisode.name}")
                             } else {
-                                // İLK BÖLÜM - MEVCUT DİZİ İSMİNİ GÖSTER
                                 val currentName = when (meta) {
                                     is ResultEpisode -> meta.name
                                     is ExtractorUri -> meta.name
@@ -2261,14 +2292,14 @@ override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
                             }
                         }
                     }
-                    
-                    return super.handleKeyEvent(event, hasNavigated)
+                    // Kanal değiştirme işlemini tetikle
+                    playNextChannel(true)
+                    return true // Tuşu biz işledik, alta iletme
                 }
             }
             
             KeyEvent.KEYCODE_DPAD_UP -> {
-				if (!isShowing && playerBinding?.playerEpisodeHolder?.isVisible != true) {
-              //  if (!isShowing && !isEpisodeOverlayShowing()) {
+                if (!isShowing) {
                     val meta = currentMeta
                     val isLive = when (meta) {
                         is ResultEpisode -> meta.tvType == TvType.Live
@@ -2282,10 +2313,8 @@ override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
                             val currentIdx = viewModel.getCurrentIndex() ?: 0
                             if (currentIdx + 1 < metaList.size) {
                                 val nextEpisode = metaList[currentIdx + 1]
-                                // SONRAKİ BÖLÜM İSMİNİ GÖSTER
                                 showToast("→ SONRAKİ: ${nextEpisode.name}")
                             } else {
-                                // SON BÖLÜM - MEVCUT DİZİ İSMİNİ GÖSTER
                                 val currentName = when (meta) {
                                     is ResultEpisode -> meta.name
                                     is ExtractorUri -> meta.name
@@ -2303,14 +2332,16 @@ override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
                             }
                         }
                     }
-                    
-                    return super.handleKeyEvent(event, hasNavigated)
+                    // Kanal değiştirme işlemini tetikle
+                    playNextChannel(false)
+                    return true // Tuşu biz işledik, alta iletme
                 }
             }
         }
     }
     
-    return super.handleKeyEvent(event, hasNavigated)
+    // Geri tuşu, Ses tuşları gibi diğer tüm tuşlar için orijinal işleyişi koru
+    return super.dispatchKeyEvent(event)
 }
 
 //yeni
