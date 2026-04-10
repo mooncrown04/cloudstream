@@ -8,6 +8,7 @@ import android.net.Uri
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.runBlocking
+import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
 //yenii
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -2113,12 +2114,12 @@ override fun prevChannel() {
             }
         }
     }
-
-    override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {
+//yeni  VideoSkipStamp
+    override fun onTimestampSkipped(timestamp: VideoSkipStamp.SkipStamp) {
         displayTimeStamp(false)
     }
 
-    override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
+    override fun onTimestamp(timestamp: VideoSkipStamp.SkipStamp?) {
         if (timestamp != null) {
             playerBinding?.skipChapterButton?.setText(timestamp.uiText)
             displayTimeStamp(true)
@@ -2131,7 +2132,7 @@ override fun prevChannel() {
             displayTimeStamp(false)
         }
     }
-
+//VideoSkipStamp
     override fun isThereEpisodes(): Boolean {
         val meta = allMeta
         return !meta.isNullOrEmpty() && meta.size > 1
