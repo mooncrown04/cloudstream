@@ -107,7 +107,7 @@ import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.runOnMainThread
 import com.lagradost.cloudstream3.utils.DataStoreHelper
 import com.lagradost.cloudstream3.utils.DataStoreHelper.getViewPos
-import com.lagradost.cloudstream3.utils.EpisodeSkip
+//import com.lagradost.cloudstream3.utils.EpisodeSkip
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.Qualities
@@ -2053,23 +2053,32 @@ class GeneratorPlayer : FullScreenPlayer() {
         }
     }
 
-    override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {
+   // GeneratorPlayer.kt içinde:
+
+override fun onTimestampSkipped(timestamp: VideoSkipStamp) {
+    // EpisodeSkip yerine VideoSkipStamp kullanıldı
+    super.onTimestampSkipped(timestamp)
+}
+
+override fun onTimestamp(timestamp: VideoSkipStamp?) {
+    if (timestamp != null) {
+        // uiText yerine timestamp içindeki text veya label alanını kullanın
+        playerBinding?.skipChapterButton?.text = timestamp.text 
+        displayTimeStamp(true)
+        
+        if (isLayout(TV)) {
+             playerBinding?.skipChapterButton?.requestFocus()
+        }
+
+        val currentIndex = skipIndex
+        playerBinding?.skipChapterButton?.handler?.postDelayed({
+            if (skipIndex == currentIndex)
+                displayTimeStamp(false)
+        }, 6000)
+    } else {
         displayTimeStamp(false)
     }
-
-    override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
-        if (timestamp != null) {
-            playerBinding?.skipChapterButton?.setText(timestamp.uiText)
-            displayTimeStamp(true)
-            val currentIndex = skipIndex
-            playerBinding?.skipChapterButton?.handler?.postDelayed({
-                if (skipIndex == currentIndex)
-                    displayTimeStamp(false)
-            }, 6000)
-        } else {
-            displayTimeStamp(false)
-        }
-    }
+}
 
     override fun isThereEpisodes(): Boolean {
         val meta = allMeta
