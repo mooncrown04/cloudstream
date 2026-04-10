@@ -155,6 +155,11 @@ class GeneratorPlayer : FullScreenPlayer() {
     private var currentChannelIndex: Int = 0
 private var currentApiName: String? = null
     
+	
+	// Yeni eklenen değişkenler (Buraya ekle)
+    private var currentRecIndex: Int = 0
+    private var currentRecommendations: List<SearchResponse> = emptyList()
+	//sonradan
     fun setCurrentApi(name: String?) {
         currentApiName = name
     }
