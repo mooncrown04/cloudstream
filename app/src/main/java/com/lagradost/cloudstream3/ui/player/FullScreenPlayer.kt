@@ -2079,20 +2079,6 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
                     }
                 }
 
-                // --- OPTIONS / MENU / SETTINGS: DİZİ LİSTESİ ---
-                KeyEvent.KEYCODE_MENU,
-                KeyEvent.KEYCODE_SETTINGS -> {
-                    if (!isShowingEpisodeOverlay) {
-                        // Liste kapalıysa aç
-                        toggleEpisodesOverlay(show = true)
-                        // ÖNEMLİ: Odağı listeye ver ki kumanda tuşları liste içinde çalışsın
-                        playerBinding?.playerEpisodeOverlay?.requestFocus()
-                    } else {
-                        // Liste açıksa kapat
-                        toggleEpisodesOverlay(show = false)
-                    }
-                    return true
-                }
 
                 // --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
                 KeyEvent.KEYCODE_DPAD_DOWN,
