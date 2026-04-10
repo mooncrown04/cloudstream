@@ -181,8 +181,7 @@ private var currentApiName: String? = null
 
 
 //yenii	
-//override fun hasNextChannel(): Boolean {
- fun hasNextChannel(): Boolean {	
+override fun hasNextChannel(): Boolean {	
     val metaList = allMeta
     // Dizi/Film Bölüm 
     if (!metaList.isNullOrEmpty() && metaList.size > 1) {
@@ -192,8 +191,7 @@ private var currentApiName: String? = null
     // Canlı TV / Kanal
     return currentRecIndex + 1 < currentRecommendations.size
 }
-//override fun hasPrevChannel(): Boolean {
- fun hasPrevChannel(): Boolean {
+override fun hasPrevChannel(): Boolean {
     val metaList = allMeta
     // Dizi/Film Bölüm 
     if (!metaList.isNullOrEmpty() && metaList.size > 1) {
@@ -203,16 +201,14 @@ private var currentApiName: String? = null
     // Canlı TV
     return currentRecIndex > 0
 }
-//override fun nextChannel() {
- fun nextChannel() {
+ override fun nextChannel() {
     if (currentRecommendations.isEmpty()) return
     currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
     val nextRec = currentRecommendations[currentRecIndex]
     showToast("Kanal: ${nextRec.name}")
     loadRecommendationUrl(nextRec.url)
 }
-//override fun prevChannel() {
- fun prevChannel() {
+override fun prevChannel() {
     if (currentRecommendations.isEmpty()) return
     currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
     val prevRec = currentRecommendations[currentRecIndex]
@@ -2218,8 +2214,9 @@ private var currentApiName: String? = null
     }
 //yenii
  @SuppressLint("GestureBackNavigation")
-//override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean { 
- fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
+ 
+ override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean { 
+
     val keyCode = event.keyCode
     
     if (event.action == KeyEvent.ACTION_DOWN) {
