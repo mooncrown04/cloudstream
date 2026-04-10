@@ -2121,11 +2121,11 @@ private var currentApiName: String? = null
         }
     }
 //yeni  VideoSkipStamp
-    override fun onTimestampSkipped(timestamp: VideoSkipStamp.SkipStamp) {
+    override fun onTimestampSkipped(timestamp: VideoSkipStamp) {
         displayTimeStamp(false)
     }
 
-    override fun onTimestamp(timestamp: VideoSkipStamp.SkipStamp?) {
+    override fun onTimestamp(timestamp: VideoSkipStamp?) {
         if (timestamp != null) {
             playerBinding?.skipChapterButton?.setText(timestamp.uiText)
             displayTimeStamp(true)
@@ -2476,8 +2476,8 @@ private fun getEpisodeFromRec(rec: com.lagradost.cloudstream3.SearchResponse): R
             videoWatchState = com.lagradost.cloudstream3.ui.result.VideoWatchState.None
         )
     }
-
-override fun loadRecommendationUrl(url: String) {
+//override fun loadRecommendationUrl(url: String) {
+ fun loadRecommendationUrl(url: String) {
     if (Looper.myLooper() != Looper.getMainLooper()) {
         activity?.runOnUiThread { loadRecommendationUrl(url) }
         return
