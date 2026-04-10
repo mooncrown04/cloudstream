@@ -2476,8 +2476,7 @@ private fun getEpisodeFromRec(rec: com.lagradost.cloudstream3.SearchResponse): R
             videoWatchState = com.lagradost.cloudstream3.ui.result.VideoWatchState.None
         )
     }
-//override fun loadRecommendationUrl(url: String) {
- fun loadRecommendationUrl(url: String) {
+override fun loadRecommendationUrl(url: String) {
     if (Looper.myLooper() != Looper.getMainLooper()) {
         activity?.runOnUiThread { loadRecommendationUrl(url) }
         return
