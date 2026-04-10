@@ -1,11 +1,9 @@
 package com.lagradost.cloudstream3.ui.player
-//yenii
-import com.lagradost.cloudstream3.SearchResponse
+//yeni
 import com.lagradost.cloudstream3.ui.result.ResultEpisode
 import com.lagradost.cloudstream3.TvType
-
-
-//yenii
+import com.lagradost.cloudstream3.ui.player.CSPlayerEvent
+//yeni
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -129,18 +127,6 @@ private const val SUBTITLE_DELAY_BUNDLE_KEY = "subtitle_delay"
 // All the UI Logic for the player
 @OptIn(UnstableApi::class)
 open class FullScreenPlayer : AbstractPlayerFragment() {
-
-    //yenii
-	  open fun prevChannel() { showToast("prevChannel: Base") }
-    open fun nextChannel() { showToast("nextChannel: Base") }
-    open fun hasPrevChannel(): Boolean = false
-    open fun hasNextChannel(): Boolean = false
-	
-	protected open var currentMeta: Any? = null
-    protected var currentRecommendations: List<SearchResponse> = emptyList()
-    protected var currentRecIndex: Int = 0
-	
-	//yenii
     private var isVerticalOrientation: Boolean = false
     protected open var lockRotation = true
     protected open var isFullScreenPlayer = true
@@ -461,12 +447,6 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
             if (obs.isAlive) obs.addOnGlobalLayoutListener(listener)
         }
     }
-	
-//yenii	
-	open fun hasPrevEpisode(): Boolean = hasEpisodes
-open fun hasNextEpisode(): Boolean = hasEpisodes
-//yenii	
-	
 
     open fun showMirrorsDialogue() {
         throw NotImplementedError()
@@ -1684,7 +1664,7 @@ open fun hasNextEpisode(): Boolean = hasEpisodes
         playerBinding?.playerIntroPlay?.isGone = true
 
         // Handle pan with two fingers
-        if (event.pointerCount == 2 && !isLocked && isFullScreenPlayer && !hasTriggeredSpeedUp && currentTouchAction == null) {
+        if ((event.pointerCount == 2 || lastPan != null) && !isLocked && isFullScreenPlayer && !hasTriggeredSpeedUp && currentTouchAction == null) {
             holdhandler.removeCallbacks(holdRunnable) // remove 2x speed
 
             // Gesture detectors for zoom & pan
@@ -1719,7 +1699,7 @@ open fun hasNextEpisode(): Boolean = hasEpisodes
                     lastPan = newPan
                 }
 
-                MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP -> {
+                MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_UP -> {
                     // Reset touch
                     lastPan = null
                     currentTouchStart = null
@@ -1801,7 +1781,7 @@ open fun hasNextEpisode(): Boolean = hasEpisodes
                     }
                 }
 
-                MotionEvent.ACTION_UP -> {
+                MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                     holdhandler.removeCallbacks(holdRunnable)
                     if (hasTriggeredSpeedUp) {
                         player.setPlaybackSpeed(DataStoreHelper.playBackSpeed)
@@ -2076,8 +2056,8 @@ open fun hasNextEpisode(): Boolean = hasEpisodes
         currentTouchLast = currentTouch
         return true
     }
-
-    @SuppressLint("GestureBackNavigation")
+///yeni
+@SuppressLint("GestureBackNavigation")
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
             autoHide()
@@ -2089,7 +2069,6 @@ open fun hasNextEpisode(): Boolean = hasEpisodes
             when (keyCode) {
                 KeyEvent.KEYCODE_DPAD_CENTER -> {
                     if (!isShowing) {
-                        // If UI is not shown make click instantly skip to next chapter even if locked
                         if (timestampShowState) {
                             player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
                         } else if (!isLocked) {
@@ -2100,75 +2079,52 @@ open fun hasNextEpisode(): Boolean = hasEpisodes
                     }
                 }
 
-               // KeyEvent.KEYCODE_DPAD_DOWN,
-               //yenii
-			      KeyEvent.KEYCODE_DPAD_DOWN -> {
-                if (!isShowing && !isShowingEpisodeOverlay) {
-                
-                    val meta = currentMeta
-                    val isLive = when (meta) {
-                        is ResultEpisode -> meta.tvType == TvType.Live
-                        is ExtractorUri -> meta.tvType == TvType.Live
-                        else -> false
-                    }
-                    
-                    showToast("isLive: $isLive, hasEpisodes: $hasEpisodes")
-                    
-                    if (isLive) {
-                        showToast("CANLI TV - Önceki Kanal")
-                        if (hasPrevChannel()) {
-                            showToast("→ prevChannel() çağrılıyor")
-                            prevChannel()
-                        } else {
-                            showToast("Önceki kanal YOK")
+                // --- EKLEME YAPILAN KISIM BAŞLANGICI (DPAD UP/DOWN) ---
+                KeyEvent.KEYCODE_DPAD_DOWN,
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    if (!isShowing && !isShowingEpisodeOverlay) {
+                        val isUp = keyCode == KeyEvent.KEYCODE_DPAD_UP
+                        val meta = currentMeta
+                        
+                        // TV Türü Kontrolü
+                        val isLive = when (meta) {
+                            is ResultEpisode -> meta.tvType == TvType.Live
+                            is ExtractorUri -> meta.tvType == TvType.Live
+                            else -> false
                         }
-                    } else {
-                        showToast("DİZİ/FİLM - Önceki")
-                        if (hasEpisodes) {
-                            showToast("→ PrevEpisode çağrılıyor")
-                            player.handleEvent(CSPlayerEvent.PrevEpisode)
-                        } else {
-                            showToast("→ -10dk seek")
-                            player.seekTime(-600000L)
+
+                        if (!isLive && hasEpisodes) {
+                            // Dizi/Film Bölüm Değiştirme Bildirimi
+                            val metaList = allMeta
+                            if (!metaList.isNullOrEmpty()) {
+                                val currentIdx = viewModel.getCurrentIndex() ?: 0
+                                val targetIdx = if (isUp) currentIdx + 1 else currentIdx - 1
+                                
+                                metaList.getOrNull(targetIdx)?.let { nextEpisode ->
+                                    showToast("${if (isUp) "→ SONRAKİ" else "← ÖNCEKİ"}: ${nextEpisode.name}")
+                                }
+                            }
+                        } else if (isLive) {
+                            // Canlı TV Kanal Değiştirme Bildirimi
+                            val nextIndex = if (isUp) {
+                                (currentRecIndex + 1) % currentRecommendations.size
+                            } else {
+                                if (currentRecIndex > 0) currentRecIndex - 1 else currentRecommendations.size - 1
+                            }
+                            
+                            currentRecommendations.getOrNull(nextIndex)?.let {
+                                showToast("${if (isUp) "→ SONRAKİ" else "← ÖNCEKİ"} KANAL: ${it.name}")
+                            }
                         }
+
+                        // Asıl kanal/bölüm değiştirme fonksiyonunu çağırır
+                        // isUp (true) ise yukarı/ileri, (false) ise aşağı/geri
+                        playNextChannel(isUp) 
+                        return true
                     }
-                    return true
                 }
-            }
-          
-			KeyEvent.KEYCODE_DPAD_UP -> {
-                if (!isShowing && !isShowingEpisodeOverlay) {                
-                    val meta = currentMeta
-                    val isLive = when (meta) {
-                        is ResultEpisode -> meta.tvType == TvType.Live
-                        is ExtractorUri -> meta.tvType == TvType.Live
-                        else -> false
-                    }
-                    
-                    showToast("isLive: $isLive, hasEpisodes: $hasEpisodes")
-                    
-                    if (isLive) {
-                        showToast("CANLI TV - Sonraki Kanal")
-                        if (hasNextChannel()) {
-                            showToast("→ nextChannel() çağrılıyor")
-                            nextChannel()
-                        } else {
-                            showToast("Sonraki kanal YOK")
-                        }
-                    } else {
-                        showToast("DİZİ/FİLM - Sonraki")
-                        if (hasEpisodes) {
-                            showToast("→ NextEpisode çağrılıyor")
-                            player.handleEvent(CSPlayerEvent.NextEpisode)
-                        } else {
-                            showToast("→ +10dk seek")
-                            player.seekTime(600000L)
-                        }
-                    }
-                    return true
-                }
-            }
-//yenii
+                // --- EKLEME YAPILAN KISIM SONU ---
+
                 KeyEvent.KEYCODE_DPAD_LEFT -> {
                     if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
                         player.seekTime(-androidTVInterfaceOffSeekTime)
@@ -2192,24 +2148,13 @@ open fun hasNextEpisode(): Boolean = hasEpisodes
                 KeyEvent.KEYCODE_VOLUME_DOWN,
                 KeyEvent.KEYCODE_VOLUME_UP -> {
                     if (isLayout(PHONE or EMULATOR) && isFullScreenPlayer) {
-                        /**
-                         * Some TVs do not support volume boosting, and overriding
-                         * the volume buttons can be inconvenient for TV users.
-                         * Since boosting volume is mainly useful on phones and emulators,
-                         * we limit this feature to those devices.
-                         */
                         verifyVolume()
                         if (currentRequestedVolume <= 1.0f) {
                             hasShownVolumeToast = false
                         }
                         isVolumeLocked = currentRequestedVolume < 1.0f
                         handleVolumeAdjustment(
-                            // +- 5%
-                            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                                0.05f
-                            } else {
-                                -0.05f
-                            },
+                            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) 0.05f else -0.05f,
                             true
                         )
                         return true
@@ -2219,8 +2164,6 @@ open fun hasNextEpisode(): Boolean = hasEpisodes
         }
 
         when (keyCode) {
-            // don't allow dpad move when hidden
-
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_DPAD_UP,
             KeyEvent.KEYCODE_DPAD_DOWN_LEFT,
@@ -2233,63 +2176,11 @@ open fun hasNextEpisode(): Boolean = hasEpisodes
                     autoHide()
                 }
             }
-
-            // netflix capture back and hide ~monke
-            // This is removed due to inconsistent behavior on A36 vs A22, see https://github.com/recloudstream/cloudstream/issues/1804
-            /*KeyEvent.KEYCODE_BACK -> {
-                if (isShowing && isLayout(TV or EMULATOR)) {
-                    onClickChange()
-                    return true
-                }
-            }*/
         }
 
         return false
     }
-
-
-
-//yenii
-    protected fun loadNextFromRecommendations(direction: Int) {
-    if (currentRecommendations.isEmpty()) {
-        showToast("Liste boş")
-        return
-    }
-    
-    val newIndex = when {
-        direction > 0 -> (currentRecIndex + 1) % currentRecommendations.size
-        else -> (currentRecIndex - 1 + currentRecommendations.size) % currentRecommendations.size
-    }
-    
-    val nextItem = currentRecommendations[newIndex]
-    currentRecIndex = newIndex
-    
-    val arrow = if (direction > 0) "▲" else "▼"
-    val itemType = when (nextItem.type) {
-        TvType.Movie -> "Film"
-        TvType.TvSeries -> "Dizi"
-        TvType.Live -> "Canlı"
-        else -> "İçerik"
-    }
-    showToast("$arrow ${nextItem.name} ($itemType ${newIndex + 1}/${currentRecommendations.size})")
-    
-    loadRecommendationUrl(nextItem.url)
-}
-
-protected open fun loadRecommendationUrl(url: String) {
-    showToast("loadRecommendationUrl: $url")
-}
-   
-//yenii
-
-
-
-
-
-
-
-
-
+//yeni
     private var loudnessEnhancer: LoudnessEnhancer? = null
 
     private fun handleVolumeAdjustment(
@@ -2810,47 +2701,6 @@ protected open fun loadRecommendationUrl(url: String) {
         }
     }
 
-
-//yenii
-
-private fun getEpisodeFromRec(response: SearchResponse): ResultEpisode {
-  return ResultEpisode(
-            name = response.name,
-            data = response.url,
-            index = currentRecIndex,
-            episode = currentRecIndex + 1,
-            poster = response.posterUrl,
-            headerName = response.name,
-            seasonIndex = 0,
-            season = 1,
-            apiName = response.apiName ?: "Unknown",
-            id = response.url.hashCode(),
-            position = 0L,
-            duration = 0L,
-            score = null,
-            description = null,
-            isFiller = false,
-            tvType = com.lagradost.cloudstream3.TvType.Live,
-            parentId = 0,
-            videoWatchState = com.lagradost.cloudstream3.ui.result.VideoWatchState.None
-        )
-    }
-
-
-
-
-//yenii
-
-
-
-
-
-
-
-
-
-
-
     @SuppressLint("SourceLockedOrientationActivity")
     private fun toggleRotate() {
         activity?.let {
@@ -2876,6 +2726,11 @@ private fun getEpisodeFromRec(response: SearchResponse): ResultEpisode {
     }
 
     override fun playerDimensionsLoaded(width: Int, height: Int) {
+        // On TV, don't rotate for portrait videos; display with pillarbox (black bars on sides)
+        if (isLayout(TV or EMULATOR)) {
+            isVerticalOrientation = false
+            return
+        }
         isVerticalOrientation = height > width
         updateOrientation()
     }
@@ -2899,6 +2754,10 @@ private fun getEpisodeFromRec(response: SearchResponse): ResultEpisode {
     }
 
     private fun dynamicOrientation(): Int {
+        // TV should always remain in landscape mode
+        if (isLayout(TV or EMULATOR)) {
+            return ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        }
         return if (autoPlayerRotateEnabled) {
             if (isVerticalOrientation) {
                 ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
