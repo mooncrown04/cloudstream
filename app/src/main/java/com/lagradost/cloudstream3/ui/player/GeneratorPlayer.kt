@@ -8,7 +8,7 @@ import android.net.Uri
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.runBlocking
-//import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
+import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
 //yenii
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -2117,11 +2117,12 @@ override fun prevChannel() {
         }
     }
 //yeni  VideoSkipStamp
-    override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {
+   // override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {
+	 override fun onTimestampSkipped(timestamp: VideoSkipStamp) {	
         displayTimeStamp(false)
     }
-
-    override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
+  // override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
+    override fun onTimestamp(timestamp: EpisodeSkip.VideoSkipStamp?) {
         if (timestamp != null) {
             playerBinding?.skipChapterButton?.setText(timestamp.uiText)
             displayTimeStamp(true)
@@ -2215,8 +2216,8 @@ override fun prevChannel() {
 //yenii
  @SuppressLint("GestureBackNavigation")
  
- override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean { 
-
+ //override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean { 
+fun handleCustomKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
     val keyCode = event.keyCode
     
     if (event.action == KeyEvent.ACTION_DOWN) {
