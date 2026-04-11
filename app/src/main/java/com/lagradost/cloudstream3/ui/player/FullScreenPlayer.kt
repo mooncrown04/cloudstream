@@ -2089,6 +2089,15 @@ KeyEvent.KEYCODE_SETTINGS -> {
         return true
     }
 }
+// --- OPTIONS / MENU TUŞU İLE BÖLÜM LİSTESİNİ AÇMA ---
+KeyEvent.KEYCODE_MENU, 
+KeyEvent.KEYCODE_SETTINGS -> {
+    if (isLocked != true) { 
+        // Senin kodunda dizi listesini açan gerçek fonksiyon budur:
+        toggleEpisodesOverlay(true)
+        return true
+    }
+}
 
                 // --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
                 KeyEvent.KEYCODE_DPAD_DOWN,
