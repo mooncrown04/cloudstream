@@ -228,22 +228,27 @@ open class HomeChildItemAdapter(
             nextFocusUp,
             nextFocusDown
         )
-
-       // --- ŞİMDİ BU ARAYA EKLEME YAPIYORUZ ---
-holder.itemView.setOnKeyListener { view, keyCode, event ->
-            if (event.action == KeyEvent.ACTION_DOWN) {
-                if (keyCode == KeyEvent.KEYCODE_MENU) {
+//burası
+    holder.itemView.setOnKeyListener { view, keyCode, event ->
+            if (event.action == android.view.KeyEvent.ACTION_DOWN) {
+                // KEYCODE_MENU = Kumandadaki Option/Menü tuşu
+                if (keyCode == android.view.KeyEvent.KEYCODE_MENU) {
                     
                     // UZUN BASMA: Ayarlar'a git
                     if (event.isLongPress || event.repeatCount > 0) {
-                         UIHelper.navigate(view, R.id.navigation_settings)
-                         return@setOnKeyListener true
+                        try {
+                            com.lagradost.cloudstream3.utils.UIHelper.INSTANCE.navigate(view, R.id.navigation_settings)
+                        } catch (e: Exception) {
+                            // Eğer yukarıdaki olmazsa alternatif yöntem
+                            com.lagradost.cloudstream3.MainActivity.navController?.navigate(R.id.navigation_settings)
+                        }
+                        return@setOnKeyListener true
                     }
                     
                     // NORMAL BASMA: Profil/Hesap Seçimi
-                    val activity = view.context as? Activity
+                    val activity = view.context as? android.app.Activity
                     activity?.let { act ->
-                        AccountHelper.showAccountSelectLinear(act)
+                        com.lagradost.cloudstream3.ui.account.AccountHelper.INSTANCE.showAccountSelectLinear(act)
                     }
                     return@setOnKeyListener true
                 }
