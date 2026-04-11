@@ -1,5 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-import com.lagradost.cloudstream3.ui.player.VideoSkipStamp
+import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
