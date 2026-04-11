@@ -2060,47 +2060,4 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
         }
     }
 
-//yeni
-
-// --- KUMANDA TUŞ KONTROLLERİ ---
-    override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            try {
-                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? androidx.navigation.fragment.NavHostFragment
-                navHostFragment?.navController?.navigate(R.id.navigation_settings)
-                return true
-            } catch (e: Exception) {
-                return false
-            }
-        }
-        return super.onKeyLongPress(keyCode, event)
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            event.startTracking()
-            return true
-        }
-        return super.onKeyDown(keyCode, event)
-    }
-
-    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.isTracking && !event.isLongPress) {
-            try {
-                // Hata veren satırın %100 çalışan hali budur.
-                // Fonksiyon bir extension function olduğu için doğrudan (this) üzerinden çağrılır.
-                val activity: android.app.Activity = this
-                com.lagradost.cloudstream3.ui.account.AccountHelper.showAccountSelectLinear(activity)
-                return true
-            } catch (e: Exception) {
-                return false
-            }
-        }
-        return super.onKeyUp(keyCode, event)
-    }
-
-//yeni
-
-
-
 }
