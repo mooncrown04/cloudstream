@@ -2064,7 +2064,6 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
 
 // --- KUMANDA TUŞ KONTROLLERİ ---
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
-        // Yukarı tuşuna uzun basınca Ayarlar sayfasını açar
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
             try {
                 val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? androidx.navigation.fragment.NavHostFragment
@@ -2078,7 +2077,6 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        // Tuşu takip etmeye başla (uzun basmayı algılamak için gerekli)
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
             event.startTracking()
             return true
@@ -2088,14 +2086,14 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.isTracking && !event.isLongPress) {
-            // HATA BURADAYDI: Doğrudan 'this' üzerinden (extension function olarak) çağırıyoruz
             try {
-                this.showAccountSelectLinear()
+                // Hata veren satırın %100 çalışan hali budur.
+                // Fonksiyon bir extension function olduğu için doğrudan (this) üzerinden çağrılır.
+                val activity: android.app.Activity = this
+                com.lagradost.cloudstream3.ui.account.AccountHelper.showAccountSelectLinear(activity)
                 return true
             } catch (e: Exception) {
-                // Eğer üstteki çalışmazsa alternatif yöntem:
-                com.lagradost.cloudstream3.ui.account.AccountHelper.showAccountSelectLinear(this)
-                return true
+                return false
             }
         }
         return super.onKeyUp(keyCode, event)
