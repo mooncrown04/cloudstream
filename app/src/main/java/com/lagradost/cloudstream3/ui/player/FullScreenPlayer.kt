@@ -2063,19 +2063,25 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
 
         // Sadece tuşa basılma anını yakalıyoruz (ACTION_DOWN)
         if (event.action == KeyEvent.ACTION_DOWN) {
-            when (keyCode) {
-                // --- OK / ORTA TUŞ ---
+            when (keyCode) {           
+        // --- OK / ORTA TUŞ ---
                 KeyEvent.KEYCODE_DPAD_CENTER -> {
+                    // 1. Durum: Menü kapalıyken (isShowing == false)
                     if (!isShowing) {
                         if (timestampShowState) {
-                            // Intro/Reklam atlama (IPlayer'daki SkipCurrentChapter)
                             player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
                         } else if (!isLocked) {
-                            // Oynat/Duraklat (IPlayer'daki PlayPauseToggle)
                             player.handleEvent(CSPlayerEvent.PlayPauseToggle)
                         }
+                        // Menüyü aç
                         onClickChange()
                         return true
+                    } else {
+                        // 2. Durum: Menü ZATEN AÇIKSA (isShowing == true)
+                        // Bu durumda tuşun "tıklama" görevini yapmasına izin veriyoruz
+                        // return true demeyerek veya false döndürerek sistemin 
+                        // odaklandığın butona (altyazı, bölümler vb.) basmasını sağlıyoruz.
+                        return false 
                     }
                 }
 
@@ -2144,6 +2150,7 @@ KeyEvent.KEYCODE_SETTINGS -> {
 
         return false
     }
+
 
     private var loudnessEnhancer: LoudnessEnhancer? = null
 
