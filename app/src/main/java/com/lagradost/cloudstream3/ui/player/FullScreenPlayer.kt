@@ -2078,17 +2078,7 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
                         return true
                     }
                 }
-// --- OPTIONS / MENU TUŞU İLE BÖLÜM LİSTESİNİ AÇMA ---
-KeyEvent.KEYCODE_MENU, 
-KeyEvent.KEYCODE_SETTINGS -> {
-    // isLocked değişkeni oynatıcıda kilit modunun açık olup olmadığını kontrol eder
-    if (isLocked != true) { 
-        // Cloudstream'de bölüm listesini açan event 'ShowEpisodes'tur.
-        // Bu event sayesinde sağ taraftan veya ortadan bölüm seçme menüsü gelir.
-        player?.handleEvent(CSPlayerEvent.ShowEpisodes)
-        return true
-    }
-}
+
 // --- OPTIONS / MENU TUŞU İLE BÖLÜM LİSTESİNİ AÇMA ---
 KeyEvent.KEYCODE_MENU, 
 KeyEvent.KEYCODE_SETTINGS -> {
