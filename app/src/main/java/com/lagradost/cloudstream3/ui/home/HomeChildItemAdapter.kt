@@ -225,6 +225,29 @@ open class HomeChildItemAdapter(
             nextFocusDown
         )
 
+       // --- ŞİMDİ BU ARAYA EKLEME YAPIYORUZ ---
+        holder.itemView.setOnKeyListener { view, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                // KEYCODE_MENU kumandadaki Option/Menü tuşudur
+                if (keyCode == KeyEvent.KEYCODE_MENU) {
+                    
+                    // UZUN BASMA: Ayarlar'a git
+                    if (event.isLongPress || event.repeatCount > 0) {
+                         com.lagradost.cloudstream3.utils.UIHelper.navigate(view, R.id.navigation_settings)
+                         return@setOnKeyListener true
+                    }
+                    
+                    // NORMAL BASMA: Profil/Hesap Seçimi
+                    (view.context as? android.app.Activity)?.let { act ->
+                        com.lagradost.cloudstream3.ui.account.AccountHelper.showAccountSelectLinear(act)
+                    }
+                    return@setOnKeyListener true
+                }
+            }
+            false
+        }
+        // --- EKLEME BİTTİ ---
+
         holder.itemView.tag = position
-    }
+    } // onBindContent fonksiyonunun kapanış parantezi
 }
