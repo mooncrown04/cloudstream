@@ -1,4 +1,8 @@
 package com.lagradost.cloudstream3.ui.home
+import android.view.KeyEvent
+import android.app.Activity
+import com.lagradost.cloudstream3.ui.account.AccountHelper
+import com.lagradost.cloudstream3.utils.UIHelper
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -226,20 +230,20 @@ open class HomeChildItemAdapter(
         )
 
        // --- ŞİMDİ BU ARAYA EKLEME YAPIYORUZ ---
-        holder.itemView.setOnKeyListener { view, keyCode, event ->
+holder.itemView.setOnKeyListener { view, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN) {
-                // KEYCODE_MENU kumandadaki Option/Menü tuşudur
                 if (keyCode == KeyEvent.KEYCODE_MENU) {
                     
                     // UZUN BASMA: Ayarlar'a git
                     if (event.isLongPress || event.repeatCount > 0) {
-                         com.lagradost.cloudstream3.utils.UIHelper.navigate(view, R.id.navigation_settings)
+                         UIHelper.navigate(view, R.id.navigation_settings)
                          return@setOnKeyListener true
                     }
                     
                     // NORMAL BASMA: Profil/Hesap Seçimi
-                    (view.context as? android.app.Activity)?.let { act ->
-                        com.lagradost.cloudstream3.ui.account.AccountHelper.showAccountSelectLinear(act)
+                    val activity = view.context as? Activity
+                    activity?.let { act ->
+                        AccountHelper.showAccountSelectLinear(act)
                     }
                     return@setOnKeyListener true
                 }
