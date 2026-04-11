@@ -2059,4 +2059,42 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
             false
         }
     }
+
+//yeni
+
+// --- KUMANDA TUŞ KONTROLLERİ ---
+    override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
+        // Yukarı tuşuna uzun basınca Ayarlar sayfasını açar
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+            val navController = (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? androidx.navigation.fragment.NavHostFragment)?.navController
+            navController?.navigate(R.id.navigation_settings)
+            return true
+        }
+        return super.onKeyLongPress(keyCode, event)
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        // Tuşu takip etmeye başla (uzun basmayı algılamak için gerekli)
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+            event.startTracking()
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        // Eğer tuş bırakıldığında uzun basma gerçekleşmediyse normal işlem yap (Profil Aç)
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.isTracking && !event.isLongPress) {
+            com.lagradost.cloudstream3.ui.account.AccountHelper.showAccountSelectLinear()
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
+
+
+//yeni
+
+
+
 }
