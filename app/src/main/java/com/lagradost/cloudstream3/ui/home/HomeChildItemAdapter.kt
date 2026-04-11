@@ -1,8 +1,4 @@
 package com.lagradost.cloudstream3.ui.home
-import android.view.KeyEvent
-import android.app.Activity
-import com.lagradost.cloudstream3.ui.account.AccountHelper
-import com.lagradost.cloudstream3.utils.UIHelper
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -228,29 +224,7 @@ open class HomeChildItemAdapter(
             nextFocusUp,
             nextFocusDown
         )
-//burası
-  holder.itemView.setOnKeyListener { view, keyCode, event ->
-            if (event.action == android.view.KeyEvent.ACTION_DOWN) {
-                if (keyCode == android.view.KeyEvent.KEYCODE_MENU) {
-                    
-                    // 1. UZUN BASMA: Ayarlar
-                    if (event.isLongPress || event.repeatCount > 0) {
-                        com.lagradost.cloudstream3.utils.UIHelper.navigate(view, R.id.navigation_settings)
-                        return@setOnKeyListener true
-                    }
-                    
-                    // 2. NORMAL BASMA: Profil Seçimi
-                    val context = view.context
-                    if (context is android.app.Activity) {
-                        com.lagradost.cloudstream3.ui.account.AccountHelper.showAccountSelectLinear(context)
-                    }
-                    return@setOnKeyListener true
-                }
-            }
-            false
-        }
-        // --- EKLEME BİTTİ ---
 
         holder.itemView.tag = position
-    } // onBindContent fonksiyonunun kapanış parantezi
+    } 
 }
