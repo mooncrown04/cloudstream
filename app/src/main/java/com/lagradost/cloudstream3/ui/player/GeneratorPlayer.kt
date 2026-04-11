@@ -1,5 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-
+import com.lagradost.cloudstream3.ui.player.VideoSkipStamp
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Dialog
@@ -106,7 +106,7 @@ import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.runOnMainThread
 import com.lagradost.cloudstream3.utils.DataStoreHelper
 import com.lagradost.cloudstream3.utils.DataStoreHelper.getViewPos
-import com.lagradost.cloudstream3.utils.EpisodeSkip
+//import com.lagradost.cloudstream3.utils.EpisodeSkip
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.Qualities
@@ -2052,11 +2052,11 @@ class GeneratorPlayer : FullScreenPlayer() {
         }
     }
 
-    override fun onTimestampSkipped(timestamp: EpisodeSkip.SkipStamp) {
+    override fun onTimestampSkipped(timestamp: VideoSkipStamp) {
         displayTimeStamp(false)
     }
 
-    override fun onTimestamp(timestamp: EpisodeSkip.SkipStamp?) {
+    override fun onTimestamp(timestamp: VideoSkipStamp?) {
         if (timestamp != null) {
             playerBinding?.skipChapterButton?.setText(timestamp.uiText)
             displayTimeStamp(true)
