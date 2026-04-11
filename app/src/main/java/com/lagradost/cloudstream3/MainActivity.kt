@@ -2082,16 +2082,15 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
         return super.onKeyDown(keyCode, event)
     }
 
-    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
-        // Eğer tuş bırakıldığında uzun basma gerçekleşmediyse normal işlem yap (Profil Aç)
+
+override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.isTracking && !event.isLongPress) {
-            com.lagradost.cloudstream3.ui.account.AccountHelper.showAccountSelectLinear()
+            // Hata veren satırı şununla değiştir:
+            com.lagradost.cloudstream3.ui.account.AccountHelper.showAccountSelectLinear(this)
             return true
         }
         return super.onKeyUp(keyCode, event)
     }
-
-
 
 //yeni
 
