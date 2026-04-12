@@ -1634,18 +1634,50 @@ override fun hasPrevChannel(): Boolean {
 }
 
 override fun nextChannel() {
-    if (hasNextChannel()) {
-        currentRecIndex++
-        loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
-    }
-}
+        // Eğer canlı TV ise önerilenler listesinde ilerle
+        if (currentRecommendations.isNotEmpty()) {
+            if (currentRecIndex < currentRecommendations.size - 1) {
+                currentRecIndex++
+                loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
+            } else {
+                // Listenin sonundaysan en başa dön
+                currentRecIndex = 0
+                loadRecommendationUrl(currentRecommendations[0].url)
+            }
+            return
+        }
 
-override fun prevChannel() {
-    if (hasPrevChannel()) {
-        currentRecIndex--
-        loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
+        // Eğer canlı değilse (diziyse) normal dizi mantığına devam et
+        val metaList = allMeta
+        if (!metaList.isNullOrEmpty()) {
+            val currentIndex = metaList.indexOf(currentMeta)
+            if (currentIndex < metaList.size - 1) {
+                loadEpisode(metaList[currentIndex + 1])
+            }
+        }
     }
-}
+
+    override fun prevChannel() {
+        if (currentRecommendations.isNotEmpty()) {
+            if (currentRecIndex > 0) {
+                currentRecIndex--
+                loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
+            } else {
+                // Listenin başındaysan en sona git
+                currentRecIndex = currentRecommendations.size - 1
+                loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
+            }
+            return
+        }
+
+        val metaList = allMeta
+        if (!metaList.isNullOrEmpty()) {
+            val currentIndex = metaList.indexOf(currentMeta)
+            if (currentIndex > 0) {
+                loadEpisode(metaList[currentIndex - 1])
+            }
+        }
+    }
 
 // SENİN VERDİĞİN ÖZEL YÜKLEME MANTIĞI
 override fun loadRecommendationUrl(url: String) {
