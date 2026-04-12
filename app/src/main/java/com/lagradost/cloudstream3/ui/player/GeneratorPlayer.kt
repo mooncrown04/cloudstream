@@ -1623,61 +1623,65 @@ class GeneratorPlayer : FullScreenPlayer() {
         }
     }
 //yeni
-// GeneratorPlayer.kt içine eklenecek tam işlevsel blok
-
-override fun hasNextChannel(): Boolean {
+override fun hasNextChannel(): Boolean {    
+    val metaList = allMeta
+    if (!metaList.isNullOrEmpty()) {
+        val currentIdx = viewModel.getCurrentIndex() ?: 0
+        return currentIdx < metaList.size - 1
+    } 
     return currentRecommendations.isNotEmpty() && currentRecIndex < currentRecommendations.size - 1
 }
 
 override fun hasPrevChannel(): Boolean {
+    val metaList = allMeta
+    if (!metaList.isNullOrEmpty()) {
+        val currentIdx = viewModel.getCurrentIndex() ?: 0
+        return currentIdx > 0
+    } 
     return currentRecommendations.isNotEmpty() && currentRecIndex > 0
 }
 
 override fun nextChannel() {
-        // Eğer canlı TV ise önerilenler listesinde ilerle
-        if (currentRecommendations.isNotEmpty()) {
-            if (currentRecIndex < currentRecommendations.size - 1) {
-                currentRecIndex++
-                loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
-            } else {
-                // Listenin sonundaysan en başa dön
-                currentRecIndex = 0
-                loadRecommendationUrl(currentRecommendations[0].url)
-            }
+    val metaList = allMeta
+    // 1. DİZİ/FİLM KONTROLÜ
+    if (!metaList.isNullOrEmpty()) {
+        val currentIdx = viewModel.getCurrentIndex() ?: 0
+        if (currentIdx < metaList.size - 1) {
+            // loadEpisode yerine load kullanarak hatayı çözüyoruz
+            load(metaList[currentIdx + 1])
             return
-        }
-
-        // Eğer canlı değilse (diziyse) normal dizi mantığına devam et
-        val metaList = allMeta
-        if (!metaList.isNullOrEmpty()) {
-            val currentIndex = metaList.indexOf(currentMeta)
-            if (currentIndex < metaList.size - 1) {
-                loadEpisode(metaList[currentIndex + 1])
-            }
         }
     }
 
-    override fun prevChannel() {
-        if (currentRecommendations.isNotEmpty()) {
-            if (currentRecIndex > 0) {
-                currentRecIndex--
-                loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
-            } else {
-                // Listenin başındaysan en sona git
-                currentRecIndex = currentRecommendations.size - 1
-                loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
-            }
+    // 2. CANLI TV KONTROLÜ
+    if (currentRecommendations.isNotEmpty()) {
+        currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
+        val nextRec = currentRecommendations[currentRecIndex]
+        showToast("Kanal: ${nextRec.name}")
+        loadRecommendationUrl(nextRec.url)
+    }
+}
+
+override fun prevChannel() {
+    val metaList = allMeta
+    // 1. DİZİ/FİLM KONTROLÜ
+    if (!metaList.isNullOrEmpty()) {
+        val currentIdx = viewModel.getCurrentIndex() ?: 0
+        if (currentIdx > 0) {
+            // loadEpisode yerine load kullanarak hatayı çözüyoruz
+            load(metaList[currentIdx - 1])
             return
         }
-
-        val metaList = allMeta
-        if (!metaList.isNullOrEmpty()) {
-            val currentIndex = metaList.indexOf(currentMeta)
-            if (currentIndex > 0) {
-                loadEpisode(metaList[currentIndex - 1])
-            }
-        }
     }
+
+    // 2. CANLI TV KONTROLÜ
+    if (currentRecommendations.isNotEmpty()) {
+        currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
+        val prevRec = currentRecommendations[currentRecIndex]
+        showToast("Kanal: ${prevRec.name}")
+        loadRecommendationUrl(prevRec.url)
+    }
+}
 
 // SENİN VERDİĞİN ÖZEL YÜKLEME MANTIĞI
 override fun loadRecommendationUrl(url: String) {
