@@ -8,7 +8,6 @@ import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import com.lagradost.cloudstream3.ui.player.PlayerMetaData
 //yeni eklendi
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -1646,12 +1645,15 @@ override fun hasPrevChannel(): Boolean {
 }
 
 
-override fun nextChannel() {
-    // currentMeta'yı güvenli bir şekilde alıp tvType kontrolü yapıyoruz
+
+    
+
+   override fun nextChannel() {
     val meta = currentMeta
-    val isSingleContent = meta?.tvType == TvType.Live || 
-                         meta?.tvType == TvType.Movie || 
-                         meta?.tvType == TvType.NSFW
+    // Smart Cast: Eğer meta null değilse ve bir PlayerMetaData ise tvType'a erişebiliriz
+    val isSingleContent = meta?.let {
+        it.tvType == TvType.Live || it.tvType == TvType.Movie || it.tvType == TvType.NSFW
+    } ?: false
 
     if (isSingleContent) {
         if (currentRecommendations.isNotEmpty()) {
@@ -1661,7 +1663,6 @@ override fun nextChannel() {
             loadRecommendationUrl(nextRec.url)
         }
     } else {
-        // Dizi/Bölüm geçiş mantığı
         val metaList = allMeta
         if (!metaList.isNullOrEmpty()) {
             val currentIdx = viewModel.getCurrentIndex() ?: 0
@@ -1684,9 +1685,9 @@ override fun nextChannel() {
 
 override fun prevChannel() {
     val meta = currentMeta
-    val isSingleContent = meta?.tvType == TvType.Live || 
-                         meta?.tvType == TvType.Movie || 
-                         meta?.tvType == TvType.NSFW
+    val isSingleContent = meta?.let {
+        it.tvType == TvType.Live || it.tvType == TvType.Movie || it.tvType == TvType.NSFW
+    } ?: false
 
     if (isSingleContent) {
         if (currentRecommendations.isNotEmpty()) {
@@ -1700,7 +1701,6 @@ override fun prevChannel() {
             loadRecommendationUrl(prevRec.url)
         }
     } else {
-        // Dizi modunda geri gitme
         val metaList = allMeta
         if (!metaList.isNullOrEmpty()) {
             val currentIdx = viewModel.getCurrentIndex() ?: 0
