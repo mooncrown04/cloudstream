@@ -6,6 +6,8 @@ import android.os.Looper
 import android.net.Uri
 import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
 import com.lagradost.cloudstream3.utils.newExtractorLink
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 //yeni eklendi
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -1642,14 +1644,12 @@ override fun hasPrevChannel(): Boolean {
     return currentRecommendations.isNotEmpty() && currentRecIndex > 0
 }
 
-override fun nextChannel() {
-    // 1. Bölüm yapısı olmayan (Single Content) tiplerin kontrolü
+    override fun nextChannel() {
     val isSingleContent = currentMeta?.tvType == TvType.Live || 
                          currentMeta?.tvType == TvType.Movie || 
-                         currentMeta?.tvType == TvType.TvType.NSFW
+                         currentMeta?.tvType == TvType.NSFW
 
     if (isSingleContent) {
-        // Önerilenler/Kanal listesi üzerinden geçiş yap
         if (currentRecommendations.isNotEmpty()) {
             currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
             val nextRec = currentRecommendations[currentRecIndex]
@@ -1657,19 +1657,21 @@ override fun nextChannel() {
             loadRecommendationUrl(nextRec.url)
         }
     } else {
-        // 2. Dizi/Bölümlü içerikler için mevcut çalışan mantığın
         val metaList = allMeta
         if (!metaList.isNullOrEmpty()) {
             val currentIdx = viewModel.getCurrentIndex() ?: 0
             if (currentIdx < metaList.size - 1) {
                 val nextEpisodeMeta = metaList[currentIdx + 1]
                 if (nextEpisodeMeta is ExtractorUri) {
-                    val link = newExtractorLink(
-                        source = "CloudStream",
-                        name = nextEpisodeMeta.name,
-                        url = nextEpisodeMeta.uri.toString()
-                    )
-                    loadLink(Pair(link, nextEpisodeMeta), false)
+                    // Suspend hatasını çözmek için lifecycleScope içine alıyoruz
+                    lifecycleScope.launch {
+                        val link = newExtractorLink(
+                            source = "CloudStream",
+                            name = nextEpisodeMeta.name,
+                            url = nextEpisodeMeta.uri.toString()
+                        )
+                        loadLink(Pair(link, nextEpisodeMeta), false)
+                    }
                 }
             }
         }
@@ -1679,10 +1681,9 @@ override fun nextChannel() {
 override fun prevChannel() {
     val isSingleContent = currentMeta?.tvType == TvType.Live || 
                          currentMeta?.tvType == TvType.Movie || 
-                         currentMeta?.tvType == TvType.TvType.NSFW
+                         currentMeta?.tvType == TvType.NSFW
 
     if (isSingleContent) {
-        // Önerilenler/Kanal listesinde geri git
         if (currentRecommendations.isNotEmpty()) {
             currentRecIndex = if (currentRecIndex <= 0) {
                 currentRecommendations.size - 1 
@@ -1694,19 +1695,20 @@ override fun prevChannel() {
             loadRecommendationUrl(prevRec.url)
         }
     } else {
-        // Dizi modunda bir önceki bölüme git
         val metaList = allMeta
         if (!metaList.isNullOrEmpty()) {
             val currentIdx = viewModel.getCurrentIndex() ?: 0
             if (currentIdx > 0) {
                 val prevEpisodeMeta = metaList[currentIdx - 1]
                 if (prevEpisodeMeta is ExtractorUri) {
-                    val link = newExtractorLink(
-                        source = "CloudStream",
-                        name = prevEpisodeMeta.name,
-                        url = prevEpisodeMeta.uri.toString()
-                    )
-                    loadLink(Pair(link, prevEpisodeMeta), false)
+                    lifecycleScope.launch {
+                        val link = newExtractorLink(
+                            source = "CloudStream",
+                            name = prevEpisodeMeta.name,
+                            url = prevEpisodeMeta.uri.toString()
+                        )
+                        loadLink(Pair(link, prevEpisodeMeta), false)
+                    }
                 }
             }
         }
