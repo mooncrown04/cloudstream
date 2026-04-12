@@ -184,9 +184,10 @@ class GeneratorPlayer : FullScreenPlayer() {
 
     private var currentSelectedLink: Pair<ExtractorLink?, ExtractorUri?>? = null
     private var currentSelectedSubtitles: SubtitleData? = null
-    
-	private var currentMeta: Any? = null
- 
+    //yeni
+    //private var currentMeta: Any? = null
+	override var currentMeta: Any? = null
+	//yeni
 	private var nextMeta: Any? = null
     private var isActive: Boolean = false
     private var isNextEpisode: Boolean = false // this is used to reset the watch time
