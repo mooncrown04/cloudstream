@@ -1648,9 +1648,10 @@ override fun hasPrevChannel(): Boolean {
 
     
 
+
    override fun nextChannel() {
     val meta = currentMeta
-    // Smart Cast: Eğer meta null değilse ve bir PlayerMetaData ise tvType'a erişebiliriz
+    // TvType kontrolünü yapabilmek için meta'yı güvenli bir şekilde kontrol ediyoruz
     val isSingleContent = meta?.let {
         it.tvType == TvType.Live || it.tvType == TvType.Movie || it.tvType == TvType.NSFW
     } ?: false
@@ -1663,12 +1664,14 @@ override fun hasPrevChannel(): Boolean {
             loadRecommendationUrl(nextRec.url)
         }
     } else {
+        // Dizi/Bölüm geçiş mantığı
         val metaList = allMeta
         if (!metaList.isNullOrEmpty()) {
             val currentIdx = viewModel.getCurrentIndex() ?: 0
             if (currentIdx < metaList.size - 1) {
                 val nextEpisodeMeta = metaList[currentIdx + 1]
                 if (nextEpisodeMeta is ExtractorUri) {
+                    // newExtractorLink suspend olduğu için lifecycleScope kullanıyoruz
                     lifecycleScope.launch {
                         val link = newExtractorLink(
                             source = "CloudStream",
