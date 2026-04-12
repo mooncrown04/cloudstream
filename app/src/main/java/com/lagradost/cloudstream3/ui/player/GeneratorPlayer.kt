@@ -3,6 +3,8 @@ package com.lagradost.cloudstream3.ui.player
 import android.view.KeyEvent
 import com.lagradost.cloudstream3.ui.result.VideoWatchState
 import com.lagradost.cloudstream3.utils.AppUtils.getName
+import android.os.Looper
+import android.net.Uri
 import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
 //yeni eklendi
 import android.animation.ValueAnimator
