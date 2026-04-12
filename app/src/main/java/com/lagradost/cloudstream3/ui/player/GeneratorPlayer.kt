@@ -1643,17 +1643,23 @@ override fun hasPrevChannel(): Boolean {
 
 override fun nextChannel() {
     val metaList = allMeta
-    // 1. DİZİ/FİLM KONTROLÜ
+    // 1. DİZİ/FİLM BÖLÜM GEÇİŞİ
     if (!metaList.isNullOrEmpty()) {
         val currentIdx = viewModel.getCurrentIndex() ?: 0
         if (currentIdx < metaList.size - 1) {
-            // loadEpisode yerine load kullanarak hatayı çözüyoruz
-            load(metaList[currentIdx + 1])
+            val nextEpisodeMeta = metaList[currentIdx + 1]
+            // 'load' yerine 'loadLink' mantığını kullanıyoruz
+            if (nextEpisodeMeta is ExtractorUri) {
+                loadLink(Pair(ExtractorLink(
+                    "", nextEpisodeMeta.name, nextEpisodeMeta.uri.toString(), 
+                    "", Qualities.Unknown.value
+                ), nextEpisodeMeta))
+            }
             return
         }
     }
 
-    // 2. CANLI TV KONTROLÜ
+    // 2. CANLI TV KANAL GEÇİŞİ (Senin çalışan mantığın)
     if (currentRecommendations.isNotEmpty()) {
         currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
         val nextRec = currentRecommendations[currentRecIndex]
@@ -1664,17 +1670,22 @@ override fun nextChannel() {
 
 override fun prevChannel() {
     val metaList = allMeta
-    // 1. DİZİ/FİLM KONTROLÜ
+    // 1. DİZİ/FİLM BÖLÜM GEÇİŞİ
     if (!metaList.isNullOrEmpty()) {
         val currentIdx = viewModel.getCurrentIndex() ?: 0
         if (currentIdx > 0) {
-            // loadEpisode yerine load kullanarak hatayı çözüyoruz
-            load(metaList[currentIdx - 1])
+            val prevEpisodeMeta = metaList[currentIdx - 1]
+            if (prevEpisodeMeta is ExtractorUri) {
+                loadLink(Pair(ExtractorLink(
+                    "", prevEpisodeMeta.name, prevEpisodeMeta.uri.toString(), 
+                    "", Qualities.Unknown.value
+                ), prevEpisodeMeta))
+            }
             return
         }
     }
 
-    // 2. CANLI TV KONTROLÜ
+    // 2. CANLI TV KANAL GEÇİŞİ (Senin çalışan mantığın)
     if (currentRecommendations.isNotEmpty()) {
         currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
         val prevRec = currentRecommendations[currentRecIndex]
