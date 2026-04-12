@@ -1643,23 +1643,26 @@ override fun hasPrevChannel(): Boolean {
 
 override fun nextChannel() {
     val metaList = allMeta
-    // 1. DİZİ/FİLM BÖLÜM GEÇİŞİ
     if (!metaList.isNullOrEmpty()) {
         val currentIdx = viewModel.getCurrentIndex() ?: 0
         if (currentIdx < metaList.size - 1) {
             val nextEpisodeMeta = metaList[currentIdx + 1]
-            // 'load' yerine 'loadLink' mantığını kullanıyoruz
             if (nextEpisodeMeta is ExtractorUri) {
+                // Hata 1: 'sameEpisode' parametresi eklendi (false)
+                // Hata 2: Deprecated constructor yerine tüm parametreler sağlandı
                 loadLink(Pair(ExtractorLink(
-                    "", nextEpisodeMeta.name, nextEpisodeMeta.uri.toString(), 
-                    "", Qualities.Unknown.value
-                ), nextEpisodeMeta))
+                    source = "", 
+                    name = nextEpisodeMeta.name, 
+                    url = nextEpisodeMeta.uri.toString(), 
+                    referer = "", 
+                    quality = Qualities.Unknown.value,
+                    isM3u8 = nextEpisodeMeta.uri.toString().contains(".m3u8")
+                ), nextEpisodeMeta), false) 
             }
             return
         }
     }
 
-    // 2. CANLI TV KANAL GEÇİŞİ (Senin çalışan mantığın)
     if (currentRecommendations.isNotEmpty()) {
         currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
         val nextRec = currentRecommendations[currentRecIndex]
@@ -1670,22 +1673,25 @@ override fun nextChannel() {
 
 override fun prevChannel() {
     val metaList = allMeta
-    // 1. DİZİ/FİLM BÖLÜM GEÇİŞİ
     if (!metaList.isNullOrEmpty()) {
         val currentIdx = viewModel.getCurrentIndex() ?: 0
         if (currentIdx > 0) {
             val prevEpisodeMeta = metaList[currentIdx - 1]
             if (prevEpisodeMeta is ExtractorUri) {
+                // sameEpisode = false olarak eklendi
                 loadLink(Pair(ExtractorLink(
-                    "", prevEpisodeMeta.name, prevEpisodeMeta.uri.toString(), 
-                    "", Qualities.Unknown.value
-                ), prevEpisodeMeta))
+                    source = "", 
+                    name = prevEpisodeMeta.name, 
+                    url = prevEpisodeMeta.uri.toString(), 
+                    referer = "", 
+                    quality = Qualities.Unknown.value,
+                    isM3u8 = prevEpisodeMeta.uri.toString().contains(".m3u8")
+                ), prevEpisodeMeta), false)
             }
             return
         }
     }
 
-    // 2. CANLI TV KANAL GEÇİŞİ (Senin çalışan mantığın)
     if (currentRecommendations.isNotEmpty()) {
         currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
         val prevRec = currentRecommendations[currentRecIndex]
