@@ -1643,32 +1643,73 @@ override fun hasPrevChannel(): Boolean {
 }
 
 override fun nextChannel() {
-    // Sadece Canlı TV/Önerilenler listesi doluysa çalışır
-    if (currentRecommendations.isNotEmpty()) {
-        // Bir sonraki indexe geç (liste sonuna gelince başa döner)
-        currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
-        val nextRec = currentRecommendations[currentRecIndex]
-        
-        showToast("Kanal: ${nextRec.name}")
-        loadRecommendationUrl(nextRec.url)
+    // 1. Bölüm yapısı olmayan (Single Content) tiplerin kontrolü
+    val isSingleContent = currentMeta?.tvType == TvType.Live || 
+                         currentMeta?.tvType == TvType.Movie || 
+                         currentMeta?.tvType == TvType.TvType.NSFW
+
+    if (isSingleContent) {
+        // Önerilenler/Kanal listesi üzerinden geçiş yap
+        if (currentRecommendations.isNotEmpty()) {
+            currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
+            val nextRec = currentRecommendations[currentRecIndex]
+            showToast("Sıradaki: ${nextRec.name}")
+            loadRecommendationUrl(nextRec.url)
+        }
     } else {
-        // Eğer dizi modundaysan mevcut dizi geçiş mantığını buraya da ekleyebilirsin
-        // Ama önceliğin Canlı TV ise bu blok yeterlidir.
+        // 2. Dizi/Bölümlü içerikler için mevcut çalışan mantığın
+        val metaList = allMeta
+        if (!metaList.isNullOrEmpty()) {
+            val currentIdx = viewModel.getCurrentIndex() ?: 0
+            if (currentIdx < metaList.size - 1) {
+                val nextEpisodeMeta = metaList[currentIdx + 1]
+                if (nextEpisodeMeta is ExtractorUri) {
+                    val link = newExtractorLink(
+                        source = "CloudStream",
+                        name = nextEpisodeMeta.name,
+                        url = nextEpisodeMeta.uri.toString()
+                    )
+                    loadLink(Pair(link, nextEpisodeMeta), false)
+                }
+            }
+        }
     }
 }
 
 override fun prevChannel() {
-    if (currentRecommendations.isNotEmpty()) {
-        // Bir önceki indexe geç (liste başına gelince sona döner)
-        currentRecIndex = if (currentRecIndex <= 0) {
-            currentRecommendations.size - 1 
-        } else {
-            currentRecIndex - 1
+    val isSingleContent = currentMeta?.tvType == TvType.Live || 
+                         currentMeta?.tvType == TvType.Movie || 
+                         currentMeta?.tvType == TvType.TvType.NSFW
+
+    if (isSingleContent) {
+        // Önerilenler/Kanal listesinde geri git
+        if (currentRecommendations.isNotEmpty()) {
+            currentRecIndex = if (currentRecIndex <= 0) {
+                currentRecommendations.size - 1 
+            } else {
+                currentRecIndex - 1
+            }
+            val prevRec = currentRecommendations[currentRecIndex]
+            showToast("Önceki: ${prevRec.name}")
+            loadRecommendationUrl(prevRec.url)
         }
-        val prevRec = currentRecommendations[currentRecIndex]
-        
-        showToast("Kanal: ${prevRec.name}")
-        loadRecommendationUrl(prevRec.url)
+    } else {
+        // Dizi modunda bir önceki bölüme git
+        val metaList = allMeta
+        if (!metaList.isNullOrEmpty()) {
+            val currentIdx = viewModel.getCurrentIndex() ?: 0
+            if (currentIdx > 0) {
+                val prevEpisodeMeta = metaList[currentIdx - 1]
+                if (prevEpisodeMeta is ExtractorUri) {
+                    val link = newExtractorLink(
+                        source = "CloudStream",
+                        name = prevEpisodeMeta.name,
+                        url = prevEpisodeMeta.uri.toString()
+                    )
+                    loadLink(Pair(link, prevEpisodeMeta), false)
+                }
+            }
+        }
     }
 }
 
