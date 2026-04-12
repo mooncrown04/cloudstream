@@ -8,6 +8,7 @@ import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
 import com.lagradost.cloudstream3.utils.newExtractorLink
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import com.lagradost.cloudstream3.ui.player.PlayerMetaData
 //yeni eklendi
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -1644,10 +1645,13 @@ override fun hasPrevChannel(): Boolean {
     return currentRecommendations.isNotEmpty() && currentRecIndex > 0
 }
 
-    override fun nextChannel() {
-    val isSingleContent = currentMeta?.tvType == TvType.Live || 
-                         currentMeta?.tvType == TvType.Movie || 
-                         currentMeta?.tvType == TvType.NSFW
+
+override fun nextChannel() {
+    // currentMeta'yı güvenli bir şekilde alıp tvType kontrolü yapıyoruz
+    val meta = currentMeta
+    val isSingleContent = meta?.tvType == TvType.Live || 
+                         meta?.tvType == TvType.Movie || 
+                         meta?.tvType == TvType.NSFW
 
     if (isSingleContent) {
         if (currentRecommendations.isNotEmpty()) {
@@ -1657,13 +1661,13 @@ override fun hasPrevChannel(): Boolean {
             loadRecommendationUrl(nextRec.url)
         }
     } else {
+        // Dizi/Bölüm geçiş mantığı
         val metaList = allMeta
         if (!metaList.isNullOrEmpty()) {
             val currentIdx = viewModel.getCurrentIndex() ?: 0
             if (currentIdx < metaList.size - 1) {
                 val nextEpisodeMeta = metaList[currentIdx + 1]
                 if (nextEpisodeMeta is ExtractorUri) {
-                    // Suspend hatasını çözmek için lifecycleScope içine alıyoruz
                     lifecycleScope.launch {
                         val link = newExtractorLink(
                             source = "CloudStream",
@@ -1679,9 +1683,10 @@ override fun hasPrevChannel(): Boolean {
 }
 
 override fun prevChannel() {
-    val isSingleContent = currentMeta?.tvType == TvType.Live || 
-                         currentMeta?.tvType == TvType.Movie || 
-                         currentMeta?.tvType == TvType.NSFW
+    val meta = currentMeta
+    val isSingleContent = meta?.tvType == TvType.Live || 
+                         meta?.tvType == TvType.Movie || 
+                         meta?.tvType == TvType.NSFW
 
     if (isSingleContent) {
         if (currentRecommendations.isNotEmpty()) {
@@ -1695,6 +1700,7 @@ override fun prevChannel() {
             loadRecommendationUrl(prevRec.url)
         }
     } else {
+        // Dizi modunda geri gitme
         val metaList = allMeta
         if (!metaList.isNullOrEmpty()) {
             val currentIdx = viewModel.getCurrentIndex() ?: 0
