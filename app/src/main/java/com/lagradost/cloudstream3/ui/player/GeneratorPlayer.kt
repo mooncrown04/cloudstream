@@ -5,6 +5,7 @@ import com.lagradost.cloudstream3.ui.result.VideoWatchState
 import android.os.Looper
 import android.net.Uri
 import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
+import com.lagradost.cloudstream3.utils.newExtractorLink
 //yeni eklendi
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -1648,16 +1649,13 @@ override fun nextChannel() {
         if (currentIdx < metaList.size - 1) {
             val nextEpisodeMeta = metaList[currentIdx + 1]
             if (nextEpisodeMeta is ExtractorUri) {
-                // Hata 1: 'sameEpisode' parametresi eklendi (false)
-                // Hata 2: Deprecated constructor yerine tüm parametreler sağlandı
-                loadLink(Pair(ExtractorLink(
-                    source = "", 
-                    name = nextEpisodeMeta.name, 
-                    url = nextEpisodeMeta.uri.toString(), 
-                    referer = "", 
-                    quality = Qualities.Unknown.value,
-                    isM3u8 = nextEpisodeMeta.uri.toString().contains(".m3u8")
-                ), nextEpisodeMeta), false) 
+                // newExtractorLink kullanarak deprecated hatasını kökten çözüyoruz
+                val link = newExtractorLink(
+                    source = "CloudStream",
+                    name = nextEpisodeMeta.name,
+                    url = nextEpisodeMeta.uri.toString(),
+                )
+                loadLink(Pair(link, nextEpisodeMeta), false)
             }
             return
         }
@@ -1678,15 +1676,13 @@ override fun prevChannel() {
         if (currentIdx > 0) {
             val prevEpisodeMeta = metaList[currentIdx - 1]
             if (prevEpisodeMeta is ExtractorUri) {
-                // sameEpisode = false olarak eklendi
-                loadLink(Pair(ExtractorLink(
-                    source = "", 
-                    name = prevEpisodeMeta.name, 
-                    url = prevEpisodeMeta.uri.toString(), 
-                    referer = "", 
-                    quality = Qualities.Unknown.value,
-                    isM3u8 = prevEpisodeMeta.uri.toString().contains(".m3u8")
-                ), prevEpisodeMeta), false)
+                // Aynı şekilde prevChannel için de güncel yapı
+                val link = newExtractorLink(
+                    source = "CloudStream",
+                    name = prevEpisodeMeta.name,
+                    url = prevEpisodeMeta.uri.toString(),
+                )
+                loadLink(Pair(link, prevEpisodeMeta), false)
             }
             return
         }
