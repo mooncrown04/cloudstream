@@ -1642,34 +1642,17 @@ override fun hasPrevChannel(): Boolean {
     return currentRecommendations.isNotEmpty() && currentRecIndex > 0
 }
 
+// Bu fonksiyonlar kanal değiştirme mantığını yönetir
 override fun nextChannel() {
-    // Sadece Canlı TV/Önerilenler listesi doluysa çalışır
-    if (currentRecommendations.isNotEmpty()) {
-        // Bir sonraki indexe geç (liste sonuna gelince başa döner)
-        currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
-        val nextRec = currentRecommendations[currentRecIndex]
-        
-        showToast("Kanal: ${nextRec.name}")
-        loadRecommendationUrl(nextRec.url)
-    } else {
-        // Eğer dizi modundaysan mevcut dizi geçiş mantığını buraya da ekleyebilirsin
-        // Ama önceliğin Canlı TV ise bu blok yeterlidir.
-    }
+    if (currentRecommendations.isNullOrEmpty()) return
+    currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
+    loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
 }
 
 override fun prevChannel() {
-    if (currentRecommendations.isNotEmpty()) {
-        // Bir önceki indexe geç (liste başına gelince sona döner)
-        currentRecIndex = if (currentRecIndex <= 0) {
-            currentRecommendations.size - 1 
-        } else {
-            currentRecIndex - 1
-        }
-        val prevRec = currentRecommendations[currentRecIndex]
-        
-        showToast("Kanal: ${prevRec.name}")
-        loadRecommendationUrl(prevRec.url)
-    }
+    if (currentRecommendations.isNullOrEmpty()) return
+    currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
+    loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
 }
 
 // SENİN VERDİĞİN ÖZEL YÜKLEME MANTIĞI
