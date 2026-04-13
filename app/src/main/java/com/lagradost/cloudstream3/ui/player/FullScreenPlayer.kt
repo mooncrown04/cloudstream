@@ -2110,23 +2110,26 @@ KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
     if (!isShowing && !isShowingEpisodeOverlay) {
         val meta = currentMeta
         
-        // Derleme hatası almamak için en güvenli Live kontrolü
-        val isLive = meta?.toString()?.contains("Live", ignoreCase = true) ?: false
+        // Sadece Live değil, içinde Movie geçenleri de yakalıyoruz
+        val metaString = meta?.toString() ?: ""
+        val isSingleContent = metaString.contains("Live", ignoreCase = true) || 
+                             metaString.contains("NSFW", ignoreCase = true)
 
-        if (isLive) {
+        if (isSingleContent) {
+            // Eğer Canlı TV veya Film ise: Listeden (recommendations) kanal değiştir
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                // Kontrol etmeden direkt çağırıyoruz, çünkü motor GeneratorPlayer'da
                 prevChannel() 
             } else {
                 nextChannel()
             }
         } else {
-            // DİZİ/FİLM MANTIĞI (Orijinal hali)
+            // DİZİ MANTIĞI: Eğer dizi ise bölüm atlat, değilse 10dk sar
             if (hasEpisodes) {
                 val eventToHandle = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) 
                     CSPlayerEvent.PrevEpisode else CSPlayerEvent.NextEpisode
                 player.handleEvent(eventToHandle)
             } else {
+                // Burası artık sadece normal videolarda (dizi/film olmayan) çalışır
                 val skip = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) -600000L else 600000L
                 player.seekTime(skip)
             }
@@ -2134,7 +2137,6 @@ KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
         return true
     }
 }
-
             // --- OK / ORTA TUŞ ---
             KeyEvent.KEYCODE_DPAD_CENTER -> {
                 if (!isShowing) {
