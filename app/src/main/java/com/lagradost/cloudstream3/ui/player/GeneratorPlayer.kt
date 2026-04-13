@@ -2228,7 +2228,7 @@ fun handleCustomKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
     if (event.action == KeyEvent.ACTION_DOWN) {
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_DOWN -> {
-               if (!isShowing && playerBinding?.playerEpisodeHolder?.isVisible != true) {
+               if (!isShowing && playerBinding?.playerEpisodeOverlay?.isVisible != true) {
 			  // if (!isShowing && !isEpisodeOverlayShowing()) {
                     val meta = currentMeta
                     val isLive = when (meta) {
@@ -2270,7 +2270,7 @@ fun handleCustomKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
             }
             
             KeyEvent.KEYCODE_DPAD_UP -> {
-				if (!isShowing && playerBinding?.playerEpisodeHolder?.isVisible != true) {
+				if (!isShowing && playerBinding?.playerEpisodeOverlay?.isVisible != true) {
               //  if (!isShowing && !isEpisodeOverlayShowing()) {
                     val meta = currentMeta
                     val isLive = when (meta) {
