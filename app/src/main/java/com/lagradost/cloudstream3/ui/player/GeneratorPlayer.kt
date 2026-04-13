@@ -2,6 +2,7 @@ package com.lagradost.cloudstream3.ui.player
 //yeni eklendi
 import android.view.KeyEvent
 import com.lagradost.cloudstream3.ui.result.VideoWatchState
+import com.lagradost.cloudstream3.SearchResponse
 import android.os.Looper
 import android.net.Uri
 import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
@@ -170,6 +171,51 @@ class GeneratorPlayer : FullScreenPlayer() {
         val subsProvidersIsActive
             get() = subsProviders.isNotEmpty()
     }
+
+
+
+
+//yenii	
+override fun hasNextChannel(): Boolean {	
+    val metaList = allMeta
+    // Dizi/Film Bölüm 
+    if (!metaList.isNullOrEmpty() && metaList.size > 1) {
+        val currentIdx = viewModel.getCurrentIndex() ?: 0
+        return currentIdx + 1 < metaList.size
+    } 
+    // Canlı TV / Kanal
+    return currentRecIndex + 1 < currentRecommendations.size
+}
+override fun hasPrevChannel(): Boolean {
+    val metaList = allMeta
+    // Dizi/Film Bölüm 
+    if (!metaList.isNullOrEmpty() && metaList.size > 1) {
+        val currentIdx = viewModel.getCurrentIndex() ?: 0
+        return currentIdx > 0
+    } 
+    // Canlı TV
+    return currentRecIndex > 0
+}
+ override fun nextChannel() {
+    if (currentRecommendations.isEmpty()) return
+    currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
+    val nextRec = currentRecommendations[currentRecIndex]
+    showToast("Kanal: ${nextRec.name}")
+    loadRecommendationUrl(nextRec.url)
+}
+override fun prevChannel() {
+    if (currentRecommendations.isEmpty()) return
+    currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
+    val prevRec = currentRecommendations[currentRecIndex]
+    showToast("Kanal: ${prevRec.name}")
+    loadRecommendationUrl(prevRec.url)
+}
+
+//yenii
+
+
+
+
 
 
     private var limitTitle = 0
@@ -895,6 +941,8 @@ class GeneratorPlayer : FullScreenPlayer() {
             logError(e)
         }
     }
+
+
 
     @MainThread
     private fun addAndSelectSubtitles(
@@ -1623,89 +1671,7 @@ class GeneratorPlayer : FullScreenPlayer() {
 
         }
     }
-//yeni
-override fun hasNextChannel(): Boolean {    
-    val metaList = allMeta
-    if (!metaList.isNullOrEmpty()) {
-        val currentIdx = viewModel.getCurrentIndex() ?: 0
-        return currentIdx < metaList.size - 1
-    } 
-    return currentRecommendations.isNotEmpty() && currentRecIndex < currentRecommendations.size - 1
-}
 
-override fun hasPrevChannel(): Boolean {
-    val metaList = allMeta
-    if (!metaList.isNullOrEmpty()) {
-        val currentIdx = viewModel.getCurrentIndex() ?: 0
-        return currentIdx > 0
-    } 
-    return currentRecommendations.isNotEmpty() && currentRecIndex > 0
-}
-
-// Bu fonksiyonlar kanal değiştirme mantığını yönetir
-override fun nextChannel() {
-    if (currentRecommendations.isNullOrEmpty()) return
-    currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
-    loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
-}
-
-override fun prevChannel() {
-    if (currentRecommendations.isNullOrEmpty()) return
-    currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
-    loadRecommendationUrl(currentRecommendations[currentRecIndex].url)
-}
-
-// SENİN VERDİĞİN ÖZEL YÜKLEME MANTIĞI
-override fun loadRecommendationUrl(url: String) {
-    if (Looper.myLooper() != Looper.getMainLooper()) {
-        activity?.runOnUiThread { loadRecommendationUrl(url) }
-        return
-    }
-
-    try { player.handleEvent(CSPlayerEvent.Pause, PlayerEventSource.UI) } catch (e: Exception) { }
-
-    ioSafe {
-        val apiSource = currentSelectedLink?.first?.source ?: currentApiName ?: ""
-        val api = getApiFromNameNull(apiSource) ?: return@ioSafe        
-        try {            
-            val result = api.load(url)
-            activity?.runOnUiThread {
-                if (result is LoadResponse) {
-                    showToast("KANAL: ${result.name}")
-                    
-                    val newMeta = ExtractorUri(
-                        uri = Uri.parse(result.url),
-                        name = result.name,
-                        headerName = result.name,
-                        tvType = TvType.Live,
-                        parentId = 0,
-                        episode = null,
-                        season = null,
-                        id = result.url.hashCode()
-                    )                    
-                    currentMeta = newMeta
-       
-                    val linkToLoad = ExtractorLink(
-                        source = apiSource,
-                        name = result.name,
-                        url = result.url,
-                        referer = "", 
-                        quality = Qualities.Unknown.value,
-                        type = if (result.url.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
-                        headers = emptyMap()
-                    )
-                    loadLink(Pair(linkToLoad, null), sameEpisode = false)
-                    player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
-                }
-            }
-        } catch (e: Exception) {
-            logError(e)
-            runOnMainThread { showToast("Kanal yükleme hatası") }
-        }
-    }
-}
-
-//yeni
     override fun nextEpisode() {
         if (viewModel.hasNextEpisode() == true) {
             isNextEpisode = true
@@ -2250,6 +2216,109 @@ override fun loadRecommendationUrl(url: String) {
             logError(e)
         }
     }
+	
+	
+	//yenii
+ @SuppressLint("GestureBackNavigation")
+ 
+ //override fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean { 
+fun handleCustomKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
+    val keyCode = event.keyCode
+    
+    if (event.action == KeyEvent.ACTION_DOWN) {
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+               if (!isShowing && playerBinding?.playerEpisodeHolder?.isVisible != true) {
+			  // if (!isShowing && !isEpisodeOverlayShowing()) {
+                    val meta = currentMeta
+                    val isLive = when (meta) {
+                        is ResultEpisode -> meta.tvType == TvType.Live
+                        is ExtractorUri -> meta.tvType == TvType.Live
+                        else -> false
+                    }
+                    
+                    if (!isLive && hasEpisodes) {
+                        val metaList = allMeta
+                        if (!metaList.isNullOrEmpty()) {
+                            val currentIdx = viewModel.getCurrentIndex() ?: 0
+                            if (currentIdx > 0) {
+                                val prevEpisode = metaList[currentIdx - 1]
+                                // ÖNCEKİ BÖLÜM İSMİNİ GÖSTER
+                                showToast("← ÖNCEKİ: ${prevEpisode.name}")
+                            } else {
+                                // İLK BÖLÜM - MEVCUT DİZİ İSMİNİ GÖSTER
+                                val currentName = when (meta) {
+                                    is ResultEpisode -> meta.name
+                                    is ExtractorUri -> meta.name
+                                    else -> "Bilinmiyor"
+                                }
+                                showToast("← İLK BÖLÜM: $currentName")
+                            }
+                        }
+                    } else if (isLive) {
+                        if (hasPrevChannel()) {
+                            val prevIndex = if (currentRecIndex > 0) currentRecIndex - 1 else currentRecommendations.size - 1
+                            val prevRec = currentRecommendations.getOrNull(prevIndex)
+                            prevRec?.let {
+                                showToast("← ÖNCEKİ KANAL: ${it.name}")
+                            }
+                        }
+                    }
+                    
+                    return super.handleKeyEvent(event, hasNavigated)
+                }
+            }
+            
+            KeyEvent.KEYCODE_DPAD_UP -> {
+				if (!isShowing && playerBinding?.playerEpisodeHolder?.isVisible != true) {
+              //  if (!isShowing && !isEpisodeOverlayShowing()) {
+                    val meta = currentMeta
+                    val isLive = when (meta) {
+                        is ResultEpisode -> meta.tvType == TvType.Live
+                        is ExtractorUri -> meta.tvType == TvType.Live
+                        else -> false
+                    }
+                    
+                    if (!isLive && hasEpisodes) {
+                        val metaList = allMeta
+                        if (!metaList.isNullOrEmpty()) {
+                            val currentIdx = viewModel.getCurrentIndex() ?: 0
+                            if (currentIdx + 1 < metaList.size) {
+                                val nextEpisode = metaList[currentIdx + 1]
+                                // SONRAKİ BÖLÜM İSMİNİ GÖSTER
+                                showToast("→ SONRAKİ: ${nextEpisode.name}")
+                            } else {
+                                // SON BÖLÜM - MEVCUT DİZİ İSMİNİ GÖSTER
+                                val currentName = when (meta) {
+                                    is ResultEpisode -> meta.name
+                                    is ExtractorUri -> meta.name
+                                    else -> "Bilinmiyor"
+                                }
+                                showToast("→ SON BÖLÜM: $currentName")
+                            }
+                        }
+                    } else if (isLive) {
+                        if (hasNextChannel()) {
+                            val nextIndex = (currentRecIndex + 1) % currentRecommendations.size
+                            val nextRec = currentRecommendations.getOrNull(nextIndex)
+                            nextRec?.let {
+                                showToast("→ SONRAKİ KANAL: ${it.name}")
+                            }
+                        }
+                    }
+                    
+                    return super.handleKeyEvent(event, hasNavigated)
+                }
+            }
+        }
+    }
+    
+    return super.handleKeyEvent(event, hasNavigated)
+}
+
+//yeni
+	
+	
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -2388,6 +2457,101 @@ override fun loadRecommendationUrl(url: String) {
             }
         }
     }
+
+
+
+
+
+
+
+private fun getEpisodeFromRec(rec: com.lagradost.cloudstream3.SearchResponse): ResultEpisode {
+        return ResultEpisode(
+            name = rec.name,
+            data = rec.url,
+            index = currentRecIndex,
+            episode = currentRecIndex + 1,
+            poster = rec.posterUrl,
+            headerName = rec.name,
+            seasonIndex = 0,
+            season = 1,
+            apiName = rec.apiName ?: "Unknown",
+            id = rec.url.hashCode(),
+            position = 0L,
+            duration = 0L,
+            score = null,
+            description = null,
+            isFiller = false,
+            tvType = com.lagradost.cloudstream3.TvType.Live,
+            parentId = 0,
+            videoWatchState = com.lagradost.cloudstream3.ui.result.VideoWatchState.None
+        )
+    }
+override fun loadRecommendationUrl(url: String) {
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+        activity?.runOnUiThread { loadRecommendationUrl(url) }
+        return
+    }
+
+    // Mevcut oynatıcıyı durdur
+    try { player.handleEvent(CSPlayerEvent.Pause, PlayerEventSource.UI) } catch (e: Exception) { }
+
+    ioSafe {
+        
+        val apiSource = currentSelectedLink?.first?.source ?: currentApiName ?: ""
+        val api = getApiFromNameNull(apiSource) ?: return@ioSafe        
+        try {            
+            val result = api.load(url)
+            
+            activity?.runOnUiThread {
+                if (result is LoadResponse) {
+                    showToast("KANAL: ${result.name}")
+                    
+                    val newMeta = ExtractorUri(
+                        uri = Uri.parse(result.url),
+                        name = result.name,
+                        headerName = result.name,
+                        tvType = TvType.Live,
+                        parentId = 0,
+                        episode = null,
+                        season = null,
+                        id = result.url.hashCode()
+                    )                    
+                    currentMeta = newMeta
+       
+                    val linkToLoad = ExtractorLink(
+                        source = apiSource,
+                        name = result.name,
+                        url = result.url,
+                        referer = "", 
+                        quality = Qualities.Unknown.value,
+                        type = if (result.url.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
+                        headers = emptyMap()
+                    )
+
+        
+                    loadLink(Pair(linkToLoad, null), sameEpisode = false)
+					 
+                    player.handleEvent(CSPlayerEvent.Play, PlayerEventSource.UI)
+                   
+					
+                }
+            }
+        } catch (e: Exception) {
+            logError(e)
+            runOnMainThread { showToast("Kanal yükleme hatası") }
+        }
+    }
+}
+
+//yenii
+
+
+
+
+
+
+
+
 
 }
 
