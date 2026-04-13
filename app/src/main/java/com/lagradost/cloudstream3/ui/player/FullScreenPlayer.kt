@@ -2106,36 +2106,34 @@ protected open fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boole
             }
 
             // --- DPAD YUKARI / AŞAĞI: KANAL VEYA BÖLÜM DEĞİŞTİRME ---
-            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
-                if (!isShowing && !isShowingEpisodeOverlay) {
-                    val meta = currentMeta
-                    val isLive = when (meta) {
-                        is ResultEpisode -> meta.tvType == TvType.Live
-                        is ExtractorUri -> meta.tvType == TvType.Live
-                        else -> false
-                    }
+KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
+    if (!isShowing && !isShowingEpisodeOverlay) {
+        val meta = currentMeta
+        
+        // Derleme hatası almamak için en güvenli Live kontrolü
+        val isLive = meta?.toString()?.contains("Live", ignoreCase = true) ?: false
 
-                    if (isLive) {
-                        // CANLI TV: Senin loadRecommendationUrl mantığın çalışır
-                        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                            if (hasPrevChannel()) prevChannel() else showToast("Önceki kanal yok")
-                        } else {
-                            if (hasNextChannel()) nextChannel() else showToast("Sonraki kanal yok")
-                        }
-                    } else {
-                        // DİZİ/FİLM: Orijinal bölüm atlatma veya 10dk sarma
-                        if (hasEpisodes) {
-                            val eventToHandle = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) 
-                                CSPlayerEvent.PrevEpisode else CSPlayerEvent.NextEpisode
-                            player.handleEvent(eventToHandle)
-                        } else {
-                            val skip = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) -600000L else 600000L
-                            player.seekTime(skip)
-                        }
-                    }
-                    return true
-                }
+        if (isLive) {
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                // Kontrol etmeden direkt çağırıyoruz, çünkü motor GeneratorPlayer'da
+                prevChannel() 
+            } else {
+                nextChannel()
             }
+        } else {
+            // DİZİ/FİLM MANTIĞI (Orijinal hali)
+            if (hasEpisodes) {
+                val eventToHandle = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) 
+                    CSPlayerEvent.PrevEpisode else CSPlayerEvent.NextEpisode
+                player.handleEvent(eventToHandle)
+            } else {
+                val skip = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) -600000L else 600000L
+                player.seekTime(skip)
+            }
+        }
+        return true
+    }
+}
 
             // --- OK / ORTA TUŞ ---
             KeyEvent.KEYCODE_DPAD_CENTER -> {
