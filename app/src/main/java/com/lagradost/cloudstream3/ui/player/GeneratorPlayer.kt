@@ -6,8 +6,6 @@ import android.os.Looper
 import android.net.Uri
 import com.lagradost.cloudstream3.utils.videoskip.VideoSkipStamp
 import com.lagradost.cloudstream3.utils.newExtractorLink
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 //yeni eklendi
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -1644,78 +1642,33 @@ override fun hasPrevChannel(): Boolean {
     return currentRecommendations.isNotEmpty() && currentRecIndex > 0
 }
 
-
-
-   override fun nextChannel() {
-    // Derleyiciyi zorlamak için (it as? Any) üzerinden tvType kontrolü
-    val isSingleContent = currentMeta?.let {
-        val type = it.toString()
-        type.contains("Live") || type.contains("NSFW")
-    } ?: false
-
-    if (isSingleContent) {
-        if (currentRecommendations.isNotEmpty()) {
-            currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
-            val nextRec = currentRecommendations[currentRecIndex]
-            showToast("Sıradaki: ${nextRec.name}")
-            loadRecommendationUrl(nextRec.url)
-        }
+override fun nextChannel() {
+    // Sadece Canlı TV/Önerilenler listesi doluysa çalışır
+    if (currentRecommendations.isNotEmpty()) {
+        // Bir sonraki indexe geç (liste sonuna gelince başa döner)
+        currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
+        val nextRec = currentRecommendations[currentRecIndex]
+        
+        showToast("Kanal: ${nextRec.name}")
+        loadRecommendationUrl(nextRec.url)
     } else {
-        val metaList = allMeta
-        if (!metaList.isNullOrEmpty()) {
-            val currentIdx = viewModel.getCurrentIndex() ?: 0
-            if (currentIdx < metaList.size - 1) {
-                val nextEpisodeMeta = metaList[currentIdx + 1]
-                if (nextEpisodeMeta is ExtractorUri) {
-                    lifecycleScope.launch {
-                        val link = newExtractorLink(
-                            source = "CloudStream",
-                            name = nextEpisodeMeta.name,
-                            url = nextEpisodeMeta.uri.toString()
-                        )
-                        loadLink(Pair(link, nextEpisodeMeta), false)
-                    }
-                }
-            }
-        }
+        // Eğer dizi modundaysan mevcut dizi geçiş mantığını buraya da ekleyebilirsin
+        // Ama önceliğin Canlı TV ise bu blok yeterlidir.
     }
 }
 
 override fun prevChannel() {
-    val isSingleContent = currentMeta?.let {
-        val type = it.toString()
-        type.contains("Live") || type.contains("NSFW")
-    } ?: false
-
-    if (isSingleContent) {
-        if (currentRecommendations.isNotEmpty()) {
-            currentRecIndex = if (currentRecIndex <= 0) {
-                currentRecommendations.size - 1 
-            } else {
-                currentRecIndex - 1
-            }
-            val prevRec = currentRecommendations[currentRecIndex]
-            showToast("Önceki: ${prevRec.name}")
-            loadRecommendationUrl(prevRec.url)
+    if (currentRecommendations.isNotEmpty()) {
+        // Bir önceki indexe geç (liste başına gelince sona döner)
+        currentRecIndex = if (currentRecIndex <= 0) {
+            currentRecommendations.size - 1 
+        } else {
+            currentRecIndex - 1
         }
-    } else {
-        val metaList = allMeta
-        if (!metaList.isNullOrEmpty()) {
-            val currentIdx = viewModel.getCurrentIndex() ?: 0
-            if (currentIdx > 0) {
-                val prevEpisodeMeta = metaList[currentIdx - 1]
-                if (prevEpisodeMeta is ExtractorUri) {
-                    lifecycleScope.launch {
-                        val link = newExtractorLink(
-                            source = "CloudStream",
-                            name = prevEpisodeMeta.name,
-                            url = prevEpisodeMeta.uri.toString()
-                        )
-                        loadLink(Pair(link, prevEpisodeMeta), false)
-                    }
-                }
-            }
-        }
+        val prevRec = currentRecommendations[currentRecIndex]
+        
+        showToast("Kanal: ${prevRec.name}")
+        loadRecommendationUrl(prevRec.url)
     }
 }
 
