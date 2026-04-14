@@ -157,7 +157,7 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
     protected var timestampShowState = false
     private var metadataVisibilityToken = 0
     protected var hasEpisodes = false
-        private set
+       protected set 
     // protected val hasEpisodes
     //    get() = episodes.isNotEmpty()
 
