@@ -176,41 +176,82 @@ class GeneratorPlayer : FullScreenPlayer() {
 
 
 //yenii	
+//yenii    
 override fun hasNextChannel(): Boolean {	
+    // Önce currentRecommendations kontrolü (Canlı TV veya Film önerileri)
+    if (currentRecommendations.isNotEmpty()) {
+        return currentRecIndex + 1 < currentRecommendations.size
+    }
+    
+    // Sonra dizi bölümleri kontrolü
     val metaList = allMeta
-    // Dizi/Film Bölüm 
     if (!metaList.isNullOrEmpty() && metaList.size > 1) {
         val currentIdx = viewModel.getCurrentIndex() ?: 0
         return currentIdx + 1 < metaList.size
-    } 
-    // Canlı TV / Kanal
-    return currentRecIndex + 1 < currentRecommendations.size
+    }
+    
+    return false
 }
+
 override fun hasPrevChannel(): Boolean {
+    // Önce currentRecommendations kontrolü (Canlı TV veya Film önerileri)
+    if (currentRecommendations.isNotEmpty()) {
+        return currentRecIndex > 0
+    }
+    
+    // Sonra dizi bölümleri kontrolü
     val metaList = allMeta
-    // Dizi/Film Bölüm 
     if (!metaList.isNullOrEmpty() && metaList.size > 1) {
         val currentIdx = viewModel.getCurrentIndex() ?: 0
         return currentIdx > 0
-    } 
-    // Canlı TV
-    return currentRecIndex > 0
-}
- override fun nextChannel() {
-    if (currentRecommendations.isEmpty()) return
-    currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
-    val nextRec = currentRecommendations[currentRecIndex]
-    showToast("Kanal: ${nextRec.name}")
-    loadRecommendationUrl(nextRec.url)
-}
-override fun prevChannel() {
-    if (currentRecommendations.isEmpty()) return
-    currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
-    val prevRec = currentRecommendations[currentRecIndex]
-    showToast("Kanal: ${prevRec.name}")
-    loadRecommendationUrl(prevRec.url)
+    }
+    
+    return false
 }
 
+override fun nextChannel() {
+    // Önce currentRecommendations kontrolü
+    if (currentRecommendations.isNotEmpty()) {
+        currentRecIndex = (currentRecIndex + 1) % currentRecommendations.size
+        val nextRec = currentRecommendations[currentRecIndex]
+        showToast("Kanal: ${nextRec.name}")
+        loadRecommendationUrl(nextRec.url)
+        return
+    }
+    
+    // Dizi bölümleri için
+    val metaList = allMeta
+    if (!metaList.isNullOrEmpty() && metaList.size > 1) {
+        val currentIdx = viewModel.getCurrentIndex() ?: 0
+        if (currentIdx + 1 < metaList.size) {
+            isNextEpisode = true
+            player.release()
+            viewModel.loadLinksNext()
+        }
+    }
+}
+
+override fun prevChannel() {
+    // Önce currentRecommendations kontrolü
+    if (currentRecommendations.isNotEmpty()) {
+        currentRecIndex = if (currentRecIndex <= 0) currentRecommendations.size - 1 else currentRecIndex - 1
+        val prevRec = currentRecommendations[currentRecIndex]
+        showToast("Kanal: ${prevRec.name}")
+        loadRecommendationUrl(prevRec.url)
+        return
+    }
+    
+    // Dizi bölümleri için
+    val metaList = allMeta
+    if (!metaList.isNullOrEmpty() && metaList.size > 1) {
+        val currentIdx = viewModel.getCurrentIndex() ?: 0
+        if (currentIdx > 0) {
+            isNextEpisode = true
+            player.release()
+            viewModel.loadLinksPrev()
+        }
+    }
+}
 //yenii
 
 
@@ -2139,10 +2180,14 @@ override fun prevChannel() {
         }
     }
 //yeni eklendi  degişti
-    override fun isThereEpisodes(): Boolean {
-        val meta = allMeta
-        return !meta.isNullOrEmpty() && meta.size > 1
+override fun isThereEpisodes(): Boolean {
+    // Eğer öneriler varsa (Canlı TV/Film), bölüm listesi gösterme
+    if (currentRecommendations.isNotEmpty()) {
+        return false
     }
+    val meta = allMeta
+    return !meta.isNullOrEmpty() && meta.size > 1
+}
 
     override fun showEpisodesOverlay() {
         try {
@@ -2375,6 +2420,26 @@ fun handleCustomKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
                 it.isVisible = !it.isVisible
             }
         }
+
+
+// viewModel'den önerileri aldığınız yerde (örneğin onViewCreated içinde)
+observe(viewModel.currentRecommendations) { recommendations ->
+    currentRecommendations = recommendations ?: emptyList()
+    // Eğer canlı TV veya film ise ve öneriler varsa, hasEpisodes'u false yap
+    if (currentRecommendations.isNotEmpty()) {
+        // Overlay'i güncelle
+        hasEpisodes = false
+    }
+}
+
+
+
+
+
+
+
+
+
 
         observe(viewModel.currentStamps) { stamps ->
             player.addTimeStamps(stamps)
