@@ -2074,7 +2074,6 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
 //yeni eklendi
 @SuppressLint("GestureBackNavigation")
 protected open fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
-    // UI Thread güvenliği
     if (Looper.myLooper() != Looper.getMainLooper()) {
         var result = false
         val latch = java.util.concurrent.CountDownLatch(1)
@@ -2099,44 +2098,52 @@ protected open fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boole
             KeyEvent.KEYCODE_MENU, 
             KeyEvent.KEYCODE_SETTINGS -> {
                 if (isLocked != true) { 
-                    // Bölüm listesini (overlay) açar/kapatır
                     toggleEpisodesOverlay(true) 
                     return true
                 }
             }
 
             // --- DPAD YUKARI / AŞAĞI: KANAL VEYA BÖLÜM DEĞİŞTİRME ---
-KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
-    if (!isShowing && !isShowingEpisodeOverlay) {
-        val meta = currentMeta
-        
-        // Sadece Live değil, içinde Movie geçenleri de yakalıyoruz
-        val metaString = meta?.toString() ?: ""
-        val isSingleContent = metaString.contains("Live", ignoreCase = true) || 
-                             metaString.contains("NSFW", ignoreCase = true)
+            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
+                if (!isShowing && !isShowingEpisodeOverlay) {
+                    val meta = currentMeta
+                    
+                    // Canlı TV kontrolü - currentRecommendations dolu mu?
+                    val isLive = when (meta) {
+                        is ResultEpisode -> meta.tvType == TvType.Live
+                        is ExtractorUri -> meta.tvType == TvType.Live
+                        else -> false
+                    }
+                    
+                    // ÖNERİLENLER (Canlı TV veya Film) - currentRecommendations kontrolü
+                    if (currentRecommendations.isNotEmpty()) {
+                        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                            if (hasPrevChannel()) {
+                                prevChannel()
+                            }
+                        } else {
+                            if (hasNextChannel()) {
+                                nextChannel()
+                            }
+                        }
+                        return true
+                    }
+                    // DİZİ/FİLM BÖLÜM MANTIĞI
+                    else if (hasEpisodes) {
+                        val eventToHandle = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) 
+                            CSPlayerEvent.PrevEpisode else CSPlayerEvent.NextEpisode
+                        player.handleEvent(eventToHandle)
+                        return true
+                    }
+                    // HİÇBİRİ YOKSA ZAMAN ATLAMA
+                    else {
+                        val skip = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) -600000L else 600000L
+                        player.seekTime(skip)
+                        return true
+                    }
+                }
+            }
 
-        if (isSingleContent) {
-            // Eğer Canlı TV veya Film ise: Listeden (recommendations) kanal değiştir
-            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                prevChannel() 
-            } else {
-                nextChannel()
-            }
-        } else {
-            // DİZİ MANTIĞI: Eğer dizi ise bölüm atlat, değilse 10dk sar
-            if (hasEpisodes) {
-                val eventToHandle = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) 
-                    CSPlayerEvent.PrevEpisode else CSPlayerEvent.NextEpisode
-                player.handleEvent(eventToHandle)
-            } else {
-                // Burası artık sadece normal videolarda (dizi/film olmayan) çalışır
-                val skip = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) -600000L else 600000L
-                player.seekTime(skip)
-            }
-        }
-        return true
-    }
-}
             // --- OK / ORTA TUŞ ---
             KeyEvent.KEYCODE_DPAD_CENTER -> {
                 if (!isShowing) {
@@ -2148,7 +2155,6 @@ KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
                     onClickChange()
                     return true
                 }
-                // Menü açıkken butona tıklamaya izin ver (return false)
             }
 
             // --- SOL / SAĞ (SEEK) ---
