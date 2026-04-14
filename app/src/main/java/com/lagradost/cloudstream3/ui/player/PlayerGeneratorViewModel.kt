@@ -1,5 +1,4 @@
 package com.lagradost.cloudstream3.ui.player
-import com.lagradost.cloudstream3.SearchResponse //yeni eklendi
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -48,15 +47,6 @@ class PlayerGeneratorViewModel : ViewModel() {
     private var currentLoadingEpisodeId: Int? = null
 
     var forceClearCache = false
-//yeni
-    private val _currentRecommendations = MutableLiveData<List<SearchResponse>>()
-    val currentRecommendations: LiveData<List<SearchResponse>> = _currentRecommendations
-    
-    fun setRecommendations(recommendations: List<SearchResponse>) {
-        _currentRecommendations.postValue(recommendations)
-    }
-    
-//yeni
     
     fun setSubtitleYear(year: Int?) {
         _currentSubtitleYear.postValue(year)
