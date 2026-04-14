@@ -1,11 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
 
-//yeni
-import com.lagradost.cloudstream3.SearchResponse
-import com.lagradost.cloudstream3.ui.result.ResultEpisode
-import com.lagradost.cloudstream3.TvType
-//yeni
-
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -129,20 +123,7 @@ private const val SUBTITLE_DELAY_BUNDLE_KEY = "subtitle_delay"
 // All the UI Logic for the player
 @OptIn(UnstableApi::class)
 open class FullScreenPlayer : AbstractPlayerFragment() {
-    
-	//yeni
-    open fun prevChannel() { showToast("Geri: Temel") }
-    open fun nextChannel() { showToast("İleri: Temel") }
-    open fun hasPrevChannel(): Boolean = false
-    open fun hasNextChannel(): Boolean = false
-
-    protected open var currentMeta: Any? = null
-    protected var currentRecommendations: List<SearchResponse> = emptyList()
-    protected var currentRecIndex: Int = 0
-	open fun loadRecommendationUrl(url: String) {showToast("loadRecommendationUrl: $url") }
-	//yeni
-	
-	private var isVerticalOrientation: Boolean = false
+    private var isVerticalOrientation: Boolean = false
     protected open var lockRotation = true
     protected open var isFullScreenPlayer = true
     protected var playerBinding: PlayerCustomLayoutBinding? = null
@@ -157,7 +138,7 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
     protected var timestampShowState = false
     private var metadataVisibilityToken = 0
     protected var hasEpisodes = false
-       protected set 
+        private set
     // protected val hasEpisodes
     //    get() = episodes.isNotEmpty()
 
@@ -2073,115 +2054,103 @@ open class FullScreenPlayer : AbstractPlayerFragment() {
     }
 //yeni eklendi
 @SuppressLint("GestureBackNavigation")
-protected open fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
-    if (Looper.myLooper() != Looper.getMainLooper()) {
-        var result = false
-        val latch = java.util.concurrent.CountDownLatch(1)
-        activity?.runOnUiThread {
-            result = handleKeyEvent(event, hasNavigated)
-            latch.countDown()
+    private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
+        if (hasNavigated) {
+            autoHide()
+            return false
         }
-        latch.await(100, java.util.concurrent.TimeUnit.MILLISECONDS)
-        return result
-    }
-    
-    if (hasNavigated) {
-        autoHide()
-        return false
-    }
+        val keyCode = event.keyCode
 
-    val keyCode = event.keyCode
-
-    if (event.action == KeyEvent.ACTION_DOWN) {
-        when (keyCode) {
-            // --- OPTIONS / MENU / SETTINGS TUŞU ---
-            KeyEvent.KEYCODE_MENU, 
-            KeyEvent.KEYCODE_SETTINGS -> {
-                if (isLocked != true) { 
-                    toggleEpisodesOverlay(true) 
-                    return true
-                }
-            }
-
-            // --- DPAD YUKARI / AŞAĞI: KANAL VEYA BÖLÜM DEĞİŞTİRME ---
-            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
-                if (!isShowing && !isShowingEpisodeOverlay) {
-                    val meta = currentMeta
-                    
-                    // Canlı TV kontrolü - currentRecommendations dolu mu?
-                    val isLive = when (meta) {
-                        is ResultEpisode -> meta.tvType == TvType.Live
-                        is ExtractorUri -> meta.tvType == TvType.Live
-                        else -> false
+        // Sadece tuşa basılma anını yakalıyoruz (ACTION_DOWN)
+        if (event.action == KeyEvent.ACTION_DOWN) {
+            when (keyCode) {           
+        // --- OK / ORTA TUŞ ---
+                KeyEvent.KEYCODE_DPAD_CENTER -> {
+                    // 1. Durum: Menü kapalıyken (isShowing == false)
+                    if (!isShowing) {
+                        if (timestampShowState) {
+                            player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
+                        } else if (!isLocked) {
+                            player.handleEvent(CSPlayerEvent.PlayPauseToggle)
+                        }
+                        // Menüyü aç
+                        onClickChange()
+                        return true
+                    } else {
+                        // 2. Durum: Menü ZATEN AÇIKSA (isShowing == true)
+                        // Bu durumda tuşun "tıklama" görevini yapmasına izin veriyoruz
+                        // return true demeyerek veya false döndürerek sistemin 
+                        // odaklandığın butona (altyazı, bölümler vb.) basmasını sağlıyoruz.
+                        return false 
                     }
-                    
-                    // ÖNERİLENLER (Canlı TV veya Film) - currentRecommendations kontrolü
-                    if (currentRecommendations.isNotEmpty()) {
+                }
+
+// --- OPTIONS / MENU TUŞU İLE BÖLÜM LİSTESİNİ AÇMA ---
+KeyEvent.KEYCODE_MENU, 
+KeyEvent.KEYCODE_SETTINGS -> {
+    if (isLocked != true) { 
+        // Senin kodunda dizi listesini açan gerçek fonksiyon budur:
+        toggleEpisodesOverlay(true)
+        return true
+    }
+}
+
+                // --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
+                KeyEvent.KEYCODE_DPAD_DOWN,
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    // Sadece menüler kapalıyken bölüm değiştir
+                    if (!isShowing && !isShowingEpisodeOverlay) {
                         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                            if (hasPrevChannel()) {
-                                prevChannel()
-                            }
+                            // IPlayer interface'indeki NextEpisode olayını tetikler
+                            player.handleEvent(CSPlayerEvent.NextEpisode)
                         } else {
-                            if (hasNextChannel()) {
-                                nextChannel()
-                            }
+                            // IPlayer interface'indeki PrevEpisode olayını tetikler
+                            player.handleEvent(CSPlayerEvent.PrevEpisode)
                         }
                         return true
                     }
-                    // DİZİ/FİLM BÖLÜM MANTIĞI
-                    else if (hasEpisodes) {
-                        val eventToHandle = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) 
-                            CSPlayerEvent.PrevEpisode else CSPlayerEvent.NextEpisode
-                        player.handleEvent(eventToHandle)
+                }
+
+                // --- DPAD SOL: GERİ SARMA ---
+                KeyEvent.KEYCODE_DPAD_LEFT -> {
+                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                        player.seekTime(-androidTVInterfaceOffSeekTime)
+                        return true
+                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                        player.seekTime(-androidTVInterfaceOnSeekTime)
                         return true
                     }
-                    // HİÇBİRİ YOKSA ZAMAN ATLAMA
-                    else {
-                        val skip = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) -600000L else 600000L
-                        player.seekTime(skip)
+                }
+
+                // --- DPAD SAĞ: İLERİ SARMA ---
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                        player.seekTime(androidTVInterfaceOnSeekTime)
+                        return true
+                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                        player.seekTime(androidTVInterfaceOnSeekTime)
                         return true
                     }
                 }
             }
+        }
 
-            // --- OK / ORTA TUŞ ---
-            KeyEvent.KEYCODE_DPAD_CENTER -> {
-                if (!isShowing) {
-                    if (timestampShowState) {
-                        player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
-                    } else if (!isLocked) {
-                        player.handleEvent(CSPlayerEvent.PlayPauseToggle)
-                    }
-                    onClickChange()
-                    return true
-                }
-            }
-
-            // --- SOL / SAĞ (SEEK) ---
-            KeyEvent.KEYCODE_DPAD_LEFT -> {
-                if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                    player.seekTime(-androidTVInterfaceOffSeekTime)
-                    return true
-                }
-            }
+        // DPAD yön tuşlarının sistem tarafından tüketilmesini (focus kaymasını) engelleme
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_DOWN,
+            KeyEvent.KEYCODE_DPAD_UP,
+            KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                    player.seekTime(androidTVInterfaceOffSeekTime)
-                    return true
+                // Eğer hiçbir menü açık değilse, sistemin bu tuşlarla başka yere odaklanmasını engelle
+                if (!isShowing && !isShowingEpisodeOverlay) {
+                    return true 
                 }
             }
         }
+
+        return false
     }
 
-    // Sistem focusunun kaybolmasını engelle
-    when (keyCode) {
-        KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_UP -> {
-            if (!isShowing && !isShowingEpisodeOverlay) return true
-        }
-    }
-
-    return false
-}
 //yeni eklendi
     private var loudnessEnhancer: LoudnessEnhancer? = null
 
