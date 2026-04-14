@@ -48,7 +48,16 @@ class PlayerGeneratorViewModel : ViewModel() {
     private var currentLoadingEpisodeId: Int? = null
 
     var forceClearCache = false
-
+//yeni
+    private val _currentRecommendations = MutableLiveData<List<SearchResponse>>()
+    val currentRecommendations: LiveData<List<SearchResponse>> = _currentRecommendations
+    
+    fun setRecommendations(recommendations: List<SearchResponse>) {
+        _currentRecommendations.postValue(recommendations)
+    }
+    
+//yeni
+    
     fun setSubtitleYear(year: Int?) {
         _currentSubtitleYear.postValue(year)
     }
