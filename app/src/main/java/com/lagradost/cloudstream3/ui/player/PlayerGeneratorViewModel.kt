@@ -1,5 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-
+import com.lagradost.cloudstream3.SearchResponse //yeni eklendi
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
