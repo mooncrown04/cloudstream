@@ -16,13 +16,12 @@ import com.lagradost.cloudstream3.ui.ViewHolderState
 import com.lagradost.cloudstream3.ui.newSharedPool
 import com.lagradost.cloudstream3.ui.settings.Globals.PHONE
 import com.lagradost.cloudstream3.ui.settings.Globals.isLayout
-import com.lagradost.cloudstream3.utils.ImageLoader.clearImage
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 
 class ActorAdaptor(
     private var nextFocusUpId: Int? = null,
     private val focusCallback: (View?) -> Unit = {},
-    private val searchCallback: (String) -> Unit = {} // Aktör arama callback'i
+    private val searchCallback: (String) -> Unit = {} // Senin eklediğin arama callback'i
 ) : NoStateAdapter<ActorData>(diffCallback = BaseDiffCallback(itemSame = { a, b ->
     a.actor.name == b.actor.name
 })) {
@@ -31,6 +30,7 @@ class ActorAdaptor(
             newSharedPool { setMaxRecycledViews(CONTENT, 10) }
     }
 
+    // Easier to store it here than to store it in the ActorData
     val inverted: HashMap<ActorData, Boolean> = hashMapOf()
 
     override fun onCreateContent(parent: ViewGroup): ViewHolderState<Any> {
@@ -42,8 +42,8 @@ class ActorAdaptor(
     override fun onClearView(holder: ViewHolderState<Any>) {
         when (val binding = holder.view) {
             is CastItemBinding -> {
-                // Hafıza sızıntısını ve resimlerin karışmasını önlemek için geri eklendi
-                clearImage(binding.actorImage) 
+                // Orijinal kodda var olan temizleme fonksiyonu (Dokunulmadı)
+                clearImage(binding.actorImage)
             }
         }
     }
@@ -60,7 +60,7 @@ class ActorAdaptor(
                     Pair(item.voiceActor?.image, item.actor.image)
                 }
 
-                // TV Odaklanma (Focus) Ayarları
+                // Fix tv focus escaping the recyclerview
                 if (position == 0) {
                     itemView.nextFocusLeftId = R.id.result_cast_items
                 } else if ((position - 1) == itemCount) {
@@ -87,7 +87,6 @@ class ActorAdaptor(
                     this.onUpdateContent(holder, getItem(position), position)
                 }
 
-                // Uzun Basma: Telefonlarda Web Araması
                 itemView.setOnLongClickListener {
                     if (isLayout(PHONE)) {
                         Intent(Intent.ACTION_WEB_SEARCH).apply {
@@ -105,14 +104,22 @@ class ActorAdaptor(
 
                 binding.apply {
                     actorImage.loadImage(mainImg)
+
                     actorName.text = item.actor.name
-                    
                     item.role?.let {
                         actorExtra.context?.getString(
                             when (it) {
-                                ActorRole.Main -> R.string.actor_main
-                                ActorRole.Supporting -> R.string.actor_supporting
-                                ActorRole.Background -> R.string.actor_background
+                                ActorRole.Main -> {
+                                    R.string.actor_main
+                                }
+
+                                ActorRole.Supporting -> {
+                                    R.string.actor_supporting
+                                }
+
+                                ActorRole.Background -> {
+                                    R.string.actor_background
+                                }
                             }
                         )?.let { text ->
                             actorExtra.isVisible = true
@@ -125,13 +132,13 @@ class ActorAdaptor(
                         actorExtra.isVisible = false
                     }
 
-                    // Seslendirme Sanatçısı Bilgisi
                     if (item.voiceActor == null) {
                         voiceActorImageHolder.isVisible = false
                         voiceActorName.isVisible = false
                     } else {
                         voiceActorName.text = item.voiceActor?.name
-                        voiceActorImageHolder.isVisible = !vaImage.isNullOrEmpty()
+                        if (!vaImage.isNullOrEmpty())
+                            voiceActorImageHolder.isVisible = true
                         voiceActorImage.loadImage(vaImage)
                     }
                 }
