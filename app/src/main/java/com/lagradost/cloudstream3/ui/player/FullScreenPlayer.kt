@@ -1,5 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-
+import com.lagradost.cloudstream3.CommonActivity.showToast
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
