@@ -468,6 +468,13 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
             resultCastItems.adapter = ActorAdaptor(aboveCast?.id) {
                 toggleEpisodes(false)
             }
+		 //yeni  ACTOR TIKLAMA OLAYI BURAYA EKLENDİ
+		 , { actorName ->
+                if (!actorName.isNullOrBlank()) {
+                    QuickSearchFragment.pushSearch(activity, actorName)
+                }
+            })
+//yeni
 
             if (isLayout(EMULATOR)) {
                 episodesShadow.setOnClickListener {
