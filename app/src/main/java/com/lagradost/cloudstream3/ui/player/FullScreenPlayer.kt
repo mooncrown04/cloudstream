@@ -964,65 +964,38 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             onClickChange()
         }
 
-       // --- DPAD YUKARI/AŞAĞI ---
-KeyEvent.KEYCODE_DPAD_UP,
+        // --- DPAD YUKARI/AŞAĞI ---
+       KeyEvent.KEYCODE_DPAD_UP,
 KeyEvent.KEYCODE_DPAD_DOWN -> {
-    // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa ya da kilitliyse tuşları yakalama
-    if (isShowing || isDialogOpen() || isShowingEpisodeOverlay || isLocked) {
+    // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
+    if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
         return null
     }
     
-    val meta = currentMeta
-    val isLive = when (meta) {
-        is ResultEpisode -> meta.tvType == TvType.Live
-        is ExtractorUri -> meta.tvType == TvType.Live
-        else -> false
-    }
-    
-    showToast("isLive: $isLive, hasEpisodes: $hasEpisodes")
-
-    if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-        if (isLive) {
-            showToast("CANLI TV - Sonraki Kanal")
-            if (hasNextChannel()) {
-                showToast("→ nextChannel() çağrılıyor")
-                nextChannel()
-            } else {
-                showToast("Sonraki kanal YOK")
-            }
-        } else {
-            showToast("DİZİ/FİLM - Önceki")
-            if (hasEpisodes) {
-                showToast("→ PrevEpisode çağrılıyor")
+    // Her şey kapalıysa
+    if (!isLocked) {
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+            // Önceki bölüm varsa değiştir, yoksa ses aç
+            if (hasEpisodes) { // Veya bölüm kontrol mantığınız
                 player.handleEvent(CSPlayerEvent.PrevEpisode)
+                showToast("→ PrevEpisode çağrılıyor")
             } else {
-                // BURAYA +10dk seek yerine SES AÇMA/KISMA fonksiyonunu ekliyoruz:
                 showToast("→ Ses Açılıyor")
                 playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_UP)
             }
-        }
-    } else {
-        if (isLive) {
-            showToast("CANLI TV - Önceki Kanal")
-            if (hasPrevChannel()) {
-                showToast("→ prevChannel() çağrılıyor")
-                prevChannel()
-            } else {
-                showToast("Önceki kanal YOK")
-            }
         } else {
-            showToast("DİZİ/FİLM - Sonraki")
-            if (hasEpisodes) {
-                showToast("→ NextEpisode çağrılıyor")
+            // Sonraki bölüm varsa değiştir, yoksa ses kıs
+            if (hasEpisodes) { // Veya bölüm kontrol mantığınız
                 player.handleEvent(CSPlayerEvent.NextEpisode)
+                showToast("→ NextEpisode çağrılıyor")
             } else {
-                // BURAYA -10dk seek yerine SES KISMA fonksiyonunu ekliyoruz:
                 showToast("→ Ses Kısılıyor")
                 playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_DOWN)
             }
         }
+        return true
     }
-    return true
+    return null
 }
 
         KeyEvent.KEYCODE_DPAD_LEFT -> {
