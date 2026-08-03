@@ -965,8 +965,7 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
   
-   // --- DPAD YUKARI/AŞAĞI ---
-        KeyEvent.KEYCODE_DPAD_UP,
+    KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
             // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
@@ -979,26 +978,18 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
                     // Önceki bölüm varsa değiştir, yoksa ses aç
                     if (hasEpisodes) { 
                         player.handleEvent(CSPlayerEvent.PrevEpisode)
-                        activity?.runOnUiThread {
-                            Toast.makeText(context, "→ PrevEpisode çağrılıyor: ${currentMeta?.name ?: ""}", Toast.LENGTH_SHORT).show()
-                        }
+                        showToast("→ PrevEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
                     } else {
-                        activity?.runOnUiThread {
-                            Toast.makeText(context, "→ Ses Açılıyor", Toast.LENGTH_SHORT).show()
-                        }
+                        showToast("→ Ses Açılıyor")
                         playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_UP)
                     }
                 } else {
                     // Sonraki bölüm varsa değiştir, yoksa ses kıs
                     if (hasEpisodes) { 
                         player.handleEvent(CSPlayerEvent.NextEpisode)
-                        activity?.runOnUiThread {
-                            Toast.makeText(context, "→ NextEpisode çağrılıyor: ${currentMeta?.name ?: ""}", Toast.LENGTH_SHORT).show()
-                        }
+                        showToast("→ NextEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
                     } else {
-                        activity?.runOnUiThread {
-                            Toast.makeText(context, "→ Ses Kısılıyor", Toast.LENGTH_SHORT).show()
-                        }
+                        showToast("→ Ses Kısılıyor")
                         playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_DOWN)
                     }
                 }
