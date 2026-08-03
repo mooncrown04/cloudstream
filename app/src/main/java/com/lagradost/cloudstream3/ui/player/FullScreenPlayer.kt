@@ -964,34 +964,21 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             onClickChange()
         }
 
-  
-    KeyEvent.KEYCODE_DPAD_UP,
+        // --- DPAD YUKARI/AŞAĞI ---
+        KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
+            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
+            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
             }
             
-            // Her şey kapalıysa
+            // Her şey kapalıysa hızlıca bölüm değiştir
             if (!isLocked) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    // Önceki bölüm varsa değiştir, yoksa ses aç
-                    if (hasEpisodes) { 
-                        player.handleEvent(CSPlayerEvent.PrevEpisode)
-                        showToast("→ PrevEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
-                    } else {
-                        showToast("→ Ses Açılıyor")
-                        playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_UP)
-                    }
+                    player.handleEvent(CSPlayerEvent.PrevEpisode)
                 } else {
-                    // Sonraki bölüm varsa değiştir, yoksa ses kıs
-                    if (hasEpisodes) { 
-                        player.handleEvent(CSPlayerEvent.NextEpisode)
-                        showToast("→ NextEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
-                    } else {
-                        showToast("→ Ses Kısılıyor")
-                        playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_DOWN)
-                    }
+                    player.handleEvent(CSPlayerEvent.NextEpisode)
                 }
                 return true
             }
