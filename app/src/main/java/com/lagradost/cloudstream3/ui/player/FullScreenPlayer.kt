@@ -880,6 +880,7 @@ open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
         playerHostView?.requestUpdateBrightnessOverlayOnNextLayout()
     }
 
+
 private fun handleKeyDownEvent(keyCode: Int): Boolean? {
     // adb shell input keyevent [INT]
     when (keyCode) {
@@ -952,7 +953,7 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
 
         KeyEvent.KEYCODE_DPAD_CENTER,
         KeyEvent.KEYCODE_ENTER -> {
-            if (isShowing || isDialogOpen()) {
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
             }
             if (timestampShowState) {
@@ -963,10 +964,17 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             onClickChange()
         }
 
-        // --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
+        // --- DPAD YUKARI/AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            if (!isShowing && !isShowingEpisodeOverlay) {
+            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
+            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
+                return null
+            }
+            
+            // Her şey kapalıysa hızlıca bölüm değiştir
+            if (!isLocked) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
                 } else {
@@ -978,27 +986,25 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
         KeyEvent.KEYCODE_DPAD_LEFT -> {
-            if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                player.seekTime(-androidTVInterfaceOffSeekTime)
-                return true
-            } else if (playerBinding?.playerPausePlay?.isFocused == true) {
-                player.seekTime(-androidTVInterfaceOnSeekTime)
-                return true
-            } else {
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
             }
+            if (!isLocked) {
+                player.seekTime(-androidTVInterfaceOffSeekTime)
+                return true
+            }
+            return null
         }
 
         KeyEvent.KEYCODE_DPAD_RIGHT -> {
-            if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                player.seekTime(androidTVInterfaceOffSeekTime)
-                return true
-            } else if (playerBinding?.playerPausePlay?.isFocused == true) {
-                player.seekTime(androidTVInterfaceOnSeekTime)
-                return true
-            } else {
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
             }
+            if (!isLocked) {
+                player.seekTime(androidTVInterfaceOffSeekTime)
+                return true
+            }
+            return null
         }
 
         KeyEvent.KEYCODE_VOLUME_DOWN,
@@ -1020,6 +1026,7 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
     }
     return true
 }
+
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
