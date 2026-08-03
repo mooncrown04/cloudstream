@@ -977,8 +977,10 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             if (!isLocked) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
+                    showToast("→ PrevEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
+                    showToast("→ NextEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
                 }
                 return true
             }
