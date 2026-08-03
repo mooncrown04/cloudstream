@@ -969,14 +969,23 @@ open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
                 onClickChange()
             }
 
-            KeyEvent.KEYCODE_DPAD_DOWN,
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                if (isShowing || isShowingEpisodeOverlay) {
-                    return null
+ //yeni eklendi      
+                // --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
+                KeyEvent.KEYCODE_DPAD_DOWN,
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    // Sadece menüler kapalıyken bölüm değiştir
+                    if (!isShowing && !isShowingEpisodeOverlay) {
+                        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                            // IPlayer interface'indeki NextEpisode olayını tetikler
+                            player.handleEvent(CSPlayerEvent.NextEpisode)
+                        } else {
+                            // IPlayer interface'indeki PrevEpisode olayını tetikler
+                            player.handleEvent(CSPlayerEvent.PrevEpisode)
+                        }
+                        return true
+                    }
                 }
-                onClickChange()
-            }
-
+//yeni eklendi
             KeyEvent.KEYCODE_DPAD_LEFT -> {
                 if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
                     player.seekTime(-androidTVInterfaceOffSeekTime)
