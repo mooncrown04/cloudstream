@@ -464,16 +464,32 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 binding.resultSubscribe,
             ).firstOrNull { it.isVisible }
 
-            resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
-            resultCastItems.adapter = ActorAdaptor(aboveCast?.id) {
+             resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
+            resultCastItems.adapter = ActorAdaptor(aboveCast?.id, {
                 toggleEpisodes(false)
-            },
+         
+		 },
 		 //yeni  ACTOR TIKLAMA OLAYI BURAYA EKLENDİ
 		{ actorName ->
                 if (!actorName.isNullOrBlank()) {
                     QuickSearchFragment.pushSearch(activity, actorName)
                 }
             })
+
+
+resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
+            resultCastItems.adapter = ActorAdaptor(
+                aboveCast?.id,
+                {
+                    toggleEpisodes(false)
+                },
+                { actorName ->
+                    if (!actorName.isNullOrBlank()) {
+                        QuickSearchFragment.pushSearch(activity, actorName)
+                    }
+                }
+            )
+		
 //yeni
 
             if (isLayout(EMULATOR)) {
