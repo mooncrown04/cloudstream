@@ -964,40 +964,39 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             onClickChange()
         }
 
-      
-// --- DPAD YUKARI/AŞAĞI ---
-        KeyEvent.KEYCODE_DPAD_UP,
-        KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return null
+        // --- DPAD YUKARI/AŞAĞI ---
+       KeyEvent.KEYCODE_DPAD_UP,
+KeyEvent.KEYCODE_DPAD_DOWN -> {
+    // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
+    if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
+        return null
+    }
+    
+    // Her şey kapalıysa
+    if (!isLocked) {
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+            // Önceki bölüm varsa değiştir, yoksa ses aç
+            if (hasEpisodes) { // Veya bölüm kontrol mantığınız
+                player.handleEvent(CSPlayerEvent.PrevEpisode)
+                showToast("→ PrevEpisode çağrılıyor")
+            } else {
+                showToast("→ Ses Açılıyor")
+                playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_UP)
             }
-            
-            // Her şey kapalıysa
-            if (!isLocked) {
-                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    // Önceki bölüm varsa değiştir, yoksa ses aç
-                    if (hasEpisodes) { 
-                        player.handleEvent(CSPlayerEvent.PrevEpisode)
-                        showToast("→ PrevEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
-                    } else {
-                        showToast("→ Ses Açılıyor")
-                        playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_UP)
-                    }
-                } else {
-                    // Sonraki bölüm varsa değiştir, yoksa ses kıs
-                    if (hasEpisodes) { 
-                        player.handleEvent(CSPlayerEvent.NextEpisode)
-                        showToast("→ NextEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
-                    } else {
-                        showToast("→ Ses Kısılıyor")
-                        playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_DOWN)
-                    }
-                }
-                return true
+        } else {
+            // Sonraki bölüm varsa değiştir, yoksa ses kıs
+            if (hasEpisodes) { // Veya bölüm kontrol mantığınız
+                player.handleEvent(CSPlayerEvent.NextEpisode)
+                showToast("→ NextEpisode çağrılıyor")
+            } else {
+                showToast("→ Ses Kısılıyor")
+                playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_DOWN)
             }
-            return null
         }
+        return true
+    }
+    return null
+}
 
         KeyEvent.KEYCODE_DPAD_LEFT -> {
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
