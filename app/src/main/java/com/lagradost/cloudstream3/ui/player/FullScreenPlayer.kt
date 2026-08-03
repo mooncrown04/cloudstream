@@ -977,10 +977,10 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             if (!isLocked) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
-                    showToast("→ PrevEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
+                   showToast("CANLI TV - Önceki Kanal")
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
-                    showToast("→ NextEpisode çağrılıyor: ${currentMeta?.name ?: ""}")
+                   showToast("CANLI TV - Kanal")
                 }
                 return true
             }
