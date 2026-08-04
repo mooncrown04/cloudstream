@@ -968,14 +968,32 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
 // --- DPAD YUKARI/AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
-            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
+            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
             }
             
-            // Her şey kapalıysa hızlıca bölüm değiştir
+            // Her şey kapalıysa ve ekran kilitli değilse
             if (!isLocked) {
+                // Eğer dizi/bölüm yoksa (veya canlı TV/tekil video ise) ses tuşu gibi çalışsın
+                if (!hasEpisodes) {
+                    val volumeKeyCode = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                        KeyEvent.KEYCODE_VOLUME_UP
+                    } else {
+                        KeyEvent.KEYCODE_VOLUME_DOWN
+                    }
+                    
+                    if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                        showToast("→ Ses Açılıyor")
+                    } else {
+                        showToast("→ Ses Kısılıyor")
+                    }
+                    
+                    playerHostView?.handleVolumeKey(volumeKeyCode)
+                    return true
+                } 
+                
+                // Eğer dizi/bölüm varsa normal kanal/bölüm değiştirme işlemi yapılsın
                 val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Kanal/Bölüm"
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
