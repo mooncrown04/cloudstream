@@ -965,29 +965,30 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
 
-// --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
-        KeyEvent.KEYCODE_DPAD_DOWN,
+// --- DPAD YUKARI TUŞU ---
         KeyEvent.KEYCODE_DPAD_UP -> {
-            // Sadece menüler kapalıyken bölüm değiştir
             if (!isShowing && !isShowingEpisodeOverlay) {
-                // Hangi tuşa basıldığını anında sabitliyoruz
-                val isUp = (keyCode == KeyEvent.KEYCODE_DPAD_UP)
-
-                if (isUp) {
-                    // Orijinal çalışan yönünüz: Yukarı tuşu -> Sonraki Bölüm
-                    player.handleEvent(CSPlayerEvent.NextEpisode)
-                } else {
-                    // Orijinal çalışan yönünüz: Aşağı tuşu -> Önceki Bölüm
-                    player.handleEvent(CSPlayerEvent.PrevEpisode)
-                }
+                player.handleEvent(CSPlayerEvent.NextEpisode) // Veya isteğinize göre PrevEpisode
                 
-                // Bölüm adını gösteren Toast eklemesi (çalışan mantığı bozmadan)
                 playerBinding?.playerVideoTitle?.postDelayed({
                     val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    val direction = if (isUp) "Sonraki" else "Önceki"
-                    showToast("$direction: $newTitle")
+                    showToast("Sonraki: $newTitle")
                 }, 300)
+                
+                return true
+            }
+        }
 
+        // --- DPAD AŞAĞI TUŞU ---
+        KeyEvent.KEYCODE_DPAD_DOWN -> {
+            if (!isShowing && !isShowingEpisodeOverlay) {
+                player.handleEvent(CSPlayerEvent.PrevEpisode) // Veya isteğinize göre NextEpisode
+                
+                playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    showToast("Önceki: $newTitle")
+                }, 300)
+                
                 return true
             }
         }
