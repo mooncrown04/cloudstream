@@ -77,8 +77,8 @@ open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
     BindingCreator.Bind(FragmentPlayerBinding::bind)
 ) 
     //yeni eklendi
-	//open fun prevChannel() { showToast("prevChannel: Base") }
-  //  open fun nextChannel() { showToast("nextChannel: Base") }
+	open fun prevChannel() { showToast("prevChannel: Base") }
+    open fun nextChannel() { showToast("nextChannel: Base") }
 
 //yeni
 
@@ -975,18 +975,7 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
     // --- DPAD YUKARI/AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer ekran kilitliyse, DPAD tuşları ile ses açıp kapatalım
-            if (isLocked) {
-                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    showToast("→ Ses Açılıyor")
-                    playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_UP)
-                } else {
-                    showToast("→ Ses Kısılıyor")
-                    playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_DOWN)
-                }
-                return true
-            }
-
+       
             // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
@@ -996,10 +985,10 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             if (!isLocked) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
-                   // prevChannel()
+                    prevChannel()
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
-                  //  nextChannel()
+                    nextChannel()
                 }
                 return true
             }
