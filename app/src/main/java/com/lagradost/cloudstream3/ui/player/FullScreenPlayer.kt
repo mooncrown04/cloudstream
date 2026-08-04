@@ -1,7 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-//yeni eklendi
 import com.lagradost.cloudstream3.CommonActivity.showToast
-
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -75,13 +73,7 @@ private const val SUBTITLE_DELAY_BUNDLE_KEY = "subtitle_delay"
 @OptIn(UnstableApi::class)
 open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
     BindingCreator.Bind(FragmentPlayerBinding::bind)
-) 
-    //yeni eklendi
-	open fun prevChannel() { showToast("prevChannel: Base") }
-    open fun nextChannel() { showToast("nextChannel: Base") }
-
-//yeni
-
+) {
     override fun pickLayout(): Int = R.layout.fragment_player
     protected open var lockRotation = true
     protected var playerBinding: PlayerCustomLayoutBinding? = null
@@ -975,20 +967,21 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
     // --- DPAD YUKARI/AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-       
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
+            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
+            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
             }
             
-            // Kilit açık ve her şey kapalıysa hızlıca bölüm/kanal değiştir
+            // Her şey kapalıysa hızlıca bölüm değiştir
             if (!isLocked) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
-                    prevChannel()
+                    // O anki bölüm/kanal adını toast mesajına entegre ediyoruz:
+                    showToast("Önceki: ${player.currentItem?.name ?: "Kanal/Bölüm"}")[cite: 1]
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
-                    nextChannel()
+                    showToast("Sonraki: ${player.currentItem?.name ?: "Kanal/Bölüm"}")[cite: 1]
                 }
                 return true
             }
