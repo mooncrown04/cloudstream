@@ -1,5 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-import com.lagradost.cloudstream3.CommonActivity.showToast
+
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -880,158 +880,154 @@ open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
         playerHostView?.requestUpdateBrightnessOverlayOnNextLayout()
     }
 
-
-private fun handleKeyDownEvent(keyCode: Int): Boolean? {
-    // adb shell input keyevent [INT]
-    when (keyCode) {
-        KeyEvent.KEYCODE_FORWARD, KeyEvent.KEYCODE_D, KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD, KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
-            player.handleEvent(CSPlayerEvent.SeekForward)
-        }
-
-        KeyEvent.KEYCODE_A, KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD, KeyEvent.KEYCODE_MEDIA_REWIND -> {
-            player.handleEvent(CSPlayerEvent.SeekBack)
-        }
-
-        KeyEvent.KEYCODE_MEDIA_NEXT, KeyEvent.KEYCODE_BUTTON_R1, KeyEvent.KEYCODE_N, KeyEvent.KEYCODE_NUMPAD_2, KeyEvent.KEYCODE_CHANNEL_UP -> {
-            player.handleEvent(CSPlayerEvent.NextEpisode)
-        }
-
-        KeyEvent.KEYCODE_MEDIA_PREVIOUS, KeyEvent.KEYCODE_BUTTON_L1, KeyEvent.KEYCODE_B, KeyEvent.KEYCODE_NUMPAD_1, KeyEvent.KEYCODE_CHANNEL_DOWN -> {
-            player.handleEvent(CSPlayerEvent.PrevEpisode)
-        }
-
-        KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-            player.handleEvent(CSPlayerEvent.Pause)
-        }
-
-        KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_BUTTON_START -> {
-            player.handleEvent(CSPlayerEvent.Play)
-        }
-
-        KeyEvent.KEYCODE_L, KeyEvent.KEYCODE_NUMPAD_7, KeyEvent.KEYCODE_7 -> {
-            toggleLock()
-        }
-
-        KeyEvent.KEYCODE_H -> {
-            onClickChange()
-        }
-
-        KeyEvent.KEYCODE_M, KeyEvent.KEYCODE_VOLUME_MUTE -> {
-            player.handleEvent(CSPlayerEvent.ToggleMute)
-        }
-
-        KeyEvent.KEYCODE_S, KeyEvent.KEYCODE_NUMPAD_9, KeyEvent.KEYCODE_9 -> {
-            showMirrorsDialogue()
-        }
-        // OpenSubtitles shortcut
-        KeyEvent.KEYCODE_O, KeyEvent.KEYCODE_NUMPAD_8, KeyEvent.KEYCODE_8 -> {
-            val context = context
-            if (subsProvidersIsActive && context != null) {
-                openOnlineSubPicker(context, null) {}
+    private fun handleKeyDownEvent(keyCode: Int): Boolean? {
+        // adb shell input keyevent [INT]
+        when (keyCode) {
+            KeyEvent.KEYCODE_FORWARD, KeyEvent.KEYCODE_D, KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD, KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
+                player.handleEvent(CSPlayerEvent.SeekForward)
             }
-        }
 
-        KeyEvent.KEYCODE_E, KeyEvent.KEYCODE_NUMPAD_3, KeyEvent.KEYCODE_3 -> {
-            showSpeedDialog()
-        }
-
-        KeyEvent.KEYCODE_R, KeyEvent.KEYCODE_NUMPAD_0, KeyEvent.KEYCODE_0 -> {
-            nextResize()
-        }
-
-        KeyEvent.KEYCODE_C, KeyEvent.KEYCODE_NUMPAD_4, KeyEvent.KEYCODE_4 -> {
-            skipOp()
-        }
-
-        KeyEvent.KEYCODE_V, KeyEvent.KEYCODE_NUMPAD_5, KeyEvent.KEYCODE_5 -> {
-            player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
-        }
-
-        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, KeyEvent.KEYCODE_P, KeyEvent.KEYCODE_SPACE, KeyEvent.KEYCODE_NUMPAD_ENTER -> { 
-            player.handleEvent(CSPlayerEvent.PlayPauseToggle)
-        }
-
-        KeyEvent.KEYCODE_DPAD_CENTER,
-        KeyEvent.KEYCODE_ENTER -> {
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return null
+            KeyEvent.KEYCODE_A, KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD, KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                player.handleEvent(CSPlayerEvent.SeekBack)
             }
-            if (timestampShowState) {
+
+            KeyEvent.KEYCODE_MEDIA_NEXT, KeyEvent.KEYCODE_BUTTON_R1, KeyEvent.KEYCODE_N, KeyEvent.KEYCODE_NUMPAD_2, KeyEvent.KEYCODE_CHANNEL_UP -> {
+                player.handleEvent(CSPlayerEvent.NextEpisode)
+            }
+
+            KeyEvent.KEYCODE_MEDIA_PREVIOUS, KeyEvent.KEYCODE_BUTTON_L1, KeyEvent.KEYCODE_B, KeyEvent.KEYCODE_NUMPAD_1, KeyEvent.KEYCODE_CHANNEL_DOWN -> {
+                player.handleEvent(CSPlayerEvent.PrevEpisode)
+            }
+
+            KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                player.handleEvent(CSPlayerEvent.Pause)
+            }
+
+            KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_BUTTON_START -> {
+                player.handleEvent(CSPlayerEvent.Play)
+            }
+
+            KeyEvent.KEYCODE_L, KeyEvent.KEYCODE_NUMPAD_7, KeyEvent.KEYCODE_7 -> {
+                toggleLock()
+            }
+
+            KeyEvent.KEYCODE_H -> {
+                onClickChange()
+            }
+
+            KeyEvent.KEYCODE_M, KeyEvent.KEYCODE_VOLUME_MUTE -> {
+                player.handleEvent(CSPlayerEvent.ToggleMute)
+            }
+
+            KeyEvent.KEYCODE_S, KeyEvent.KEYCODE_NUMPAD_9, KeyEvent.KEYCODE_9 -> {
+                showMirrorsDialogue()
+            }
+            // OpenSubtitles shortcut
+            KeyEvent.KEYCODE_O, KeyEvent.KEYCODE_NUMPAD_8, KeyEvent.KEYCODE_8 -> {
+                val context = context
+                if (subsProvidersIsActive && context != null) {
+                    openOnlineSubPicker(context, null) {}
+                }
+            }
+
+            KeyEvent.KEYCODE_E, KeyEvent.KEYCODE_NUMPAD_3, KeyEvent.KEYCODE_3 -> {
+                showSpeedDialog()
+            }
+
+            KeyEvent.KEYCODE_R, KeyEvent.KEYCODE_NUMPAD_0, KeyEvent.KEYCODE_0 -> {
+                nextResize()
+            }
+
+            KeyEvent.KEYCODE_C, KeyEvent.KEYCODE_NUMPAD_4, KeyEvent.KEYCODE_4 -> {
+                skipOp()
+            }
+
+            KeyEvent.KEYCODE_V, KeyEvent.KEYCODE_NUMPAD_5, KeyEvent.KEYCODE_5 -> {
                 player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
-            } else if (!isLocked) {
+            }
+
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, KeyEvent.KEYCODE_P, KeyEvent.KEYCODE_SPACE, KeyEvent.KEYCODE_NUMPAD_ENTER -> { // space is not captured due to navigation
                 player.handleEvent(CSPlayerEvent.PlayPauseToggle)
             }
-            onClickChange()
-        }
 
-// --- DPAD YUKARI/AŞAĞI ---
-        KeyEvent.KEYCODE_DPAD_UP,
-        KeyEvent.KEYCODE_DPAD_DOWN -> {
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return null
-            }
-            
-            if (!isLocked) {
-                val isUp = (keyCode == KeyEvent.KEYCODE_DPAD_UP)
-
-                if (isUp) {
-                    player.handleEvent(CSPlayerEvent.PrevEpisode)
-                } else {
-                    player.handleEvent(CSPlayerEvent.NextEpisode)
+            // KEYCODE_DPAD_CENTER and KEYCODE_ENTER both act as a "select/confirm" button.
+            // Some remotes (e.g. LG Magic Remote) send KEYCODE_ENTER instead of KEYCODE_DPAD_CENTER.
+            // When the player UI or a dialog is visible, we let the event pass through (return null)
+            // so the focused button/item can handle the click normally, rather than always toggling
+            // play/pause. Only when the UI is hidden do we treat it as a play/pause toggle.
+            KeyEvent.KEYCODE_DPAD_CENTER,
+            KeyEvent.KEYCODE_ENTER -> {
+                if (isShowing || isDialogOpen()) {
+                    return null
                 }
-                
-                // Değişken adı 'currentTitle' olarak düzeltildi
-                val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                val direction = if (isUp) "Önceki" else "Sonraki"
-                showToast("$direction: $currentTitle")
-                
-                return true
+                // If UI is not shown make click instantly skip to next chapter even if locked
+                if (timestampShowState) {
+                    player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
+                } else if (!isLocked) {
+                    player.handleEvent(CSPlayerEvent.PlayPauseToggle)
+                }
+                onClickChange()
             }
-            return null
-        }
 
-        KeyEvent.KEYCODE_DPAD_LEFT -> {
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return null
+ //yeni eklendi      
+                // --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
+                KeyEvent.KEYCODE_DPAD_DOWN,
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    // Sadece menüler kapalıyken bölüm değiştir
+                    if (!isShowing && !isShowingEpisodeOverlay) {
+                        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                            // IPlayer interface'indeki NextEpisode olayını tetikler
+                            player.handleEvent(CSPlayerEvent.NextEpisode)
+                        } else {
+                            // IPlayer interface'indeki PrevEpisode olayını tetikler
+                            player.handleEvent(CSPlayerEvent.PrevEpisode)
+                        }
+                        return true
+                    }
+                }
+//yeni eklendi
+            KeyEvent.KEYCODE_DPAD_LEFT -> {
+                if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                    player.seekTime(-androidTVInterfaceOffSeekTime)
+                    return true
+                } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                    player.seekTime(-androidTVInterfaceOnSeekTime)
+                    return true
+                } else {
+                    return null
+                }
             }
-            if (!isLocked) {
-                player.seekTime(-androidTVInterfaceOffSeekTime)
-                return true
-            }
-            return null
-        }
 
-        KeyEvent.KEYCODE_DPAD_RIGHT -> {
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return null
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                    player.seekTime(androidTVInterfaceOffSeekTime)
+                } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                    player.seekTime(androidTVInterfaceOnSeekTime)
+                } else {
+                    return null
+                }
             }
-            if (!isLocked) {
-                player.seekTime(androidTVInterfaceOffSeekTime)
-                return true
-            }
-            return null
-        }
 
-        KeyEvent.KEYCODE_VOLUME_DOWN,
-        KeyEvent.KEYCODE_VOLUME_UP -> {
-            if (playerHostView?.handleVolumeKey(keyCode) != true) {
-                return null
+            KeyEvent.KEYCODE_VOLUME_DOWN,
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                // Handled entirely by PlayerView.handleVolumeKey (checks PHONE/EMULATOR).
+                if (playerHostView?.handleVolumeKey(keyCode) != true) {
+                    return null
+                }
             }
-        }
 
-        KeyEvent.KEYCODE_MENU,
-        KeyEvent.KEYCODE_SETTINGS -> {
-            if (isLocked || !isThereEpisodes()) {
-                return null
+            KeyEvent.KEYCODE_MENU,
+            KeyEvent.KEYCODE_SETTINGS -> {
+                if (isLocked || !isThereEpisodes()) {
+                    return null
+                }
+                toggleEpisodesOverlay(true)
             }
-            toggleEpisodesOverlay(true)
-        }
 
-        else -> return null 
+            else -> return null // Avoid capturing all input
+        }
+        return true
     }
-    return true
-}
-
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
@@ -1354,6 +1350,12 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             showEpisodesOverlay()
             isShowingEpisodeOverlay = true
             animateEpisodesOverlay(true)
+			
+				//yeni
+			playerBinding?.playerEpisodeOverlay?.post {
+                playerBinding?.playerEpisodeOverlay?.requestFocus()
+		//	yeni
+			
         } else if (isShowingEpisodeOverlay) {
             if (previousPlayStatus) player.handleEvent(CSPlayerEvent.Play)
             isShowingEpisodeOverlay = false
