@@ -1038,16 +1038,20 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             }
         }
 
-// --- OPTIONS / MENU TUŞU İLE BÖLÜM LİSTESİNİ AÇMA ---
-KeyEvent.KEYCODE_MENU, 
-KeyEvent.KEYCODE_SETTINGS -> {
-    if (isLocked != true) { 
-        // Senin kodunda dizi listesini açan gerçek fonksiyon budur:
-        toggleEpisodesOverlay(true)
-        return true
-    }
-}
-
+KeyEvent.KEYCODE_MENU,
+        KeyEvent.KEYCODE_SETTINGS -> {
+            if (isLocked || !isThereEpisodes()) {
+                return null
+            }
+            toggleEpisodesOverlay(true)
+            
+            // Menü açıldığında odağın listeye kayması için güvenli odaklama
+            playerBinding?.playerEpisodeOverlay?.post {
+                playerBinding?.playerEpisodeOverlay?.requestFocus()
+            }
+            
+            return true
+        }
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
