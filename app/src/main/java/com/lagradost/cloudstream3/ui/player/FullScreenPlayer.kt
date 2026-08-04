@@ -966,31 +966,37 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             onClickChange()
         }
 
+ 
     // --- DPAD YUKARI/AŞAĞI ---
-// --- DPAD YUKARI/AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
-            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
+            // Eğer bir diyalog veya bölüm listesi/sekmeleri açıksa tuşları karıştırma
+            if (isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
             }
             
-            // Her şey kapalıysa hızlıca bölüm değiştir
+            // Ekran kilitli değilse (arayüzün açık olup olmamasından bağımsız çalışır)
             if (!isLocked) {
-                val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Kanal/Bölüm"
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
-                    showToast("Önceki: $currentTitle")
+                    playerView?.post {
+                        val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Önceki Bölüm"
+                        showToast("Önceki: $currentTitle")
+                    }
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
-                    showToast("Sonraki: $currentTitle")
+                    playerView?.post {
+                        val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Sonraki Bölüm"
+                        showToast("Sonraki: $currentTitle")
+                    }
                 }
                 return true
             }
             return null
         }
 
+
+		
         KeyEvent.KEYCODE_DPAD_LEFT -> {
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
