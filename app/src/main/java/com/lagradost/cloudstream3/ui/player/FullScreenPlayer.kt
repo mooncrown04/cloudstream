@@ -965,35 +965,31 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
 
-// --- DPAD YUKARI/AŞAĞI ---
-        KeyEvent.KEYCODE_DPAD_UP,
-        KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
-            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return null
-            }
-            
-            // Her şey kapalıysa hızlıca bölüm değiştir
-            if (!isLocked) {
-                // 1. Önce bölüm değiştirme işlemini tetikle
-                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    player.handleEvent(CSPlayerEvent.PrevEpisode)
-                } else {
+// --- DPAD YUKARI/AŞAĞI: BÖLÜM DEĞİŞTİRME ---
+        KeyEvent.KEYCODE_DPAD_DOWN,
+        KeyEvent.KEYCODE_DPAD_UP -> {
+            // Sadece menüler kapalıyken bölüm değiştir
+            if (!isShowing && !isShowingEpisodeOverlay) {
+                // Hangi tuşa basıldığını anında sabitliyoruz
+                val isUp = (keyCode == KeyEvent.KEYCODE_DPAD_UP)
+
+                if (isUp) {
+                    // Orijinal çalışan yönünüz: Yukarı tuşu -> Sonraki Bölüm
                     player.handleEvent(CSPlayerEvent.NextEpisode)
+                } else {
+                    // Orijinal çalışan yönünüz: Aşağı tuşu -> Önceki Bölüm
+                    player.handleEvent(CSPlayerEvent.PrevEpisode)
                 }
                 
-                // 2. Arayüzün (başlığın) yeni bölüme göre güncellenmesi zaman alır.
-                // Kısa bir gecikme (300ms) ekleyerek ekrana yazılan YENİ başlığı oku.
+                // Bölüm adını gösteren Toast eklemesi (çalışan mantığı bozmadan)
                 playerBinding?.playerVideoTitle?.postDelayed({
                     val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    val direction = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) "Önceki" else "Sonraki"
+                    val direction = if (isUp) "Sonraki" else "Önceki"
                     showToast("$direction: $newTitle")
-                }, 300) 
-                
+                }, 300)
+
                 return true
             }
-            return null
         }
 
         KeyEvent.KEYCODE_DPAD_LEFT -> {
