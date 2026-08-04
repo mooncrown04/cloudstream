@@ -881,18 +881,36 @@ open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
     }
 
 
+// Listeyi tarayıp bir önceki veya bir sonraki bölüme direkt geçen fonksiyon
+private fun changeEpisodeDirectly(isNext: Boolean) {
+    val currentEp = player.getEpisode() ?: return
+    val episodes = player.getEpisodes() ?: return
+    val currentIndex = episodes.indexOf(currentEp)
+
+    if (currentIndex != -1) {
+        // İndeks hesabı
+        val targetIndex = if (isNext) currentIndex + 1 else currentIndex - 1
+        
+        // Eğer gidilmek istenen indeks liste sınırları içindeyse
+        if (targetIndex in episodes.indices) {
+            val targetEpisode = episodes[targetIndex]
+            
+            // Tıpkı overlay listesinde tıklanmış gibi bölümü doğrudan yükler
+            player.handleEvent(CSPlayerEvent.PlayEpisode(targetEpisode))
+        } else {
+            showToast(if (isNext) "Son bölümdesiniz" else "İlk bölümdesiniz")
+        }
+    }
+}
+
+
+
 private fun handleKeyDownEvent(keyCode: Int): Boolean? {
     // adb shell input keyevent [INT]
     when (keyCode) {
         KeyEvent.KEYCODE_FORWARD, KeyEvent.KEYCODE_D, KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD, KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
-           // player.handleEvent(CSPlayerEvent.SeekForward)
-    player.handleEvent(CSPlayerEvent.PrevEpisode)
-            // Bu satırı ekleyerek tuşa gerçekten basılıp basılmadığını test edin:
-            showToast("Önceki tuşu tetiklendi!") 
-            return true
-
-
-    }
+            player.handleEvent(CSPlayerEvent.SeekForward)
+        }
 
         KeyEvent.KEYCODE_A, KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD, KeyEvent.KEYCODE_MEDIA_REWIND -> {
             player.handleEvent(CSPlayerEvent.SeekBack)
@@ -971,28 +989,21 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
 
-// --- DPAD YUKARI/AŞAĞI ---
-        KeyEvent.KEYCODE_DPAD_UP,
-        KeyEvent.KEYCODE_DPAD_DOWN -> {
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return null
-            }
-            
+// --- DPAD YUKARI TUŞU (Önceki Bölüm) ---
+        KeyEvent.KEYCODE_DPAD_UP -> {
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) return null
             if (!isLocked) {
-                val isUp = (keyCode == KeyEvent.KEYCODE_DPAD_UP)
+                changeEpisodeDirectly(isNext = false) // Doğrudan listeden önceki bölümü oynatır
+                return true
+            }
+            return null
+        }
 
-                if (isUp) {
-                    // YUKARI TUŞU -> Önceki Bölüme Git
-                    player.handleEvent(CSPlayerEvent.PrevEpisode)
-                } else {
-                    // AŞAĞI TUŞU -> Sonraki Bölüme Git
-                    player.handleEvent(CSPlayerEvent.NextEpisode)
-                }
-                
-                val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                val direction = if (isUp) "Önceki" else "Sonraki"
-                showToast("$direction: $currentTitle")
-                
+        // --- DPAD AŞAĞI TUŞU (Sonraki Bölüm) ---
+        KeyEvent.KEYCODE_DPAD_DOWN -> {
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) return null
+            if (!isLocked) {
+                changeEpisodeDirectly(isNext = true) // Doğrudan listeden sonraki bölümü oynatır
                 return true
             }
             return null
@@ -1027,17 +1038,14 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             }
         }
 
-        KeyEvent.KEYCODE_MENU,
-        KeyEvent.KEYCODE_SETTINGS -> {
-            if (isLocked || !isThereEpisodes()) {
-                return null
-            }
-            toggleEpisodesOverlay(true)
-        }
-
-        else -> return null 
+// --- OPTIONS / MENU TUŞU İLE BÖLÜM LİSTESİNİ AÇMA ---
+KeyEvent.KEYCODE_MENU, 
+KeyEvent.KEYCODE_SETTINGS -> {
+    if (isLocked != true) { 
+        // Senin kodunda dizi listesini açan gerçek fonksiyon budur:
+        toggleEpisodesOverlay(true)
+        return true
     }
-    return true
 }
 
 
