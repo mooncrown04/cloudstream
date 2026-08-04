@@ -77,8 +77,8 @@ open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
     BindingCreator.Bind(FragmentPlayerBinding::bind)
 ) 
     //yeni eklendi
-	open fun prevChannel() { showToast("prevChannel: Base") }
-    open fun nextChannel() { showToast("nextChannel: Base") }
+	//open fun prevChannel() { showToast("prevChannel: Base") }
+  //  open fun nextChannel() { showToast("nextChannel: Base") }
 
 //yeni
 
@@ -996,10 +996,10 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             if (!isLocked) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
-                    prevChannel()
+                   // prevChannel()
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
-                    nextChannel()
+                  //  nextChannel()
                 }
                 return true
             }
