@@ -972,7 +972,6 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             }
             
             if (!isLocked) {
-                // Hangi tuşa basıldığını anında sabitliyoruz
                 val isUp = (keyCode == KeyEvent.KEYCODE_DPAD_UP)
 
                 if (isUp) {
@@ -981,10 +980,10 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
                 }
                 
-                // postDelayed kullanmadan doğrudan o anki başlığı güvenle alıyoruz
+                // Değişken adı 'currentTitle' olarak düzeltildi
                 val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
                 val direction = if (isUp) "Önceki" else "Sonraki"
-                showToast("$direction: $newTitle") // veya currentTitle
+                showToast("$direction: $currentTitle")
                 
                 return true
             }
