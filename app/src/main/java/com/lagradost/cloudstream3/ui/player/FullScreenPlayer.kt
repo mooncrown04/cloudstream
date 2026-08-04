@@ -967,34 +967,36 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
  
-    // --- DPAD YUKARI/AŞAĞI ---
+    // --- DPAD YUKARI / AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer bir diyalog veya bölüm listesi/sekmeleri açıksa tuşları karıştırma
-            if (isDialogOpen() || isShowingEpisodeOverlay) {
+            // Eğer bölüm listesi (overlay) açıksa tuşları engelleme, listede gezinsin
+            if (isShowingEpisodeOverlay) {
+                return false 
+            }
+            
+            if (isDialogOpen()) {
                 return null
             }
             
-            // Ekran kilitli değilse (arayüzün açık olup olmamasından bağımsız çalışır)
             if (!isLocked) {
+                // Hangi tuşa basıldığını burada net olarak ayırıyoruz:
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    player.handleEvent(CSPlayerEvent.PrevEpisode)
-                    playerView?.post {
-                        val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Önceki Bölüm"
-                        showToast("Önceki: $currentTitle")
-                    }
+                    player.handleEvent(CSPlayerEvent.PrevEpisode) // Yukarı tuşu -> Önceki Bölüm
                 } else {
-                    player.handleEvent(CSPlayerEvent.NextEpisode)
-                    playerView?.post {
-                        val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Sonraki Bölüm"
-                        showToast("Sonraki: $currentTitle")
-                    }
+                    player.handleEvent(CSPlayerEvent.NextEpisode) // Aşağı tuşu -> Sonraki Bölüm
                 }
+                
+                // Bölüm geçişinin arayüze yansıması için gecikmeli güncel başlık okuma
+                playerView?.postDelayed({
+                    val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    showToast(currentTitle)
+                }, 200)
+                
                 return true
             }
             return null
         }
-
 
 		
         KeyEvent.KEYCODE_DPAD_LEFT -> {
@@ -1026,18 +1028,22 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             }
         }
 
+// --- MENU / SETTINGS TUŞU ---
         KeyEvent.KEYCODE_MENU,
         KeyEvent.KEYCODE_SETTINGS -> {
             if (isLocked || !isThereEpisodes()) {
                 return null
             }
             toggleEpisodesOverlay(true)
+            
+            // Listeyi açtıktan hemen sonra odağı doğrudan liste bileşenine zorluyoruz
+            playerBinding?.playerEpisodeOverlay?.post {
+                // Cloudstream'in bölüm listesi RecyclerView bileşenini bulup odak veriyoruz
+                // Eğer özel RecyclerView ID'niz farklıysa buradaki adresi uyarlayabilirsiniz
+                playerBinding?.playerEpisodeOverlay?.requestFocus()
+            }
+            return true
         }
-
-        else -> return null 
-    }
-    return true
-}
 
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
