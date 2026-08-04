@@ -968,14 +968,14 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
 
  
   // --- DPAD YUKARI / AŞAĞI (Bölüm Değiştirme) ---
-        KeyEvent.KEYCODE_DPAD_UP,
+KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
             if (isShowingEpisodeOverlay) {
-                return@handleKeyEvent false 
+                return@when false 
             }
             
             if (isDialogOpen()) {
-                return@handleKeyEvent null
+                return@when null
             }
             
             if (!isLocked) {
@@ -990,10 +990,13 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
                     showToast(currentTitle)
                 }, 200)
                 
-                return@handleKeyEvent true
+                return@when true
             }
-            return@handleKeyEvent null
+            return@when null
         }
+		
+		
+		
 		
         KeyEvent.KEYCODE_DPAD_LEFT -> {
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
@@ -1024,21 +1027,18 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             }
         }
         // --- MENU / SETTINGS TUŞU (Listeyi aç ve odaklan) ---
-        KeyEvent.KEYCODE_MENU,
+ KeyEvent.KEYCODE_MENU,
         KeyEvent.KEYCODE_SETTINGS -> {
             if (isLocked || !isThereEpisodes()) {
-                return null
+                return@when null
             }
             toggleEpisodesOverlay(true)
             
             playerBinding?.playerEpisodeOverlay?.post {
                 playerBinding?.playerEpisodeOverlay?.requestFocus()
             }
-            return true
+            return@when true
         }
-    } // <-- 1. Kapanış: when(keyCode) bloğunu kapatır
-} // <-- 2. Kapanış: handleKeyDownEvent fonksiyonunu kapatır
-
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
