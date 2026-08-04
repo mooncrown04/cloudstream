@@ -965,32 +965,35 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
 
-// --- DPAD YUKARI TUŞU ---
-        KeyEvent.KEYCODE_DPAD_UP -> {
-            if (!isShowing && !isShowingEpisodeOverlay) {
-                player.handleEvent(CSPlayerEvent.NextEpisode) // Veya isteğinize göre PrevEpisode
-                
-                playerBinding?.playerVideoTitle?.postDelayed({
-                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    showToast("Sonraki: $newTitle")
-                }, 300)
-                
-                return true
-            }
-        }
-
-        // --- DPAD AŞAĞI TUŞU ---
+// --- DPAD YUKARI/AŞAĞI ---
+        KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            if (!isShowing && !isShowingEpisodeOverlay) {
-                player.handleEvent(CSPlayerEvent.PrevEpisode) // Veya isteğinize göre NextEpisode
+            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
+                return null
+            }
+            
+            // Her şey kapalıysa hızlıca bölüm değiştir
+            if (!isLocked) {
+                // Hangi tuşa basıldığını anında sabitliyoruz
+                val isUp = (keyCode == KeyEvent.KEYCODE_DPAD_UP)
+
+                if (isUp) {
+                    player.handleEvent(CSPlayerEvent.PrevEpisode)
+                } else {
+                    player.handleEvent(CSPlayerEvent.NextEpisode)
+                }
                 
+                // Çalışan yapıyı bozmadan eklenen Toast ve başlık takibi
                 playerBinding?.playerVideoTitle?.postDelayed({
                     val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    showToast("Önceki: $newTitle")
+                    val direction = if (isUp) "Önceki" else "Sonraki"
+                    showToast("$direction: $newTitle")
                 }, 300)
                 
                 return true
             }
+            return null
         }
 
         KeyEvent.KEYCODE_DPAD_LEFT -> {
@@ -1022,23 +1025,19 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             }
         }
 
-KeyEvent.KEYCODE_MENU,
+        KeyEvent.KEYCODE_MENU,
         KeyEvent.KEYCODE_SETTINGS -> {
             if (isLocked || !isThereEpisodes()) {
                 return null
             }
             toggleEpisodesOverlay(true)
-            
-            // LİSTEYİ AÇTIKTAN SONRA ODAĞI BURAYA VERİYORUZ:
-            playerBinding?.playerEpisodeOverlay?.post {
-                playerBinding?.playerEpisodeOverlay?.requestFocus()
-            }
         }
 
         else -> return null 
     }
     return true
 }
+
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
