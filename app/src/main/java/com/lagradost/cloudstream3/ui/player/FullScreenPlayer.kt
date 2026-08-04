@@ -965,6 +965,7 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
     // --- DPAD YUKARI/AŞAĞI ---
+// --- DPAD YUKARI/AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
             // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
@@ -975,13 +976,13 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             
             // Her şey kapalıysa hızlıca bölüm değiştir
             if (!isLocked) {
+                val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Kanal/Bölüm"
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
-                    // O anki bölüm/kanal adını toast mesajına entegre ediyoruz:
-                    showToast("Önceki: ${player.currentItem?.name ?: "Kanal/Bölüm"}")[cite: 1]
+                    showToast("Önceki: $currentTitle")[cite: 1]
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
-                    showToast("Sonraki: ${player.currentItem?.name ?: "Kanal/Bölüm"}")[cite: 1]
+                    showToast("Sonraki: $currentTitle")[cite: 1]
                 }
                 return true
             }
