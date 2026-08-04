@@ -1,5 +1,7 @@
 package com.lagradost.cloudstream3.ui.player
+//yeni
 import com.lagradost.cloudstream3.CommonActivity.showToast
+
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -965,13 +967,36 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
 
-     KeyEvent.KEYCODE_DPAD_DOWN,
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                if (isShowing || isShowingEpisodeOverlay) {
-                    return null
-                }
-                onClickChange()
+// --- DPAD YUKARI/AŞAĞI ---
+        KeyEvent.KEYCODE_DPAD_UP,
+        KeyEvent.KEYCODE_DPAD_DOWN -> {
+            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
+            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
+                return null
             }
+            
+            // Her şey kapalıysa hızlıca bölüm değiştir
+            if (!isLocked) {
+                // 1. Önce bölüm değiştirme işlemini tetikle
+                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                    player.handleEvent(CSPlayerEvent.PrevEpisode)
+                } else {
+                    player.handleEvent(CSPlayerEvent.NextEpisode)
+                }
+                
+                // 2. Arayüzün (başlığın) yeni bölüme göre güncellenmesi zaman alır.
+                // Kısa bir gecikme (300ms) ekleyerek ekrana yazılan YENİ başlığı oku.
+                playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    val direction = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) "Önceki" else "Sonraki"
+                    showToast("$direction: $newTitle")
+                }, 300) 
+                
+                return true
+            }
+            return null
+        }
 
         KeyEvent.KEYCODE_DPAD_LEFT -> {
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
@@ -1014,8 +1039,6 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         return true
     }
 
-     //yeni eklendi
-@SuppressLint("GestureBackNavigation")
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
             autoHide()
@@ -1023,112 +1046,41 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
         val keyCode = event.keyCode
 
-        // Sadece tuşa basılma anını yakalıyoruz (ACTION_DOWN)
         if (event.action == KeyEvent.ACTION_DOWN) {
-            when (keyCode) {           
-        // --- OK / ORTA TUŞ ---
-                KeyEvent.KEYCODE_DPAD_CENTER -> {
-                    // 1. Durum: Menü kapalıyken (isShowing == false)
-                    if (!isShowing) {
-                        if (timestampShowState) {
-                            player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
-                        } else if (!isLocked) {
-                            player.handleEvent(CSPlayerEvent.PlayPauseToggle)
-                        }
-                        // Menüyü aç
-                        onClickChange()
-                        return true
-                    } else {
-                        // 2. Durum: Menü ZATEN AÇIKSA (isShowing == true)
-                        // Bu durumda tuşun "tıklama" görevini yapmasına izin veriyoruz
-                        // return true demeyerek veya false döndürerek sistemin 
-                        // odaklandığın butona (altyazı, bölümler vb.) basmasını sağlıyoruz.
-                        return false 
-                    }
-                }
-
-// --- OPTIONS / MENU TUŞU İLE BÖLÜM LİSTESİNİ AÇMA ---
-KeyEvent.KEYCODE_MENU, 
-KeyEvent.KEYCODE_SETTINGS -> {
-    if (isLocked != true) { 
-        // Senin kodunda dizi listesini açan gerçek fonksiyon budur:
-        toggleEpisodesOverlay(true)
-        return true
-    }
-}
-
-         // --- DPAD YUKARI/AŞAĞI ---
-        KeyEvent.KEYCODE_DPAD_UP,
-        KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
-            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return null
-            }
-            
-            // Her şey kapalıysa hızlıca bölüm değiştir
-            if (!isLocked) {
-                // 1. Önce bölüm değiştirme işlemini tetikle
-                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    player.handleEvent(CSPlayerEvent.PrevEpisode)
-                } else {
-                    player.handleEvent(CSPlayerEvent.NextEpisode)
-                }
-                
-                // 2. Arayüzün (başlığın) yeni bölüme göre güncellenmesi zaman alır.
-                // Kısa bir gecikme (300ms) ekleyerek ekrana yazılan YENİ başlığı oku.
-                playerBinding?.playerVideoTitle?.postDelayed({
-                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    val direction = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) "Önceki" else "Sonraki"
-                    showToast("$direction: $newTitle")
-                }, 300) 
-                
-                return true
-            }
-            return null
-        }
-
-                // --- DPAD SOL: GERİ SARMA ---
-                KeyEvent.KEYCODE_DPAD_LEFT -> {
-                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                        player.seekTime(-androidTVInterfaceOffSeekTime)
-                        return true
-                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
-                        player.seekTime(-androidTVInterfaceOnSeekTime)
-                        return true
-                    }
-                }
-
-                // --- DPAD SAĞ: İLERİ SARMA ---
-                KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
-                        player.seekTime(androidTVInterfaceOnSeekTime)
-                        return true
-                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
-                        player.seekTime(androidTVInterfaceOnSeekTime)
-                        return true
-                    }
-                }
+            val value = handleKeyDownEvent(keyCode)
+            if (value != null) {
+                return value
             }
         }
 
-        // DPAD yön tuşlarının sistem tarafından tüketilmesini (focus kaymasını) engelleme
         when (keyCode) {
+            // don't allow dpad move when hidden
+
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_DPAD_UP,
-            KeyEvent.KEYCODE_DPAD_LEFT,
-            KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                // Eğer hiçbir menü açık değilse, sistemin bu tuşlarla başka yere odaklanmasını engelle
-                if (!isShowing && !isShowingEpisodeOverlay) {
-                    return true 
+            KeyEvent.KEYCODE_DPAD_DOWN_LEFT,
+            KeyEvent.KEYCODE_DPAD_DOWN_RIGHT,
+            KeyEvent.KEYCODE_DPAD_UP_LEFT,
+            KeyEvent.KEYCODE_DPAD_UP_RIGHT -> {
+                if (!isShowing) {
+                    return true
+                } else {
+                    autoHide()
                 }
             }
+
+            // netflix capture back and hide ~monke
+            // This is removed due to inconsistent behavior on A36 vs A22, see https://github.com/recloudstream/cloudstream/issues/1804
+            /*KeyEvent.KEYCODE_BACK -> {
+                if (isShowing && isLayout(TV or EMULATOR)) {
+                    onClickChange()
+                    return true
+                }
+            }*/
         }
 
         return false
     }
-
-//yeni eklendi
 
     protected fun uiReset() {
         metadataVisibilityToken++
