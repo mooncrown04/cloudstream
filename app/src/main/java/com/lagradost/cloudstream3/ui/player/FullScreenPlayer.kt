@@ -967,37 +967,33 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
  
-    // --- DPAD YUKARI / AŞAĞI ---
+  // --- DPAD YUKARI / AŞAĞI (Bölüm Değiştirme) ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer bölüm listesi (overlay) açıksa tuşları engelleme, listede gezinsin
             if (isShowingEpisodeOverlay) {
-                return false 
+                return@handleKeyEvent false 
             }
             
             if (isDialogOpen()) {
-                return null
+                return@handleKeyEvent null
             }
             
             if (!isLocked) {
-                // Hangi tuşa basıldığını burada net olarak ayırıyoruz:
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    player.handleEvent(CSPlayerEvent.PrevEpisode) // Yukarı tuşu -> Önceki Bölüm
+                    player.handleEvent(CSPlayerEvent.PrevEpisode)
                 } else {
-                    player.handleEvent(CSPlayerEvent.NextEpisode) // Aşağı tuşu -> Sonraki Bölüm
+                    player.handleEvent(CSPlayerEvent.NextEpisode)
                 }
                 
-                // Bölüm geçişinin arayüze yansıması için gecikmeli güncel başlık okuma
                 playerView?.postDelayed({
                     val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
                     showToast(currentTitle)
                 }, 200)
                 
-                return true
+                return@handleKeyEvent true
             }
-            return null
+            return@handleKeyEvent null
         }
-
 		
         KeyEvent.KEYCODE_DPAD_LEFT -> {
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
@@ -1027,22 +1023,18 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
                 return null
             }
         }
-
-// --- MENU / SETTINGS TUŞU ---
+// --- MENU / SETTINGS TUŞU (Listeyi aç ve odaklan) ---
         KeyEvent.KEYCODE_MENU,
         KeyEvent.KEYCODE_SETTINGS -> {
             if (isLocked || !isThereEpisodes()) {
-                return null
+                return@handleKeyEvent null
             }
             toggleEpisodesOverlay(true)
             
-            // Listeyi açtıktan hemen sonra odağı doğrudan liste bileşenine zorluyoruz
             playerBinding?.playerEpisodeOverlay?.post {
-                // Cloudstream'in bölüm listesi RecyclerView bileşenini bulup odak veriyoruz
-                // Eğer özel RecyclerView ID'niz farklıysa buradaki adresi uyarlayabilirsiniz
                 playerBinding?.playerEpisodeOverlay?.requestFocus()
             }
-            return true
+            return@handleKeyEvent true
         }
 
 
