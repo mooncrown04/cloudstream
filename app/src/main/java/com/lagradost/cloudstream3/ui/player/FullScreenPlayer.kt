@@ -881,30 +881,6 @@ open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
     }
 
 
-// Listeyi tarayıp bir önceki veya bir sonraki bölüme direkt geçen fonksiyon
-private fun changeEpisodeDirectly(isNext: Boolean) {
-    val currentEp = player.getEpisode() ?: return
-    val episodes = player.getEpisodes() ?: return
-    val currentIndex = episodes.indexOf(currentEp)
-
-    if (currentIndex != -1) {
-        // İndeks hesabı
-        val targetIndex = if (isNext) currentIndex + 1 else currentIndex - 1
-        
-        // Eğer gidilmek istenen indeks liste sınırları içindeyse
-        if (targetIndex in episodes.indices) {
-            val targetEpisode = episodes[targetIndex]
-            
-            // Tıpkı overlay listesinde tıklanmış gibi bölümü doğrudan yükler
-            player.handleEvent(CSPlayerEvent.PlayEpisode(targetEpisode))
-        } else {
-            showToast(if (isNext) "Son bölümdesiniz" else "İlk bölümdesiniz")
-        }
-    }
-}
-
-
-
 private fun handleKeyDownEvent(keyCode: Int): Boolean? {
     // adb shell input keyevent [INT]
     when (keyCode) {
@@ -989,21 +965,32 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
         }
 
 
-// --- DPAD YUKARI TUŞU (Önceki Bölüm) ---
-        KeyEvent.KEYCODE_DPAD_UP -> {
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) return null
-            if (!isLocked) {
-                changeEpisodeDirectly(isNext = false) // Doğrudan listeden önceki bölümü oynatır
-                return true
-            }
-            return null
-        }
-
-        // --- DPAD AŞAĞI TUŞU (Sonraki Bölüm) ---
+// --- DPAD YUKARI/AŞAĞI ---
+        KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) return null
+            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
+            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
+                return null
+            }
+            
+            // Her şey kapalıysa hızlıca bölüm değiştir
             if (!isLocked) {
-                changeEpisodeDirectly(isNext = true) // Doğrudan listeden sonraki bölümü oynatır
+                // 1. Önce bölüm değiştirme işlemini tetikle
+                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                    player.handleEvent(CSPlayerEvent.PrevEpisode)
+                } else {
+                    player.handleEvent(CSPlayerEvent.NextEpisode)
+                }
+                
+                // 2. Arayüzün (başlığın) yeni bölüme göre güncellenmesi zaman alır.
+                // Kısa bir gecikme (300ms) ekleyerek ekrana yazılan YENİ başlığı oku.
+                playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    val direction = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) "Önceki" else "Sonraki"
+                    showToast("$direction: $newTitle")
+                }, 300) 
+                
                 return true
             }
             return null
@@ -1038,20 +1025,20 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             }
         }
 
-KeyEvent.KEYCODE_MENU,
-        KeyEvent.KEYCODE_SETTINGS -> {
-            if (isLocked || !isThereEpisodes()) {
-                return null
-            }
-            toggleEpisodesOverlay(true)
-            
-            // Menü açıldığında odağın listeye kayması için güvenli odaklama
-            playerBinding?.playerEpisodeOverlay?.post {
-                playerBinding?.playerEpisodeOverlay?.requestFocus()
-            }
-            
-            return true
-        }
+    KeyEvent.KEYCODE_MENU, 
+KeyEvent.KEYCODE_SETTINGS -> {
+    if (isLocked != true) { 
+        // Senin kodunda dizi listesini açan gerçek fonksiyon budur:
+        toggleEpisodesOverlay(true)
+        return true
+    }
+}
+
+        else -> return null 
+    }
+    return true
+}
+
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
