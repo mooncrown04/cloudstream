@@ -1023,19 +1023,21 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
                 return null
             }
         }
-// --- MENU / SETTINGS TUŞU (Listeyi aç ve odaklan) ---
+        // --- MENU / SETTINGS TUŞU (Listeyi aç ve odaklan) ---
         KeyEvent.KEYCODE_MENU,
         KeyEvent.KEYCODE_SETTINGS -> {
             if (isLocked || !isThereEpisodes()) {
-                return@handleKeyEvent null
+                return null
             }
             toggleEpisodesOverlay(true)
             
             playerBinding?.playerEpisodeOverlay?.post {
                 playerBinding?.playerEpisodeOverlay?.requestFocus()
             }
-            return@handleKeyEvent true
+            return true
         }
+    } // <-- 1. Kapanış: when(keyCode) bloğunu kapatır
+} // <-- 2. Kapanış: handleKeyDownEvent fonksiyonunu kapatır
 
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
