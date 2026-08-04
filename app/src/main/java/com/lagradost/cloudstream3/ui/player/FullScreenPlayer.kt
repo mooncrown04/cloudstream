@@ -1,7 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-//yeni
 import com.lagradost.cloudstream3.CommonActivity.showToast
-//yeni
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -966,38 +964,38 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             onClickChange()
         }
 
- 
-  // --- DPAD YUKARI / AŞAĞI (Bölüm Değiştirme) ---
-KeyEvent.KEYCODE_DPAD_UP,
+
+// --- DPAD YUKARI/AŞAĞI ---
+        KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            if (isShowingEpisodeOverlay) {
-                return@when false 
+            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
+            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
+            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
+                return null
             }
             
-            if (isDialogOpen()) {
-                return@when null
-            }
-            
+            // Her şey kapalıysa hızlıca bölüm değiştir
             if (!isLocked) {
+                // 1. Önce bölüm değiştirme işlemini tetikle
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
                 }
                 
-                playerView?.postDelayed({
-                    val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    showToast(currentTitle)
-                }, 200)
+                // 2. Arayüzün (başlığın) yeni bölüme göre güncellenmesi zaman alır.
+                // Kısa bir gecikme (300ms) ekleyerek ekrana yazılan YENİ başlığı oku.
+                playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    val direction = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) "Önceki" else "Sonraki"
+                    showToast("$direction: $newTitle")
+                }, 300) 
                 
-                return@when true
+                return true
             }
-            return@when null
+            return null
         }
-		
-		
-		
-		
+
         KeyEvent.KEYCODE_DPAD_LEFT -> {
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
@@ -1026,19 +1024,20 @@ KeyEvent.KEYCODE_DPAD_UP,
                 return null
             }
         }
-        // --- MENU / SETTINGS TUŞU (Listeyi aç ve odaklan) ---
- KeyEvent.KEYCODE_MENU,
+
+        KeyEvent.KEYCODE_MENU,
         KeyEvent.KEYCODE_SETTINGS -> {
             if (isLocked || !isThereEpisodes()) {
-                return@when null
+                return null
             }
             toggleEpisodesOverlay(true)
-            
-            playerBinding?.playerEpisodeOverlay?.post {
-                playerBinding?.playerEpisodeOverlay?.requestFocus()
-            }
-            return@when true
         }
+
+        else -> return null 
+    }
+    return true
+}
+
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
