@@ -979,10 +979,10 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
                 val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Kanal/Bölüm"
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
-                    showToast("Önceki: $currentTitle")[cite: 1]
+                    showToast("Önceki: $currentTitle")
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
-                    showToast("Sonraki: $currentTitle")[cite: 1]
+                    showToast("Sonraki: $currentTitle")
                 }
                 return true
             }
