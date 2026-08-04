@@ -1022,19 +1022,23 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             }
         }
 
-        KeyEvent.KEYCODE_MENU,
+KeyEvent.KEYCODE_MENU,
         KeyEvent.KEYCODE_SETTINGS -> {
             if (isLocked || !isThereEpisodes()) {
                 return null
             }
             toggleEpisodesOverlay(true)
+            
+            // LİSTEYİ AÇTIKTAN SONRA ODAĞI BURAYA VERİYORUZ:
+            playerBinding?.playerEpisodeOverlay?.post {
+                playerBinding?.playerEpisodeOverlay?.requestFocus()
+            }
         }
 
         else -> return null 
     }
     return true
 }
-
 
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
