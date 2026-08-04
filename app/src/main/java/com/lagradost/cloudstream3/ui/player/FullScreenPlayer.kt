@@ -964,16 +964,13 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             onClickChange()
         }
 
-
 // --- DPAD YUKARI/AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
             }
             
-            // Her şey kapalıysa hızlıca bölüm değiştir
             if (!isLocked) {
                 // Hangi tuşa basıldığını anında sabitliyoruz
                 val isUp = (keyCode == KeyEvent.KEYCODE_DPAD_UP)
@@ -984,12 +981,10 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
                 }
                 
-                // Çalışan yapıyı bozmadan eklenen Toast ve başlık takibi
-                playerBinding?.playerVideoTitle?.postDelayed({
-                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    val direction = if (isUp) "Önceki" else "Sonraki"
-                    showToast("$direction: $newTitle")
-                }, 300)
+                // postDelayed kullanmadan doğrudan o anki başlığı güvenle alıyoruz
+                val currentTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                val direction = if (isUp) "Önceki" else "Sonraki"
+                showToast("$direction: $newTitle") // veya currentTitle
                 
                 return true
             }
