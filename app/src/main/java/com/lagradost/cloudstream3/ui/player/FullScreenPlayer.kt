@@ -1,5 +1,7 @@
 package com.lagradost.cloudstream3.ui.player
+//yeni eklendi
 import com.lagradost.cloudstream3.CommonActivity.showToast
+
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -73,7 +75,13 @@ private const val SUBTITLE_DELAY_BUNDLE_KEY = "subtitle_delay"
 @OptIn(UnstableApi::class)
 open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
     BindingCreator.Bind(FragmentPlayerBinding::bind)
-) {
+) 
+    //yeni eklendi
+	open fun prevChannel() { showToast("prevChannel: Base") }
+    open fun nextChannel() { showToast("nextChannel: Base") }
+
+//yeni
+
     override fun pickLayout(): Int = R.layout.fragment_player
     protected open var lockRotation = true
     protected var playerBinding: PlayerCustomLayoutBinding? = null
@@ -964,23 +972,34 @@ private fun handleKeyDownEvent(keyCode: Int): Boolean? {
             onClickChange()
         }
 
-        // --- DPAD YUKARI/AŞAĞI ---
+    // --- DPAD YUKARI/AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
-            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
+            // Eğer ekran kilitliyse, DPAD tuşları ile ses açıp kapatalım
+            if (isLocked) {
+                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                    showToast("→ Ses Açılıyor")
+                    playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_UP)
+                } else {
+                    showToast("→ Ses Kısılıyor")
+                    playerHostView?.handleVolumeKey(KeyEvent.KEYCODE_VOLUME_DOWN)
+                }
+                return true
+            }
+
+            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
                 return null
             }
             
-            // Her şey kapalıysa hızlıca bölüm değiştir
+            // Kilit açık ve her şey kapalıysa hızlıca bölüm/kanal değiştir
             if (!isLocked) {
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
-                   showToast("CANLI TV - Önceki Kanal")
+                    prevChannel()
                 } else {
                     player.handleEvent(CSPlayerEvent.NextEpisode)
-                   showToast("CANLI TV - Kanal")
+                    nextChannel()
                 }
                 return true
             }
