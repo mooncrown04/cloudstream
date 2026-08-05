@@ -1085,7 +1085,7 @@ KeyEvent.KEYCODE_SETTINGS -> {
                 
                 return true
             }
-            return null
+            return false
         }
 
 
