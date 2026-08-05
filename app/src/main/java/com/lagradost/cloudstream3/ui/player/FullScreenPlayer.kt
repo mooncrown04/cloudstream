@@ -1057,13 +1057,13 @@ KeyEvent.KEYCODE_SETTINGS -> {
     }
 }
 
-          // --- DPAD YUKARI/AŞAĞI ---
+    // --- DPAD YUKARI/AŞAĞI ---
         KeyEvent.KEYCODE_DPAD_UP,
         KeyEvent.KEYCODE_DPAD_DOWN -> {
             // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
             // böylece listede yukarı/aşağı rahatça gezinebilirsin.
             if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return null
+                return false // null yerine false döndürülmeli
             }
             
             // Her şey kapalıysa hızlıca bölüm değiştir
