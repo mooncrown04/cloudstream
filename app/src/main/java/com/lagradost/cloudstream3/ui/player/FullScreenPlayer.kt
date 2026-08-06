@@ -1057,47 +1057,55 @@ KeyEvent.KEYCODE_SETTINGS -> {
     }
 }
 
+   
     // --- DPAD YUKARI/AŞAĞI ---
-        KeyEvent.KEYCODE_DPAD_UP,
-        KeyEvent.KEYCODE_DPAD_DOWN -> {
-            // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
-            // böylece listede yukarı/aşağı rahatça gezinebilirsin.
-            if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-                return false // null yerine false döndürülmeli
-            }
-            
-            // Her şey kapalıysa hızlıca bölüm değiştir
-            if (!isLocked) {
-			
-			
-			if (keyCode == KeyEvent.KEYCODE_DPAD_UP && (event.isLongPress || event.repeatCount > 5)) {
-                        // TODO: Uzun basıldığında yapılmasını istediğin işlemi buraya yaz
-                        // Örnek: Ses açma, hızlı sarma veya özel bir diyalog açma
-                        showToast("Yukarı tuşuna uzun basıldı!")
-                        return true
-                    }
-			
-			
-			
-                // 1. Önce bölüm değiştirme işlemini tetikle
-                if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-                    player.handleEvent(CSPlayerEvent.PrevEpisode)
-                } else {
-                    player.handleEvent(CSPlayerEvent.NextEpisode)
-                }
+KeyEvent.KEYCODE_DPAD_UP,
+KeyEvent.KEYCODE_DPAD_DOWN -> {
+    // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
+    // böylece listede yukarı/aşağı rahatça gezinebilirsin.
+    if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
+        return false // null yerine false döndürülmeli
+    }
+    
+    // Her şey kapalıysa işlemleri gerçekleştir
+    if (!isLocked) {
+        val isLongPress = event.isLongPress || event.repeatCount > 5
+        
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+            if (isLongPress) {
+                // YUKARI - Uzun Basma: Önceki Bölüm
+                player.handleEvent(CSPlayerEvent.PrevEpisode)
                 
-                // 2. Arayüzün (başlığın) yeni bölüme göre güncellenmesi zaman alır.
-                // Kısa bir gecikme (300ms) ekleyerek ekrana yazılan YENİ başlığı oku.
                 playerBinding?.playerVideoTitle?.postDelayed({
                     val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    val direction = if (keyCode == KeyEvent.KEYCODE_DPAD_UP) "Önceki" else "Sonraki"
-                    showToast("$direction: $newTitle")
-                }, 300) 
+                    showToast("Önceki: $newTitle")
+                }, 300)
+            } else {
+                // YUKARI - Kısa Basma: Sonraki Bölüm
+                player.handleEvent(CSPlayerEvent.NextEpisode)
                 
-                return true
+                playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    showToast("Sonraki: $newTitle")
+                }, 300)
             }
-            return false
+        } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+            if (isLongPress) {
+                // AŞAĞI - Uzun Basma: Altyazı Seçici
+                val currentContext = context
+                if (subsProvidersIsActive && currentContext != null) {
+                    openOnlineSubPicker(currentContext, null) {}
+                }
+            } else {
+                // AŞAĞI - Kısa Basma: Aynalar (Mirrors) Diyaloğu
+                showMirrorsDialogue()
+            }
         }
+        
+        return true
+    }
+    return false
+}
 
 
                 // --- DPAD SOL: GERİ SARMA ---
