@@ -1,5 +1,5 @@
 package com.lagradost.cloudstream3.ui.player
-//yeni
+//yeni EKLENDİ
 import com.lagradost.cloudstream3.CommonActivity.showToast
 
 import android.animation.ObjectAnimator
