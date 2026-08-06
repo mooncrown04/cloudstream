@@ -1,7 +1,7 @@
 package com.lagradost.cloudstream3.ui.player
 //yeni
 import com.lagradost.cloudstream3.CommonActivity.showToast
-//yeni
+
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
