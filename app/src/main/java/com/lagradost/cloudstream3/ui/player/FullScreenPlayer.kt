@@ -1059,6 +1059,7 @@ KeyEvent.KEYCODE_SETTINGS -> {
 
    
     // --- DPAD YUKARI/AŞAĞI ---
+// --- DPAD YUKARI/AŞAĞI ---
 KeyEvent.KEYCODE_DPAD_UP,
 KeyEvent.KEYCODE_DPAD_DOWN -> {
     if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
@@ -1067,7 +1068,6 @@ KeyEvent.KEYCODE_DPAD_DOWN -> {
     
     if (!isLocked) {
         // 1. UZUN BASMA KONTROLÜ (Tuş basılı tutulurken tetiklenir)
-        // repeatCount > 8 veya 10 kumandanın hızına göre uzun basmayı yakalar
         if (event.action == KeyEvent.ACTION_DOWN && (event.isLongPress || event.repeatCount > 10)) {
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                 // YUKARI - Uzun Basma: Önceki Bölüm
@@ -1086,12 +1086,8 @@ KeyEvent.KEYCODE_DPAD_DOWN -> {
             return true 
         }
         
-        // 2. KISA BASMA KONTROLÜ (Sadece parmağınızı tuştan çektiğinizde ACTION_UP ile çalışır)
+        // 2. KISA BASMA KONTROLÜ (Parmağınızı tuştan çektiğinizde ACTION_UP ile çalışır)
         if (event.action == KeyEvent.ACTION_UP) {
-            // Eğer tuş basılı kalıp uzun basma sınırına ulaştıysa ACTION_UP'ta tekrar tetiklenmesin
-            // (Bunu engellemek için isLongPress kontrolü veya bayrak kullanılabilir ama 
-            // yukarıdaki ACTION_DOWN zaten uzun basmada return true yaptığı için buraya sadece kısa basmalar düşer)
-            
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                 // YUKARI - Kısa Basma: Sonraki Bölüm
                 player.handleEvent(CSPlayerEvent.NextEpisode)
@@ -1106,8 +1102,9 @@ KeyEvent.KEYCODE_DPAD_DOWN -> {
             return true
         }
         
-        // İlk basılış anında (repeatCount 0 iken) aşağı akışın çakışmaması için true döndürüyoruz
-        return true
+        // EĞİTSEL NOT: Buradaki engeli kaldırdık. 
+        // ACTION_DOWN anında uzun basma değilse, kısa basma için ACTION_UP'ın çalışmasına izin veriyoruz.
+        return false 
     }
     return false
 }
