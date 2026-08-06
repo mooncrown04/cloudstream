@@ -1068,6 +1068,17 @@ KeyEvent.KEYCODE_SETTINGS -> {
             
             // Her şey kapalıysa hızlıca bölüm değiştir
             if (!isLocked) {
+			
+			
+			if (keyCode == KeyEvent.KEYCODE_DPAD_UP && (event.isLongPress || event.repeatCount > 5)) {
+                        // TODO: Uzun basıldığında yapılmasını istediğin işlemi buraya yaz
+                        // Örnek: Ses açma, hızlı sarma veya özel bir diyalog açma
+                        showToast("Yukarı tuşuna uzun basıldı!")
+                        return true
+                    }
+			
+			
+			
                 // 1. Önce bölüm değiştirme işlemini tetikle
                 if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                     player.handleEvent(CSPlayerEvent.PrevEpisode)
