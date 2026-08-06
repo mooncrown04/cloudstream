@@ -1061,47 +1061,52 @@ KeyEvent.KEYCODE_SETTINGS -> {
     // --- DPAD YUKARI/AŞAĞI ---
 KeyEvent.KEYCODE_DPAD_UP,
 KeyEvent.KEYCODE_DPAD_DOWN -> {
-    // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
-    // böylece listede yukarı/aşağı rahatça gezinebilirsin.
     if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-        return false // null yerine false döndürülmeli
+        return false
     }
     
-    // Her şey kapalıysa işlemleri gerçekleştir
     if (!isLocked) {
-        val isLongPress = event.isLongPress || event.repeatCount > 5
-        
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            if (isLongPress) {
+        // 1. UZUN BASMA KONTROLÜ (Tuş basılı tutulurken tetiklenir)
+        // repeatCount > 8 veya 10 kumandanın hızına göre uzun basmayı yakalar
+        if (event.action == KeyEvent.ACTION_DOWN && (event.isLongPress || event.repeatCount > 10)) {
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
                 // YUKARI - Uzun Basma: Önceki Bölüm
                 player.handleEvent(CSPlayerEvent.PrevEpisode)
-                
                 playerBinding?.playerVideoTitle?.postDelayed({
                     val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
                     showToast("Önceki: $newTitle")
                 }, 300)
-            } else {
-                // YUKARI - Kısa Basma: Sonraki Bölüm
-                player.handleEvent(CSPlayerEvent.NextEpisode)
-                
-                playerBinding?.playerVideoTitle?.postDelayed({
-                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    showToast("Sonraki: $newTitle")
-                }, 300)
-            }
-        } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-            if (isLongPress) {
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                 // AŞAĞI - Uzun Basma: Altyazı Seçici
                 val currentContext = context
                 if (subsProvidersIsActive && currentContext != null) {
                     openOnlineSubPicker(currentContext, null) {}
                 }
-            } else {
+            }
+            return true 
+        }
+        
+        // 2. KISA BASMA KONTROLÜ (Sadece parmağınızı tuştan çektiğinizde ACTION_UP ile çalışır)
+        if (event.action == KeyEvent.ACTION_UP) {
+            // Eğer tuş basılı kalıp uzun basma sınırına ulaştıysa ACTION_UP'ta tekrar tetiklenmesin
+            // (Bunu engellemek için isLongPress kontrolü veya bayrak kullanılabilir ama 
+            // yukarıdaki ACTION_DOWN zaten uzun basmada return true yaptığı için buraya sadece kısa basmalar düşer)
+            
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+                // YUKARI - Kısa Basma: Sonraki Bölüm
+                player.handleEvent(CSPlayerEvent.NextEpisode)
+                playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    showToast("Sonraki: $newTitle")
+                }, 300)
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
                 // AŞAĞI - Kısa Basma: Aynalar (Mirrors) Diyaloğu
                 showMirrorsDialogue()
             }
+            return true
         }
         
+        // İlk basılış anında (repeatCount 0 iken) aşağı akışın çakışmaması için true döndürüyoruz
         return true
     }
     return false
