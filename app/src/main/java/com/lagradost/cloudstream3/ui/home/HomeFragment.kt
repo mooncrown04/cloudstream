@@ -282,14 +282,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(
             return listOf(
                 Pair(movies, listOf(TvType.Movie)),
                 Pair(tvs, listOf(TvType.TvSeries)),
+				Pair(livestream, listOf(TvType.Live)),
 				Pair(anime, listOf(TvType.Anime, TvType.OVA, TvType.AnimeMovie)),
                 Pair(asian, listOf(TvType.AsianDrama)),
                 Pair(cartoons, listOf(TvType.Cartoon)),
                 Pair(docs, listOf(TvType.Documentary)),                
-				Pair(livestream, listOf(TvType.Live)),
+				Pair(others, listOf(TvType.Others)),
 				Pair(torrent, listOf(TvType.Torrent)),
-                Pair(nsfw, listOf(TvType.NSFW)),
-                Pair(others, listOf(TvType.Others)),
+                Pair(nsfw, listOf(TvType.NSFW)),                
             )
         }
 
