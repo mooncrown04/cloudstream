@@ -677,16 +677,16 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {
-              //  val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-              //  navHostFragment?.navController?.navigate(R.id.navigation_settings)
+             
                showAccountSelectLinear()
 			   return true
             }
             
             // Medya Duraklatma tuşuna basıldığında profil seçim ekranını açar
-        KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-    showToast("Profil seçimi tuşla tetiklendi", Toast.LENGTH_SHORT)
-    showAccountSelectLinear()
+        KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_BUTTON_START -> {
+    showToast("ayarlar seçimi tuşla tetiklendi", Toast.LENGTH_SHORT)
+       val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+           navHostFragment?.navController?.navigate(R.id.navigation_settings)
     return true
 }
         }
