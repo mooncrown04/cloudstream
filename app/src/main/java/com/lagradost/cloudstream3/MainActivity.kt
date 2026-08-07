@@ -674,7 +674,8 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
    //     CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
 
 override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        when (keyCode) {
+      showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
+	  when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {
              
@@ -683,7 +684,9 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
             }
             
             // Medya Duraklatma tuşuna basıldığında profil seçim ekranını açar
-        KeyEvent.KEYCODE_MEDIA_PLAY, KeyEvent.KEYCODE_BUTTON_START -> {
+        KeyEvent.KEYCODE_MEDIA_PLAY,KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,KeyEvent.KEYCODE_PROG_BLUE,
+            KeyEvent.KEYCODE_BUTTON_START,
+            KeyEvent.KEYCODE_MEDIA_PAUSE -> { 
     showToast("ayarlar seçimi tuşla tetiklendi", Toast.LENGTH_SHORT)
        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
            navHostFragment?.navController?.navigate(R.id.navigation_settings)
