@@ -1062,8 +1062,7 @@ KeyEvent.KEYCODE_SETTINGS -> {
 // --- DPAD YUKARI/AŞAĞI ---
 KeyEvent.KEYCODE_DPAD_UP,
 KeyEvent.KEYCODE_DPAD_DOWN -> {
-    // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama, 
-    // böylece listede yukarı/aşağı rahatça gezinebilirsin.
+    // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
     if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
         return false // null yerine false döndürülmeli
     }
@@ -1075,19 +1074,14 @@ KeyEvent.KEYCODE_DPAD_DOWN -> {
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
             if (isLongPress) {
                 // YUKARI - Uzun Basma: Önceki Bölüm
-                 // yukarı - Uzun Basma: arama
-               val context = context
-            if (subsProvidersIsActive && context != null) {
-                openOnlineSubPicker(context, null) {}
-               
-			   }
+        
 
-			 //  player.handleEvent(CSPlayerEvent.PrevEpisode)
+			 player.handleEvent(CSPlayerEvent.PrevEpisode)
                 
-               // playerBinding?.playerVideoTitle?.postDelayed({
-               //     val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-              //      showToast("Önceki: $newTitle")
-             //   }, 300)
+            playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    showToast("Önceki: $newTitle")
+                }, 300)
             } else {
                 // YUKARI - Kısa Basma: Sonraki Bölüm
                 player.handleEvent(CSPlayerEvent.NextEpisode)
