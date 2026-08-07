@@ -674,15 +674,17 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
         when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {
-                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-                navHostFragment?.navController?.navigate(R.id.navigation_settings)
+              showAccountSelectLinear()
+                
+                //  val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+              //  navHostFragment?.navController?.navigate(R.id.navigation_settings)
                 return true
             }
         }
         
         return CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
     }
-yeni
+//yeni
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         onUserLeaveHint(this)
