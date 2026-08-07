@@ -677,16 +677,18 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {
-                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-                navHostFragment?.navController?.navigate(R.id.navigation_settings)
-                return true
+              //  val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+              //  navHostFragment?.navController?.navigate(R.id.navigation_settings)
+               showAccountSelectLinear()
+			   return true
             }
             
             // Medya Duraklatma tuşuna basıldığında profil seçim ekranını açar
-            KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-                showAccountSelectLinear()
-                return true
-            }
+        KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+    showToast("Profil seçimi tuşla tetiklendi", Toast.LENGTH_SHORT)
+    showAccountSelectLinear()
+    return true
+}
         }
         
         return CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
