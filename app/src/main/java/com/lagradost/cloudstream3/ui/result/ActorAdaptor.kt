@@ -96,31 +96,32 @@ class ActorAdaptor(
                     }
                 }
 
-                //yeni  TIKLAMA OLAYI: Hem arama yapar hem resmi ters çevirir
-                itemView.setOnClickListener {
-                    val actorName = item.actor.name
-                    if (!actorName.isNullOrBlank()) {
-                        searchCallback(actorName) // Arama fonksiyonunu tetikler
-                    }
-                    
-                    inverted[item] = !isInverted
-                    this.onUpdateContent(holder, getItem(position), position)
+	itemView.setOnClickListener {
+    // Anime cast entries may describe a character; look up the real performer.
+    ActorFilmography.show(itemView.context, item.voiceActor ?: item.actor)
+}
+
+itemView.setOnLongClickListener {
+    if (item.voiceActor != null) {
+        // Eğer seslendirme sanatçısı varsa mevcut inverted mantığını çalıştır
+        inverted[item] = !isInverted
+        this.onUpdateContent(holder, item, position)
+    } else if (isLayout(PHONE)) {
+        // Seslendirme sanatçısı yoksa ve telefondaysak web araması yap
+        val actorName = item.actor?.name
+        if (!actorName.isNullOrBlank()) {
+            val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
+                putExtra(SearchManager.QUERY, actorName)
+            }
+            itemView.context.packageManager?.let { pm ->
+                if (intent.resolveActivity(pm) != null) {
+                    itemView.context.startActivity(intent)
                 }
-//yeni
-                itemView.setOnLongClickListener {
-                    if (isLayout(PHONE)) {
-                        Intent(Intent.ACTION_WEB_SEARCH).apply {
-                            putExtra(SearchManager.QUERY, item.actor.name)
-                        }.also { intent ->
-                            itemView.context.packageManager?.let { pm ->
-                                if (intent.resolveActivity(pm) != null) {
-                                    itemView.context.startActivity(intent)
-                                }
-                            }
-                        }
-                    }
-                    true
-                }
+            }
+        }
+    }
+    true // Uzun tıklamanın tüketildiğini (işlendiğini) belirtir
+}
 
                 binding.apply {
                     actorImage.loadImage(mainImg)
