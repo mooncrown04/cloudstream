@@ -23,7 +23,8 @@ import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 
 class ActorAdaptor(
     private var nextFocusUpId: Int? = null,
-    private val focusCallback: (View?) -> Unit = {}
+    private val focusCallback: (View?) -> Unit = {},
+	private val searchCallback: (String) -> Unit = {} // Senin eklediğin arama callback'i
 ) : NoStateAdapter<ActorData>(diffCallback = BaseDiffCallback(itemSame = { a, b ->
     a.actor.name == b.actor.name
 })) {
@@ -95,11 +96,17 @@ class ActorAdaptor(
                     }
                 }
 
+                //yeni  TIKLAMA OLAYI: Hem arama yapar hem resmi ters çevirir
                 itemView.setOnClickListener {
+                    val actorName = item.actor.name
+                    if (!actorName.isNullOrBlank()) {
+                        searchCallback(actorName) // Arama fonksiyonunu tetikler
+                    }
+                    
                     inverted[item] = !isInverted
                     this.onUpdateContent(holder, getItem(position), position)
                 }
-
+//yeni
                 itemView.setOnLongClickListener {
                     if (isLayout(PHONE)) {
                         Intent(Intent.ACTION_WEB_SEARCH).apply {
