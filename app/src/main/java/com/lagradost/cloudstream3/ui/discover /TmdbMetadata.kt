@@ -91,29 +91,31 @@ internal data class TmdbTitle(
             it.isFinite() && it > 0 && it <= 10 && (voteCount == null || voteCount > 0)
         }?.let { Score.from10(it) }
         val poster = posterPath?.takeIf { it.isNotBlank() }?.let { TmdbMetadata.IMAGE_URL + it }
+        val resolvedYear = this@TmdbTitle.year
+
         if (isTv) {
             newTvSeriesSearchResponse(
-                name = displayTitle, url = "https://www.themoviedb.org/tv/$id",
-                type = TvType.TvSeries, fix = false,
+                name = displayTitle,
+                url = "https://www.themoviedb.org/tv/$id",
+                type = TvType.TvSeries,
+                fix = false,
             ) {
                 this.id = cardId
-                posterUrl = poster
-                score = rating
-                year = this@TmdbTitle.year
-                genres = resolveGenres(genreNames)
-                originalLanguage = this@TmdbTitle.originalLanguage?.takeIf { it.isNotBlank() }
+                this.posterUrl = poster
+                this.score = rating
+                this.year = resolvedYear
             }
         } else {
             newMovieSearchResponse(
-                name = displayTitle, url = "https://www.themoviedb.org/movie/$id",
-                type = TvType.Movie, fix = false,
+                name = displayTitle,
+                url = "https://www.themoviedb.org/movie/$id",
+                type = TvType.Movie,
+                fix = false,
             ) {
                 this.id = cardId
-                posterUrl = poster
-                score = rating
-                year = this@TmdbTitle.year
-                genres = resolveGenres(genreNames)
-                originalLanguage = this@TmdbTitle.originalLanguage?.takeIf { it.isNotBlank() }
+                this.posterUrl = poster
+                this.score = rating
+                this.year = resolvedYear
             }
         }
     }
