@@ -502,6 +502,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
         val isNavVisible = listOf(
             R.id.navigation_home,
             R.id.navigation_search,
+            R.id.navigation_discover,
             R.id.navigation_library,
             R.id.navigation_downloads,
             R.id.navigation_settings,
@@ -676,7 +677,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
 
     //yeni eklendi
 override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-      showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
+     // showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
 	  when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {
@@ -792,6 +793,7 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
 
             // R.id.navigation_home -> R.id.home_preview_change_api
             R.id.navigation_search -> R.id.main_search
+            R.id.navigation_discover -> R.id.filter_type
             R.id.navigation_library -> R.id.main_search
             R.id.navigation_downloads -> R.id.download_appbar
             else -> null
@@ -805,6 +807,7 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
                     R.id.navigation_downloads,
                     R.id.navigation_home,
                     R.id.navigation_search,
+                    R.id.navigation_discover,
                     R.id.navigation_library,
                     R.id.navigation_settings,
                 )) {
@@ -1818,6 +1821,7 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
             for (id in arrayOf(
                 R.id.navigation_home,
                 R.id.navigation_search,
+                R.id.navigation_discover,
                 R.id.navigation_library,
                 R.id.navigation_downloads,
                 R.id.navigation_settings
