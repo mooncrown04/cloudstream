@@ -34,13 +34,11 @@
     <string name="title_downloads">Downloads</string>
     <string name="download_queue">Download queue</string>
     <string name="title_settings">Settings</string>
-	<string name="episode_text">Episode</string>
-    <string name="tv_no_focus_tag">no_focus</string>
     <string name="search_hint">Search…</string>
     <string name="search_hint_site" formatted="true">Search %s…</string>
     <string name="speech_recognition_unavailable">Speech recognition is not available</string>
     <string name="begin_speaking">Begin Speaking…</string>
-    <string name="no_data">No Data</string>	
+    <string name="no_data">No Data</string>
     <string name="episode_more_options_des">More Options</string>
     <string name="next_episode">Next episode</string>
     <string name="result_tags">Genres</string>
@@ -141,7 +139,6 @@
     <string name="normal_no_plot">No Plot Found</string>
     <string name="torrent_no_plot">No Description Found</string>
     <string name="show_log_cat">Show Logcat 🐈</string>
-    <string name="log_cat">Logcat 🐈</string>
     <string name="test_log">Log</string>
     <string name="picture_in_picture">Picture-in-picture</string>
     <string name="picture_in_picture_des">Continues playback in a miniature player on top of other apps</string>
@@ -308,7 +305,7 @@
     <string name="episode_action_chromecast_mirror">Chromecast mirror</string>
     <string name="episode_action_cast_mirror">Cast mirror</string>
     <string name="episode_action_play_in_app">Play in app</string>
-    <string name="episode_action_play_mirror">Play mirror</string>
+    <string name="episode_action_play_mirror">Play mirror</string>"
     <string name="episode_action_play_in_format">Play in %s</string>
     <string name="episode_action_auto_download">Auto download</string>
     <string name="episode_action_download_mirror">Download mirror</string>
@@ -461,8 +458,8 @@
     <string name="home_random">Random</string>
     <string name="coming_soon">Coming soon…</string>
     <string name="quality_cam">Cam</string>
-    <string name="quality_cam_rip">CamRip</string>
-    <string name="quality_cam_hd">CamHD</string>
+    <string name="quality_cam_rip">Cam</string>
+    <string name="quality_cam_hd">Cam</string>
     <string name="quality_hq">HQ</string>
     <string name="quality_hd">HD</string>
     <string name="quality_ts">TS</string>
