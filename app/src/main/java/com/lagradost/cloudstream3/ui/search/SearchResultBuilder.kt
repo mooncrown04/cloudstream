@@ -105,7 +105,9 @@ object SearchResultBuilder {
         }
 
         // Year display formatting
-        val yearText = card.year?.takeIf { it > 0 }?.toString()
+     
+        // Satır 108 yerine bunu yazın:
+val yearText = card.year?.let { if (it > 0) it.toString() else null }
         year?.isVisible = !yearText.isNullOrBlank()
         if (!yearText.isNullOrBlank()) {
             year?.text = yearText
