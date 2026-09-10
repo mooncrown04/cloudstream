@@ -23,8 +23,7 @@ import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 
 class ActorAdaptor(
     private var nextFocusUpId: Int? = null,
-    private val focusCallback: (View?) -> Unit = {},
-	private val searchCallback: (String) -> Unit = {} // Senin eklediğin arama callback'i
+    private val focusCallback: (View?) -> Unit = {}
 ) : NoStateAdapter<ActorData>(diffCallback = BaseDiffCallback(itemSame = { a, b ->
     a.actor.name == b.actor.name
 })) {
@@ -96,32 +95,28 @@ class ActorAdaptor(
                     }
                 }
 
-	itemView.setOnClickListener {
-    // Anime cast entries may describe a character; look up the real performer.
-    ActorFilmography.show(itemView.context, item.voiceActor ?: item.actor)
-}
-
-itemView.setOnLongClickListener {
-    if (item.voiceActor != null) {
-        // Eğer seslendirme sanatçısı varsa mevcut inverted mantığını çalıştır
-        inverted[item] = !isInverted
-        this.onUpdateContent(holder, item, position)
-    } else if (isLayout(PHONE)) {
-        // Seslendirme sanatçısı yoksa ve telefondaysak web araması yap
-        val actorName = item.actor?.name
-        if (!actorName.isNullOrBlank()) {
-            val intent = Intent(Intent.ACTION_WEB_SEARCH).apply {
-                putExtra(SearchManager.QUERY, actorName)
-            }
-            itemView.context.packageManager?.let { pm ->
-                if (intent.resolveActivity(pm) != null) {
-                    itemView.context.startActivity(intent)
+                itemView.setOnClickListener {
+                    // Anime cast entries may describe a character; look up the real performer.
+                    ActorFilmography.show(itemView.context, item.voiceActor ?: item.actor)
                 }
-            }
-        }
-    }
-    true // Uzun tıklamanın tüketildiğini (işlendiğini) belirtir
-}
+
+                itemView.setOnLongClickListener {
+                    if (item.voiceActor != null) {
+                        inverted[item] = !isInverted
+                        this.onUpdateContent(holder, item, position)
+                    } else if (isLayout(PHONE)) {
+                        Intent(Intent.ACTION_WEB_SEARCH).apply {
+                            putExtra(SearchManager.QUERY, item.actor.name)
+                        }.also { intent ->
+                            itemView.context.packageManager?.let { pm ->
+                                if (intent.resolveActivity(pm) != null) {
+                                    itemView.context.startActivity(intent)
+                                }
+                            }
+                        }
+                    }
+                    true
+                }
 
                 binding.apply {
                     actorImage.loadImage(mainImg)
