@@ -273,21 +273,23 @@ object DataStoreHelper {
         * these fields), which fails/conflicts since these are meant to be overridden,
         * not serialized directly from the parent.
         */
-        @Transient override var id: Int? = null,
-        @Transient open val latestUpdatedTime: Long = 0L,
-        @Transient override val name: String = "",
-        @Transient override val url: String = "",
-        @Transient override val apiName: String = "",
-        @Transient override var type: TvType? = null,
-        @Transient override var posterUrl: String? = null,
-        @Transient var year: Int? = null,
-        @Transient open val syncData: Map<String, String>? = null,
-        @Transient override var quality: SearchQuality? = null,
-        @Transient override var posterHeaders: Map<String, String>? = null,
-        @Transient open val plot: String? = null,
-        @Transient override var score: Score? = null,
-        @Transient open val tags: List<String>? = null,
-    ) : SearchResponse {
+
+   @Transient override var id: Int? = null,
+   @Transient open val latestUpdatedTime: Long = 0L,
+   @Transient override val name: String = "",
+   @Transient override val url: String = "",
+   @Transient override val apiName: String = "",
+   @Transient override var type: TvType? = null,
+   @Transient override var posterUrl: String? = null,
+   override var year: Int? = null,  // @Transient kaldır
+   @Transient open val syncData: Map<String, String>? = null,
+   @Transient override var quality: SearchQuality? = null,
+   @Transient override var posterHeaders: Map<String, String>? = null,
+   @Transient open val plot: String? = null,
+   @Transient override var score: Score? = null,
+   @Transient open val tags: List<String>? = null,
+   @Transient open val genres: List<String>? = null,  // Yeni ekle
+) : SearchResponse {
         @JsonProperty("rating", access = JsonProperty.Access.WRITE_ONLY)
         @SerialName("rating")
         @Deprecated(
