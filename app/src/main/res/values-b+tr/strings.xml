@@ -492,7 +492,7 @@
     <string name="sort_alphabetical_a">Alfabetik (A\'dan Z’ye)</string>
     <string name="sort_alphabetical_z">Alfabetik (Z - A)</string>
     <string name="select_library">Kütüphane Seçin</string>
-    <string name="open_with">Şununla aç</string>
+    <string name="open_with">Şününle aç</string>
     <string name="empty_library_logged_in_message">Görünüşe göre bu liste boş, başka bir listeye geçmeyi deneyin.</string>
     <string name="sort_rating_desc">Derecelendirme (Yüksekten Düşüğe)</string>
     <string name="sort_rating_asc">Derecelendirme (Düşükten Yükseğe)</string>
@@ -530,7 +530,7 @@
     <string name="quality_profile_help">Burada kaynakların nasıl sıralandığını değiştirebilirsiniz. Bir video daha yüksek bir önceliğe sahipse, kaynak seçiminde daha yüksek görünecektir. Kaynak önceliği ve kalite önceliğinin toplamı video önceliğidir. \n \nKaynak A: 3 \nKalite B: 7 \nBirleştirilmiş video önceliği 10 olacaktır. \n \nNOT: Toplam 10 veya daha fazlaysa, bu bağlantı yüklendiğinde oynatıcı otomatik olarak yüklemeyi atlayacaktır!</string>
     <string name="qualities">Kaliteler</string>
     <string name="profile_background_des">Profil arkaplanı</string>
-    <string name="unable_to_inflate">UI was unable to be created correctly, this is a MAJOR BUG and should be reported immediately %s</string>
+    <string name="unable_to_inflate">Kullanıcı arayüzü düzgün şekilde oluşturulamadı. Bu BÜYÜK BİR HATADIR ve derhal bildirilmelidir %s</string>
     <string name="automatic_plugin_download_mode_title">Eklenti indirmeyi filtrelemek için mod seç</string>
     <string name="favorite_removed">%s favorilerden çıkarıldı</string>
     <string name="favorites_list_name">Favoriler</string>
@@ -698,7 +698,7 @@
     <string name="edit_profile_image_error_empty">URL bulunamadı</string>
     <string name="edit_profile_image_error_invalid">Geçersiz Bağlantı veya Görsel</string>
     <string name="edit_profile_image_success">Görsel Başarıyla Güncellendi</string>
-    <string name="episode_action_play_mirror">Şu kaynaktan oynat</string>"
+    <string name="episode_action_play_mirror">Şu kaynaktan oynat</string>
     <string name="action_mark_watched_up_to_this_episode">Bu bölüme kadar izlenmiş olarak işaretle</string>
     <string name="action_remove_mark_watched_up_to_this_episode">Bu bölümü izlenmemiş olarak işaretle</string>
     <string name="action_reload">Yeniden yükle</string>
