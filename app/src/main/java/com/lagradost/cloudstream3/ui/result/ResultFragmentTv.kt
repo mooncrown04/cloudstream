@@ -463,11 +463,34 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 binding.resultFavorite,
                 binding.resultSubscribe,
             ).firstOrNull { it.isVisible }
-
-            resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
-            resultCastItems.adapter = ActorAdaptor(aboveCast?.id) {
+ //yeni  ACTOR TIKLAMA OLAYI BURAYA EKLENDİ
+             resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
+            resultCastItems.adapter = ActorAdaptor(aboveCast?.id, {
                 toggleEpisodes(false)
-            }
+         
+		 },
+		
+		{ actorName ->
+                if (!actorName.isNullOrBlank()) {
+                    QuickSearchFragment.pushSearch(activity, actorName)
+                }
+            })
+ //yeni  ACTOR TIKLAMA OLAYI BURAYA EKLENDİ
+
+resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
+            resultCastItems.adapter = ActorAdaptor(
+                aboveCast?.id,
+                {
+                    toggleEpisodes(false)
+                },
+                { actorName ->
+                    if (!actorName.isNullOrBlank()) {
+                        QuickSearchFragment.pushSearch(activity, actorName)
+                    }
+                }
+            )
+		
+//yeni
 
             if (isLayout(EMULATOR)) {
                 episodesShadow.setOnClickListener {
@@ -874,6 +897,7 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                         resultMetaRating.setText(d.ratingText)
                         resultMetaStatus.setText(d.onGoingText)
                         resultMetaContentRating.setText(d.contentRatingText)
+                        resultCastText.setText(d.actorsText)
                         resultNextAiring.setText(d.nextAiringEpisode)
                         resultNextAiringTime.setText(d.nextAiringDate)
                         resultPoster.loadImage(d.posterImage, headers = d.posterHeaders)
@@ -931,7 +955,6 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                             true
                         )
 
-                        resultCastText.setText(if (showCast) d.actorsText else null)
                         resultCastItems.isGone = !showCast || d.actors.isNullOrEmpty()
                         (resultCastItems.adapter as? ActorAdaptor)?.submitList(if (showCast) d.actors else emptyList())
 
