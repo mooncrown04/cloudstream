@@ -340,6 +340,7 @@ object DataStoreHelper {
         plot,
         score,
         tags,
+		null,
     ) {
         object Serializer : WriteOnlySerializer<SubscribedData>(
             SubscribedData.generatedSerializer(),
@@ -401,6 +402,9 @@ object DataStoreHelper {
         quality,
         posterHeaders,
         plot,
+		score,
+        tags,
+        null,  // genres - bunu ekle
     ) {
         object Serializer : WriteOnlySerializer<BookmarkedData>(
             BookmarkedData.generatedSerializer(),
@@ -462,6 +466,9 @@ object DataStoreHelper {
         quality,
         posterHeaders,
         plot,
+		score,
+        tags,
+        null,  // genres - bunu ekle
     ) {
         object Serializer : WriteOnlySerializer<FavoritesData>(
             FavoritesData.generatedSerializer(),
