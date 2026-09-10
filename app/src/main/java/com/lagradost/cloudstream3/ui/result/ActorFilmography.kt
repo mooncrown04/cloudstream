@@ -404,16 +404,20 @@ class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
             FilmographyFilter.MOVIES -> allCredits.filter { it.type == TvType.Movie }
             FilmographyFilter.SERIES -> allCredits.filter { it.type == TvType.TvSeries }
         }.filter { ratingFilter.matches(it.score) }
-            .filter { languageFilter.code == null || it.originalLanguage == languageFilter.code }
             .filter { yf == null || (it.year?.let { y -> y >= yf } == true) }
             .filter { yt == null || (it.year?.let { y -> y <= yt } == true) }
-            .filter { selectedGenres.isEmpty() || it.genres?.any { g -> g in selectedGenres } == true }
 
         filtered = when (sortFilter) {
             DiscoverSort.POPULAR -> filtered
-            DiscoverSort.TOP_RATED -> filtered.sortedWith(compareByDescending<SearchResponse> { it.score?.toDouble() ?: -1.0 }.thenBy { it.name })
-            DiscoverSort.NEWEST -> filtered.sortedWith(compareByDescending<SearchResponse> { it.year ?: 0 }.thenBy { it.name })
-            DiscoverSort.OLDEST -> filtered.sortedWith(compareBy<SearchResponse> { it.year ?: Int.MAX_VALUE }.thenBy { it.name })
+            DiscoverSort.TOP_RATED -> filtered.sortedWith(
+                compareByDescending<SearchResponse> { it.score?.toDouble() ?: -1.0 }.thenBy { it.name }
+            )
+            DiscoverSort.NEWEST -> filtered.sortedWith(
+                compareByDescending<SearchResponse> { it.year ?: 0 }.thenBy { it.name }
+            )
+            DiscoverSort.OLDEST -> filtered.sortedWith(
+                compareBy<SearchResponse> { it.year ?: Int.MAX_VALUE }.thenBy { it.name }
+            )
             DiscoverSort.TITLE_AZ -> filtered.sortedBy { it.name.lowercase() }
         }
 
@@ -447,9 +451,8 @@ class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
             try {
                 val credits = withContext(Dispatchers.IO) { repository.load(actor) }
                 allCredits = credits
-                availableGenres = credits.flatMap { it.genres.orEmpty() }.distinct().sorted()
-                // Keep only still-valid genre selections
-                selectedGenres = selectedGenres.filter { it in availableGenres }.toSet()
+                availableGenres = emptyList()
+                selectedGenres = emptySet()
                 hasLoaded = true
                 binding.filmographyLoading.isVisible = false
                 applyFilter()
