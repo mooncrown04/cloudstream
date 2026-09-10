@@ -463,34 +463,11 @@ class ResultFragmentTv : BaseFragment<FragmentResultTvBinding>(
                 binding.resultFavorite,
                 binding.resultSubscribe,
             ).firstOrNull { it.isVisible }
- //yeni  ACTOR TIKLAMA OLAYI BURAYA EKLENDİ
-             resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
-            resultCastItems.adapter = ActorAdaptor(aboveCast?.id, {
-                toggleEpisodes(false)
-         
-		 },
-		
-		{ actorName ->
-                if (!actorName.isNullOrBlank()) {
-                    QuickSearchFragment.pushSearch(activity, actorName)
-                }
-            })
- //yeni  ACTOR TIKLAMA OLAYI BURAYA EKLENDİ
 
-resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
-            resultCastItems.adapter = ActorAdaptor(
-                aboveCast?.id,
-                {
-                    toggleEpisodes(false)
-                },
-                { actorName ->
-                    if (!actorName.isNullOrBlank()) {
-                        QuickSearchFragment.pushSearch(activity, actorName)
-                    }
-                }
-            )
-		
-//yeni
+            resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
+            resultCastItems.adapter = ActorAdaptor(aboveCast?.id) {
+                toggleEpisodes(false)
+            }
 
             if (isLayout(EMULATOR)) {
                 episodesShadow.setOnClickListener {
@@ -897,7 +874,6 @@ resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
                         resultMetaRating.setText(d.ratingText)
                         resultMetaStatus.setText(d.onGoingText)
                         resultMetaContentRating.setText(d.contentRatingText)
-                        resultCastText.setText(d.actorsText)
                         resultNextAiring.setText(d.nextAiringEpisode)
                         resultNextAiringTime.setText(d.nextAiringDate)
                         resultPoster.loadImage(d.posterImage, headers = d.posterHeaders)
@@ -955,6 +931,7 @@ resultCastItems.setRecycledViewPool(ActorAdaptor.sharedPool)
                             true
                         )
 
+                        resultCastText.setText(if (showCast) d.actorsText else null)
                         resultCastItems.isGone = !showCast || d.actors.isNullOrEmpty()
                         (resultCastItems.adapter as? ActorAdaptor)?.submitList(if (showCast) d.actors else emptyList())
 
