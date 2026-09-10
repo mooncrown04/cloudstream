@@ -21,7 +21,6 @@ import com.lagradost.cloudstream3.isMovieType
 import com.lagradost.cloudstream3.syncproviders.SyncAPI
 import com.lagradost.cloudstream3.ui.settings.Globals.TV
 import com.lagradost.cloudstream3.ui.settings.Globals.isLayout
-import com.lagradost.cloudstream3.utils.AppContextUtils.getNameFull
 import com.lagradost.cloudstream3.utils.AppContextUtils.getShortSeasonText
 import com.lagradost.cloudstream3.utils.DataStoreHelper
 import com.lagradost.cloudstream3.utils.DataStoreHelper.fixVisual
@@ -71,8 +70,7 @@ object SearchResultBuilder {
         val playImg: ImageView? = itemView.findViewById(R.id.search_item_download_play)
         val episodeText: TextView? = itemView.findViewById(R.id.episode_text)
 
-        // Do logic
-
+        // Reset visibility
         bar?.isVisible = false
         playImg?.isVisible = false
         textIsDub?.isVisible = false
@@ -88,17 +86,17 @@ object SearchResultBuilder {
         val showTitle = showCache[cardText?.context?.getString(R.string.show_title_key)] ?: false
         val showEpisodeText = showCache[cardText?.context?.getString(R.string.show_episode_text_key)] ?: false
         val showHd = showCache[textQuality?.context?.getString(R.string.show_hd_key)] ?: false
-        val showRatingView =
-            showCache[textQuality?.context?.getString(R.string.show_rating_key)] ?: false
+        val showRatingView = showCache[textQuality?.context?.getString(R.string.show_rating_key)] ?: false
+
         if (card is SyncAPI.LibraryItem) {
-            val ratingText = card.personalRating?.toStringNull(0.1, 10, 1)
+            val ratingText = card.personalRating?.let { String.format("%.1f", it.toDouble()) }
             val showRating = !ratingText.isNullOrBlank()
             rating?.isVisible = showRating
             if (showRating) {
                 rating?.text = ratingText
             }
         } else if (showRatingView) {
-            val ratingText = card.score?.toStringNull(0.1, 10, 1)
+            val ratingText = card.score?.let { String.format("%.1f", it.toDouble()) }
             val showRating = !ratingText.isNullOrBlank()
             rating?.isVisible = showRating
             if (showRating) {
@@ -106,18 +104,11 @@ object SearchResultBuilder {
             }
         }
 
-        // Year and genres live on the card itself, so home, search, discover and
-        // filmography posters all gain the overlay without per-screen work.
+        // Year display formatting
         val yearText = card.year?.takeIf { it > 0 }?.toString()
         year?.isVisible = !yearText.isNullOrBlank()
         if (!yearText.isNullOrBlank()) {
             year?.text = yearText
-        }
-        val genreText = card.genres?.filter { it.isNotBlank() }?.take(3)
-            ?.joinToString(" • ")?.takeIf { it.isNotBlank() }
-        genres?.isVisible = !genreText.isNullOrBlank()
-        if (!genreText.isNullOrBlank()) {
-            genres?.text = genreText
         }
 
         shadow?.isVisible = showTitle
@@ -150,11 +141,14 @@ object SearchResultBuilder {
         cardText?.text = card.name
         cardText?.isVisible = showTitle
         cardView.isVisible = true
+
         if (!card.posterUrl.isNullOrEmpty()) {
             cardView.loadImage(card.posterUrl, card.posterHeaders) {
                 error { getImageFromDrawable(itemView.context, R.drawable.default_cover) }
             }
-        } else cardView.loadImage(R.drawable.default_cover)
+        } else {
+            cardView.loadImage(R.drawable.default_cover)
+        }
 
         fun click(view: View?) {
             clickCallback.invoke(
@@ -199,12 +193,9 @@ object SearchResultBuilder {
             }
             bg.setOnLongClickListener {
                 longClick(it)
-                return@setOnLongClickListener true
+                true
             }
         }
-        //
-        //
-        //
 
         itemView.setOnClickListener {
             click(it)
@@ -217,43 +208,15 @@ object SearchResultBuilder {
             itemView.nextFocusDownId = nextFocusDown
         }
 
-        /*when (nextFocusBehavior) {
-            true -> itemView.nextFocusLeftId = bg.id
-            false -> itemView.nextFocusRightId = bg.id
-            null -> {
-                bg.nextFocusRightId = -1
-                bg.nextFocusLeftId = -1
-            }
-        }*/
-
-        /*if (nextFocusUp != null) {
-            bg.nextFocusUpId = nextFocusUp
-        }
-
-        if (nextFocusDown != null) {
-            bg.nextFocusDownId = nextFocusDown
-        }
-
-        */
-
         if (isLayout(TV)) {
-            // bg.isFocusable = true
-            // bg.isFocusableInTouchMode = true
-            // bg.touchscreenBlocksFocus = false
             itemView.isFocusableInTouchMode = true
             itemView.isFocusable = true
         }
 
-        /**/
-
         itemView.setOnLongClickListener {
             longClick(it)
-            return@setOnLongClickListener true
+            true
         }
-
-        /*bg.setOnFocusChangeListener { view, b ->
-            focus(view, b)
-        }*/
 
         itemView.setOnFocusChangeListener { view, b ->
             focus(view, b)
@@ -278,7 +241,7 @@ object SearchResultBuilder {
                 }
                 playImg?.visibility = View.VISIBLE
                 if (card.type?.isMovieType() == false && showEpisodeText) {
-                    episodeText?.context?.getShortSeasonText(card.episode, card.season)?.let {text->
+                    episodeText?.context?.getShortSeasonText(card.episode, card.season)?.let { text ->
                         episodeText.text = text
                         episodeText.isVisible = true
                     }
@@ -321,22 +284,17 @@ object SearchResultBuilder {
             }
         }
 
-        // This is the logic for making the rounded corners more round on the top and bottom element
-        // a bit dirty to do memory allocation, but it makes it more extensible and is easier to reason about
-        // then a large if statement
-
-        // Requires that the ordering here is the same as in the xml
         val boxes = arrayListOf<TextView>()
-        for (view in arrayOf(textIsDub, textIsSub, rating)) {
-            if (view?.isVisible == true) {
-                boxes.add(view)
+        for (v in arrayOf(textIsDub, textIsSub, rating)) {
+            if (v?.isVisible == true) {
+                boxes.add(v)
             }
         }
         if (boxes.size == 1) {
             boxes[0].setBackgroundResource(R.drawable.bg_color_both)
         } else if (boxes.size > 1) {
             boxes[0].setBackgroundResource(R.drawable.bg_color_top)
-            for (i in 1 until boxes.size) {
+            for (i in 1 until boxes.size - 1) {
                 boxes[i].setBackgroundResource(R.drawable.bg_color_center)
             }
             boxes[boxes.size - 1].setBackgroundResource(R.drawable.bg_color_bottom)
