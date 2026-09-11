@@ -21,6 +21,7 @@ import com.lagradost.cloudstream3.isMovieType
 import com.lagradost.cloudstream3.syncproviders.SyncAPI
 import com.lagradost.cloudstream3.ui.settings.Globals.TV
 import com.lagradost.cloudstream3.ui.settings.Globals.isLayout
+import com.lagradost.cloudstream3.utils.AppContextUtils.getNameFull
 import com.lagradost.cloudstream3.utils.AppContextUtils.getShortSeasonText
 import com.lagradost.cloudstream3.utils.DataStoreHelper
 import com.lagradost.cloudstream3.utils.DataStoreHelper.fixVisual
@@ -58,8 +59,6 @@ object SearchResultBuilder {
         val textIsSub: TextView? = itemView.findViewById(R.id.text_is_sub)
         val textFlag: TextView? = itemView.findViewById(R.id.text_flag)
         val rating: TextView? = itemView.findViewById(R.id.text_rating)
-        val year: TextView? = itemView.findViewById(R.id.text_year)
-        val genres: TextView? = itemView.findViewById(R.id.text_genres)
 
         val textQuality: TextView? = itemView.findViewById(R.id.text_quality)
         val shadow: View? = itemView.findViewById(R.id.title_shadow)
@@ -70,15 +69,14 @@ object SearchResultBuilder {
         val playImg: ImageView? = itemView.findViewById(R.id.search_item_download_play)
         val episodeText: TextView? = itemView.findViewById(R.id.episode_text)
 
-        // Reset visibility
+        // Do logic
+
         bar?.isVisible = false
         playImg?.isVisible = false
         textIsDub?.isVisible = false
         textIsSub?.isVisible = false
         textFlag?.isVisible = false
         rating?.isVisible = false
-        year?.isVisible = false
-        genres?.isVisible = false
         episodeText?.isVisible = false
 
         val showSub = showCache[textIsDub?.context?.getString(R.string.show_sub_key)] ?: false
@@ -86,31 +84,22 @@ object SearchResultBuilder {
         val showTitle = showCache[cardText?.context?.getString(R.string.show_title_key)] ?: false
         val showEpisodeText = showCache[cardText?.context?.getString(R.string.show_episode_text_key)] ?: false
         val showHd = showCache[textQuality?.context?.getString(R.string.show_hd_key)] ?: false
-        val showRatingView = showCache[textQuality?.context?.getString(R.string.show_rating_key)] ?: false
-
+        val showRatingView =
+            showCache[textQuality?.context?.getString(R.string.show_rating_key)] ?: false
         if (card is SyncAPI.LibraryItem) {
-            val ratingText = card.personalRating?.let { String.format("%.1f", it.toDouble()) }
+            val ratingText = card.personalRating?.toStringNull(0.1, 10, 1)
             val showRating = !ratingText.isNullOrBlank()
             rating?.isVisible = showRating
             if (showRating) {
                 rating?.text = ratingText
             }
         } else if (showRatingView) {
-            val ratingText = card.score?.let { String.format("%.1f", it.toDouble()) }
+            val ratingText = card.score?.toStringNull(0.1, 10, 1)
             val showRating = !ratingText.isNullOrBlank()
             rating?.isVisible = showRating
             if (showRating) {
                 rating?.text = ratingText
             }
-        }
-
-        // Year display formatting
-     
-        // Satır 108 yerine bunu yazın:
-val yearText = card.year?.let { if (it > 0) it.toString() else null }
-        year?.isVisible = !yearText.isNullOrBlank()
-        if (!yearText.isNullOrBlank()) {
-            year?.text = yearText
         }
 
         shadow?.isVisible = showTitle
@@ -143,14 +132,11 @@ val yearText = card.year?.let { if (it > 0) it.toString() else null }
         cardText?.text = card.name
         cardText?.isVisible = showTitle
         cardView.isVisible = true
-
         if (!card.posterUrl.isNullOrEmpty()) {
             cardView.loadImage(card.posterUrl, card.posterHeaders) {
                 error { getImageFromDrawable(itemView.context, R.drawable.default_cover) }
             }
-        } else {
-            cardView.loadImage(R.drawable.default_cover)
-        }
+        } else cardView.loadImage(R.drawable.default_cover)
 
         fun click(view: View?) {
             clickCallback.invoke(
@@ -195,9 +181,12 @@ val yearText = card.year?.let { if (it > 0) it.toString() else null }
             }
             bg.setOnLongClickListener {
                 longClick(it)
-                true
+                return@setOnLongClickListener true
             }
         }
+        //
+        //
+        //
 
         itemView.setOnClickListener {
             click(it)
@@ -210,15 +199,43 @@ val yearText = card.year?.let { if (it > 0) it.toString() else null }
             itemView.nextFocusDownId = nextFocusDown
         }
 
+        /*when (nextFocusBehavior) {
+            true -> itemView.nextFocusLeftId = bg.id
+            false -> itemView.nextFocusRightId = bg.id
+            null -> {
+                bg.nextFocusRightId = -1
+                bg.nextFocusLeftId = -1
+            }
+        }*/
+
+        /*if (nextFocusUp != null) {
+            bg.nextFocusUpId = nextFocusUp
+        }
+
+        if (nextFocusDown != null) {
+            bg.nextFocusDownId = nextFocusDown
+        }
+
+        */
+
         if (isLayout(TV)) {
+            // bg.isFocusable = true
+            // bg.isFocusableInTouchMode = true
+            // bg.touchscreenBlocksFocus = false
             itemView.isFocusableInTouchMode = true
             itemView.isFocusable = true
         }
 
+        /**/
+
         itemView.setOnLongClickListener {
             longClick(it)
-            true
+            return@setOnLongClickListener true
         }
+
+        /*bg.setOnFocusChangeListener { view, b ->
+            focus(view, b)
+        }*/
 
         itemView.setOnFocusChangeListener { view, b ->
             focus(view, b)
@@ -243,7 +260,7 @@ val yearText = card.year?.let { if (it > 0) it.toString() else null }
                 }
                 playImg?.visibility = View.VISIBLE
                 if (card.type?.isMovieType() == false && showEpisodeText) {
-                    episodeText?.context?.getShortSeasonText(card.episode, card.season)?.let { text ->
+                    episodeText?.context?.getShortSeasonText(card.episode, card.season)?.let {text->
                         episodeText.text = text
                         episodeText.isVisible = true
                     }
@@ -286,17 +303,22 @@ val yearText = card.year?.let { if (it > 0) it.toString() else null }
             }
         }
 
+        // This is the logic for making the rounded corners more round on the top and bottom element
+        // a bit dirty to do memory allocation, but it makes it more extensible and is easier to reason about
+        // then a large if statement
+
+        // Requires that the ordering here is the same as in the xml
         val boxes = arrayListOf<TextView>()
-        for (v in arrayOf(textIsDub, textIsSub, rating)) {
-            if (v?.isVisible == true) {
-                boxes.add(v)
+        for (view in arrayOf(textIsDub, textIsSub, rating)) {
+            if (view?.isVisible == true) {
+                boxes.add(view)
             }
         }
         if (boxes.size == 1) {
             boxes[0].setBackgroundResource(R.drawable.bg_color_both)
         } else if (boxes.size > 1) {
             boxes[0].setBackgroundResource(R.drawable.bg_color_top)
-            for (i in 1 until boxes.size - 1) {
+            for (i in 1 until boxes.size) {
                 boxes[i].setBackgroundResource(R.drawable.bg_color_center)
             }
             boxes[boxes.size - 1].setBackgroundResource(R.drawable.bg_color_bottom)
