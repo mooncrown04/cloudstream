@@ -676,7 +676,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
 
     //yeni eklendi
 override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-      showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
+     // showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
 	  when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {
