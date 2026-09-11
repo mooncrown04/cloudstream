@@ -52,21 +52,19 @@ class SearchAdapter(
 
     private val coverHeight: Int get() = (resView.itemWidth / coverRatio).roundToInt()
 
-    override fun onCreateContent(parent: ViewGroup): ViewHolderState<Any> {
-        val inflater = LayoutInflater.from(parent.context)
+//yeni
+override fun onCreateContent(parent: ViewGroup): ViewHolderState<Any> {
+    val inflater = LayoutInflater.from(parent.context)
 
-        val layout =
-            if (parent.context.isBottomLayout()) SearchResultGridExpandedBinding.inflate(
-                inflater,
-                parent,
-                false
-            ) else SearchResultGridBinding.inflate(
-                inflater,
-                parent,
-                false
-            )
-        return ViewHolderState(layout)
-    }
+    val layout = SearchResultGridExpandedBinding.inflate(
+        inflater,
+        parent,
+        false
+    )
+    return ViewHolderState(layout)
+}
+
+//yeni
 
     override fun onClearView(holder: ViewHolderState<Any>) {
         clearImage(
