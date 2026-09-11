@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/home_root"
     android:layout_width="match_parent"
-
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
+    <!-- 1. Yükleme Katmanı (Shimmer & Loading) -->
     <FrameLayout
         android:id="@+id/home_loading"
         android:layout_width="match_parent"
@@ -79,7 +79,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/result_padding"
                     android:layout_marginTop="@dimen/result_padding"
-
                     android:layout_marginEnd="@dimen/result_padding"
                     android:orientation="vertical">
 
@@ -91,77 +90,9 @@
                 </LinearLayout>
             </LinearLayout>
         </com.facebook.shimmer.ShimmerFrameLayout>
-
-        <LinearLayout
-            android:id="@+id/home_api_holder"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_gravity="end"
-            android:layout_margin="10dp"
-            android:background="@color/transparent"
-            android:orientation="horizontal"        
-            android:visibility="visible">  
-             <!-- gone  visible olarak güncelleyin -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/home_change_api"
-                style="@style/RegularButtonTV"
-                android:layout_width="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="0dp"
-                android:layout_marginEnd="0dp"
-                android:background="@drawable/player_button_tv_attr_no_bg"
-                android:gravity="center_vertical"
-                android:nextFocusLeft="@id/nav_rail_view"
-                android:nextFocusRight="@id/home_switch_account" />
-
-            <ImageView
-                android:id="@+id/home_preview_reload_provider"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="end"
-                android:background="@drawable/player_button_tv_attr_no_bg"
-                android:contentDescription="@string/reload_provider"
-                android:focusable="true"
-                android:nextFocusLeft="@id/home_change_api"
-                android:nextFocusRight="@id/home_preview_search_button"
-                android:nextFocusUp="@id/home_preview_reload_provider"
-                android:nextFocusDown="@id/home_preview_info_btt"
-                android:padding="10dp"
-                android:src="@drawable/ic_refresh"
-                android:tag="@string/tv_no_focus_tag"
-                android:visibility="gone"
-                app:tint="@color/player_on_button_tv_attr" />
-
-            <ImageView
-                android:id="@+id/home_preview_search_button"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="end"
-                android:background="@drawable/player_button_tv_attr_no_bg"
-                android:contentDescription="@string/search"
-                android:nextFocusLeft="@id/home_change_api"
-                android:nextFocusRight="@id/home_switch_account"
-                android:nextFocusDown="@id/home_preview_info_btt"
-                android:padding="10dp"
-                android:src="@drawable/search_icon"
-                android:tag="@string/tv_no_focus_tag"
-                android:visibility="gone"
-                app:tint="@color/player_on_button_tv_attr" />
-
-            <ImageView
-                android:id="@+id/home_switch_account"
-
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/account"
-                android:nextFocusLeft="@id/home_search"
-                android:padding="10dp"
-                android:src="@drawable/ic_outline_account_circle_24" />
-        </LinearLayout>
     </FrameLayout>
 
+    <!-- 2. Hata Katmanı -->
     <LinearLayout
         android:id="@+id/home_loading_error"
         android:layout_width="match_parent"
@@ -174,9 +105,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/home_reload_connectionerror"
             style="@style/WhiteButton"
-
             android:layout_width="wrap_content"
-
             android:layout_gravity="center"
             android:layout_margin="5dp"
             android:minWidth="200dp"
@@ -186,9 +115,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/home_reload_connection_open_in_browser"
             style="@style/BlackButton"
-
             android:layout_width="wrap_content"
-
             android:layout_gravity="center"
             android:layout_margin="5dp"
             android:minWidth="200dp"
@@ -198,9 +125,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/home_reload_connection_go_to_downloads"
             style="@style/BlackButton"
-
             android:layout_width="wrap_content"
-
             android:layout_gravity="center"
             android:layout_margin="5dp"
             android:minWidth="200dp"
@@ -217,6 +142,7 @@
             android:textColor="?attr/textColor" />
     </LinearLayout>
 
+    <!-- 3. Ana Liste (RecyclerView) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/home_master_recycler"
         android:layout_width="match_parent"
@@ -227,11 +153,85 @@
         tools:listitem="@layout/homepage_parent"
         tools:visibility="gone" />
 
-    <TextClock
-            android:id="@+id/home_clock"
+    <!-- 4. ÜST BAR & BUTONLAR (Üstteki Profil, Arama, Yenileme vs.) -->
+    <LinearLayout
+        android:id="@+id/home_api_holder"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="end|top"
+        android:layout_margin="10dp"
+        android:background="@color/transparent"
+        android:elevation="10dp"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/home_change_api"
+            style="@style/RegularButtonTV"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:background="@drawable/player_button_tv_attr_no_bg"
+            android:gravity="center_vertical"
+            android:nextFocusLeft="@id/nav_rail_view"
+            android:nextFocusRight="@id/home_switch_account" />
+
+        <ImageView
+            android:id="@+id/home_preview_reload_provider"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="@drawable/player_button_tv_attr_no_bg"
+            android:contentDescription="@string/reload_provider"
+            android:focusable="true"
+            android:nextFocusLeft="@id/home_change_api"
+            android:nextFocusRight="@id/home_preview_search_button"
+            android:nextFocusUp="@id/home_preview_reload_provider"
+            android:nextFocusDown="@id/home_preview_info_btt"
+            android:padding="10dp"
+            android:src="@drawable/ic_refresh"
+            android:tag="@string/tv_no_focus_tag"
+            android:visibility="gone"
+            app:tint="@color/player_on_button_tv_attr" />
+
+        <ImageView
+            android:id="@+id/home_preview_search_button"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="@drawable/player_button_tv_attr_no_bg"
+            android:contentDescription="@string/search"
+            android:nextFocusLeft="@id/home_change_api"
+            android:nextFocusRight="@id/home_switch_account"
+            android:nextFocusDown="@id/home_preview_info_btt"
+            android:padding="10dp"
+            android:src="@drawable/search_icon"
+            android:tag="@string/tv_no_focus_tag"
+            android:visibility="visible"
+            app:tint="@color/player_on_button_tv_attr" />
+
+        <!-- Üstteki Profil / Hesap Butonu -->
+        <ImageView
+            android:id="@+id/home_switch_account"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/account"
+            android:focusable="true"
+            android:nextFocusLeft="@id/home_preview_search_button"
+            android:padding="10dp"
+            android:src="@drawable/ic_outline_account_circle_24"
+            android:visibility="visible" />
+    </LinearLayout>
+
+    <TextClock
+        android:id="@+id/home_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/home_api_fab"
@@ -264,6 +264,13 @@
     <!-- Placeholder for TV layout settings button - always hidden on phone -->
     <ImageView
         android:id="@+id/home_preview_settings_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
+    <!-- Placeholder for TV layout account button (Ayarların yanındaki profil butonu) -->
+    <ImageView
+        android:id="@+id/home_preview_account_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
