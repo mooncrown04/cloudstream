@@ -99,9 +99,9 @@
             android:layout_gravity="end"
             android:layout_margin="10dp"
             android:background="@color/transparent"
-            android:orientation="horizontal"
-          <!--  android:visibility="gone"> visible olarak güncelleyin -->
+            android:orientation="horizontal"        
             android:visibility="visible">  
+             <!-- gone  visible olarak güncelleyin -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/home_change_api"
                 style="@style/RegularButtonTV"
