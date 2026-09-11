@@ -273,22 +273,21 @@ object DataStoreHelper {
         * these fields), which fails/conflicts since these are meant to be overridden,
         * not serialized directly from the parent.
         */
-    @Transient override var id: Int? = null,
-    @Transient open val latestUpdatedTime: Long = 0L,
-    @Transient override val name: String = "",
-    @Transient override val url: String = "",
-    @Transient override val apiName: String = "",
-    @Transient override var type: TvType? = null,
-    @Transient override var posterUrl: String? = null,
-    @Transient override var year: Int? = null,  // @Transient olarak işaretle
-    @Transient open val syncData: Map<String, String>? = null,
-    @Transient override var quality: SearchQuality? = null,
-    @Transient override var posterHeaders: Map<String, String>? = null,
-    @Transient open val plot: String? = null,
-    @Transient override var score: Score? = null,
-    @Transient open val tags: List<String>? = null,
-    @Transient override var genres: List<String>? = null,  // Bu satırı ekle
-) : SearchResponse {
+        @Transient override var id: Int? = null,
+        @Transient open val latestUpdatedTime: Long = 0L,
+        @Transient override val name: String = "",
+        @Transient override val url: String = "",
+        @Transient override val apiName: String = "",
+        @Transient override var type: TvType? = null,
+        @Transient override var posterUrl: String? = null,
+        @Transient open val year: Int? = null,
+        @Transient open val syncData: Map<String, String>? = null,
+        @Transient override var quality: SearchQuality? = null,
+        @Transient override var posterHeaders: Map<String, String>? = null,
+        @Transient open val plot: String? = null,
+        @Transient override var score: Score? = null,
+        @Transient open val tags: List<String>? = null,
+    ) : SearchResponse {
         @JsonProperty("rating", access = JsonProperty.Access.WRITE_ONLY)
         @SerialName("rating")
         @Deprecated(
@@ -318,7 +317,7 @@ object DataStoreHelper {
         @JsonProperty("apiName") @SerialName("apiName") override val apiName: String,
         @JsonProperty("type") @SerialName("type") override var type: TvType?,
         @JsonProperty("posterUrl") @SerialName("posterUrl") override var posterUrl: String?,
-        @JsonProperty("year") @SerialName("year") override var year: Int?,
+        @JsonProperty("year") @SerialName("year") override val year: Int?,
         @JsonProperty("syncData") @SerialName("syncData") override val syncData: Map<String, String>? = null,
         @JsonProperty("quality") @SerialName("quality") override var quality: SearchQuality? = null,
         @JsonProperty("posterHeaders") @SerialName("posterHeaders") override var posterHeaders: Map<String, String>? = null,
@@ -340,7 +339,6 @@ object DataStoreHelper {
         plot,
         score,
         tags,
-		null,
     ) {
         object Serializer : WriteOnlySerializer<SubscribedData>(
             SubscribedData.generatedSerializer(),
@@ -382,7 +380,7 @@ object DataStoreHelper {
         @JsonProperty("apiName") @SerialName("apiName") override val apiName: String,
         @JsonProperty("type") @SerialName("type") override var type: TvType?,
         @JsonProperty("posterUrl") @SerialName("posterUrl") override var posterUrl: String?,
-        @JsonProperty("year") @SerialName("year") override var year: Int?,
+        @JsonProperty("year") @SerialName("year") override val year: Int?,
         @JsonProperty("syncData") @SerialName("syncData") override val syncData: Map<String, String>? = null,
         @JsonProperty("quality") @SerialName("quality") override var quality: SearchQuality? = null,
         @JsonProperty("posterHeaders") @SerialName("posterHeaders") override var posterHeaders: Map<String, String>? = null,
@@ -402,9 +400,6 @@ object DataStoreHelper {
         quality,
         posterHeaders,
         plot,
-		score,
-        tags,
-        null,  // genres - bunu ekle
     ) {
         object Serializer : WriteOnlySerializer<BookmarkedData>(
             BookmarkedData.generatedSerializer(),
@@ -446,7 +441,7 @@ object DataStoreHelper {
         @JsonProperty("apiName") @SerialName("apiName") override val apiName: String,
         @JsonProperty("type") @SerialName("type") override var type: TvType?,
         @JsonProperty("posterUrl") @SerialName("posterUrl") override var posterUrl: String?,
-        @JsonProperty("year") @SerialName("year") override var year: Int?,
+        @JsonProperty("year") @SerialName("year") override val year: Int?,
         @JsonProperty("syncData") @SerialName("syncData") override val syncData: Map<String, String>? = null,
         @JsonProperty("quality") @SerialName("quality") override var quality: SearchQuality? = null,
         @JsonProperty("posterHeaders") @SerialName("posterHeaders") override var posterHeaders: Map<String, String>? = null,
@@ -466,9 +461,6 @@ object DataStoreHelper {
         quality,
         posterHeaders,
         plot,
-		score,
-        tags,
-        null,  // genres - bunu ekle
     ) {
         object Serializer : WriteOnlySerializer<FavoritesData>(
             FavoritesData.generatedSerializer(),
