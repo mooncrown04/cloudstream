@@ -502,7 +502,6 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
         val isNavVisible = listOf(
             R.id.navigation_home,
             R.id.navigation_search,
-            R.id.navigation_discover,
             R.id.navigation_library,
             R.id.navigation_downloads,
             R.id.navigation_settings,
@@ -671,9 +670,36 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
     override fun dispatchKeyEvent(event: KeyEvent): Boolean =
         CommonActivity.dispatchKeyEvent(this, event) ?: super.dispatchKeyEvent(event)
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean =
-        CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
+  //  override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean =
+   //     CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
 
+
+    //yeni eklendi
+override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+      showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
+	  when (keyCode) {
+            KeyEvent.KEYCODE_SETTINGS,
+            KeyEvent.KEYCODE_MENU -> {
+             
+               showAccountSelectLinear()
+			   return true
+            }
+            
+            // Medya Duraklatma tuşuna basıldığında profil seçim ekranını açar
+        KeyEvent.KEYCODE_MEDIA_PLAY,KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,KeyEvent.KEYCODE_PROG_BLUE,
+            KeyEvent.KEYCODE_BUTTON_START,
+            KeyEvent.KEYCODE_MEDIA_PAUSE -> { 
+    showToast("ayarlar seçimi tuşla tetiklendi", Toast.LENGTH_SHORT)
+       val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+           navHostFragment?.navController?.navigate(R.id.navigation_settings)
+    return true
+}
+        }
+        
+        return CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
+    }
+
+  //yeni eklendi
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
@@ -766,7 +792,6 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
 
             // R.id.navigation_home -> R.id.home_preview_change_api
             R.id.navigation_search -> R.id.main_search
-            R.id.navigation_discover -> R.id.filter_type
             R.id.navigation_library -> R.id.main_search
             R.id.navigation_downloads -> R.id.download_appbar
             else -> null
@@ -780,7 +805,6 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
                     R.id.navigation_downloads,
                     R.id.navigation_home,
                     R.id.navigation_search,
-                    R.id.navigation_discover,
                     R.id.navigation_library,
                     R.id.navigation_settings,
                 )) {
@@ -1794,7 +1818,6 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
             for (id in arrayOf(
                 R.id.navigation_home,
                 R.id.navigation_search,
-                R.id.navigation_discover,
                 R.id.navigation_library,
                 R.id.navigation_downloads,
                 R.id.navigation_settings
