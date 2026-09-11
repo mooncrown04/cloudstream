@@ -187,6 +187,20 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
+<style name="GalatasarayMode">
+    <item name="primaryGrayBackground">@color/GSGrayBackground</item>
+    <item name="primaryBlackBackground">@color/GSDarkBackground</item>
+    <item name="iconGrayBackground">@color/GSGrayBackground</item>
+    <item name="boxItemBackground">@color/GSBoxBackground</item>
+    <item name="textColor">@color/GSYellow</item>
+    <item name="iconColor">@color/GSYellow</item>
+    <item name="white">@color/GSYellow</item>
+    <item name="black">@color/GSRed</item>
+    <item name="colorOnPrimary">@color/GSTextLight</item>
+</style>
+
+
+    
     <style name="DraculaMode">
         <item name="primaryGrayBackground">@color/DraculaPrimaryGrayBackground</item>
         <item name="primaryBlackBackground">@color/DraculaBitDarkerGrayBackground</item>
