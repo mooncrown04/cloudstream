@@ -758,4 +758,9 @@
         <item quantity="one">%d gizli bağlantı</item>
         <item quantity="other">%d gizli bağlantı</item>
     </plurals>
+    <!-- Oyuncu Filmografisi (TMDB) -->
+    <string name="actor_filmography_hint">TMDB üzerindeki film ve diziler. Sağlayıcılarınızda aramak için bir başlık seçin.</string>
+    <string name="actor_filmography_empty">Bu oyuncu için hiçbir film veya dizi bulunamadı.</string>
+    <string name="actor_filmography_error">Filmografi yüklenemedi. Lütfen tekrar deneyin.</string>
+    <string name="actor_filmography_retry">Tekrar dene</string>
 </resources>
