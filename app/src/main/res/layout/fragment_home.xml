@@ -146,18 +146,18 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/home_master_recycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:descendantFocusability="afterDescendants"
         android:nextFocusLeft="@id/nav_rail_view"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/homepage_parent"
         tools:visibility="gone" />
 
-    <!-- 4. ÜST BAR & BUTONLAR (Üstteki Profil, Arama, Yenileme vs.) -->
+    <!-- 4. ÜST BAR & BUTONLAR (En üst katmanda) -->
     <LinearLayout
         android:id="@+id/home_api_holder"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="end|top"
         android:layout_margin="10dp"
         android:background="@color/transparent"
@@ -165,60 +165,65 @@
         android:orientation="horizontal"
         android:visibility="visible">
 
+        <!-- DEPO / KAYNAK DEĞİŞTİRME BUTONU -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/home_change_api"
             style="@style/RegularButtonTV"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="40dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="0dp"
             android:layout_marginEnd="0dp"
             android:background="@drawable/player_button_tv_attr_no_bg"
+            android:clickable="true"
+            android:focusable="true"
             android:gravity="center_vertical"
             android:nextFocusLeft="@id/nav_rail_view"
-            android:nextFocusRight="@id/home_switch_account" />
+            android:nextFocusRight="@id/home_preview_search_button" />
 
         <ImageView
             android:id="@+id/home_preview_reload_provider"
             android:layout_width="50dp"
-            android:layout_height="match_parent"
+            android:layout_height="40dp"
             android:layout_gravity="end"
             android:background="@drawable/player_button_tv_attr_no_bg"
+            android:clickable="true"
             android:contentDescription="@string/reload_provider"
             android:focusable="true"
             android:nextFocusLeft="@id/home_change_api"
             android:nextFocusRight="@id/home_preview_search_button"
-            android:nextFocusUp="@id/home_preview_reload_provider"
-            android:nextFocusDown="@id/home_preview_info_btt"
             android:padding="10dp"
             android:src="@drawable/ic_refresh"
             android:tag="@string/tv_no_focus_tag"
             android:visibility="gone"
             app:tint="@color/player_on_button_tv_attr" />
 
+        <!-- ARAMA BUTONU -->
         <ImageView
             android:id="@+id/home_preview_search_button"
             android:layout_width="50dp"
-            android:layout_height="match_parent"
+            android:layout_height="40dp"
             android:layout_gravity="end"
             android:background="@drawable/player_button_tv_attr_no_bg"
+            android:clickable="true"
             android:contentDescription="@string/search"
+            android:focusable="true"
             android:nextFocusLeft="@id/home_change_api"
             android:nextFocusRight="@id/home_switch_account"
-            android:nextFocusDown="@id/home_preview_info_btt"
             android:padding="10dp"
             android:src="@drawable/search_icon"
             android:tag="@string/tv_no_focus_tag"
             android:visibility="visible"
             app:tint="@color/player_on_button_tv_attr" />
 
-        <!-- Üstteki Profil / Hesap Butonu -->
+        <!-- HESAP / PROFİL BUTONU -->
         <ImageView
             android:id="@+id/home_switch_account"
             android:layout_width="50dp"
-            android:layout_height="match_parent"
+            android:layout_height="40dp"
             android:layout_gravity="end"
             android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
             android:contentDescription="@string/account"
             android:focusable="true"
             android:nextFocusLeft="@id/home_preview_search_button"
@@ -254,21 +259,20 @@
         tools:ignore="ContentDescription"
         tools:visibility="visible" />
 
-    <!-- Placeholder for TV layout random button - always hidden on phone -->
+    <!-- TV Modu İçin Yer Tutucu ID'leri (Kilitlenmeyi Önlemek İçin TV Account ID'si Ana Butona Yönlendirildi) -->
     <ImageView
         android:id="@+id/home_random_button_tv"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
 
-    <!-- Placeholder for TV layout settings button - always hidden on phone -->
     <ImageView
         android:id="@+id/home_preview_settings_button"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
 
-    <!-- Placeholder for TV layout account button (Ayarların yanındaki profil butonu) -->
+    <!-- home_preview_account_button ID'si TV fragment binding crash yapmasın diye bırakıldı fakat pasifize edildi -->
     <ImageView
         android:id="@+id/home_preview_account_button"
         android:layout_width="0dp"
