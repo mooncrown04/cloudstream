@@ -71,17 +71,17 @@
 
 
 
-<!-- Galatasaray Tema Renk Yapısı -->
-    <color name="GSRed">#A9041E</color><!-- Resmi Galatasaray Kırmızısı -->
-    <color name="GSYellow">#FDB912</color><!-- Resmi Galatasaray Sarısı -->
+<!-- Galatasaray Tema Renk Yapısı (Dengelenmiş Tonlar) -->
+    <color name="GSRed">#A9041E</color> <!-- Resmi Galatasaray Kırmızısı -->
+    <color name="GSYellow">#FDB912</color> <!-- Resmi Galatasaray Sarısı -->
 
-    <color name="GalatasarayPrimaryGrayBackground">#2A0A10</color><!-- Koyu Kırmızı Arka Plan -->
-    <color name="GalatasarayBitDarkerGrayBackground">#1A0005</color><!-- Siyah-Kırmızı Derin Arka Plan -->
-    <color name="GalatasarayGrayBackground">#2A0A10</color><!-- Liste/Kart Arka Planı -->
-    <color name="GalatasarayItemBackground">#3B1018</color><!-- Kutucuk Arka Planı -->
-    <color name="GalatasarayTextColor">#FDB912</color><!-- Ana Metin (Sarı) -->
-    <color name="GalatasarayGrayTextColor">#FEE8A2</color><!-- İkincil/Soluk Metin (Açık Sarı) -->
-    <color name="GalatasarayIconColor">#FDB912</color><!-- İkon Rengi (Sarı) -->
+    <color name="GalatasarayPrimaryGrayBackground">#24070C</color> <!-- Ana Arka Plan (Derin Koyu Kırmızı) -->
+    <color name="GalatasarayBitDarkerGrayBackground">#170407</color> <!-- En Koyu Arka Plan/Barlar -->
+    <color name="GalatasarayGrayBackground">#320D13</color> <!-- Liste ve Panel Arka Planı -->
+    <color name="GalatasarayItemBackground">#42121A</color> <!-- Tıklanabilir Kutucuklar/Kartlar -->
+    <color name="GalatasarayTextColor">#FFFFFF</color> <!-- Ana Metinler (Net Okunabilirlik İçin Beyaz) -->
+    <color name="GalatasarayGrayTextColor">#FDB912</color> <!-- Alt Bilgiler ve Etiketler (Sarı) -->
+    <color name="GalatasarayIconColor">#FDB912</color> <!-- İkonlar (Sarı) -->
 
     <!--Dracula Theme-->
     <color name="DraculaPrimaryGrayBackground">#414450</color>
