@@ -330,7 +330,7 @@ object CommonActivity {
                 "Dracula" -> R.style.DraculaMode
                 "Lavender" -> R.style.LavenderMode
                 "SilentBlue" -> R.style.SilentBlueMode
-
+                "Galatasaray" -> R.style.GalatasarayMode // <-- BURAYA EKLENDİ
                 else -> R.style.AppTheme
             }
 
