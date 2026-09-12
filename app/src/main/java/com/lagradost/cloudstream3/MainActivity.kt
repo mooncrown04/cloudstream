@@ -1233,7 +1233,10 @@ when (primaryColor) {
     "NetflixSansFontOverlay" -> setTheme(R.style.NetflixSansFontOverlay)
     "UbuntuFontOverlay" -> setTheme(R.style.UbuntuFontOverlay)
     "OpenSansFontOverlay" -> setTheme(R.style.OpenSansFontOverlay)
-	"Galatasaray" -> setTheme(R.style.Theme_Galatasaray)
+    "Galatasaray" -> {
+        setTheme(R.style.GalatasarayMode)
+        setTheme(R.style.OverlayPrimaryColorGalatasaray)
+    }
 }
 
 enableEdgeToEdgeCompat() // Tek çağrı yeterli
