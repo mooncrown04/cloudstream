@@ -384,6 +384,17 @@ object CommonActivity {
                 "Monet2" -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     R.style.OverlayPrimaryColorMonetTwo else R.style.OverlayPrimaryColorNormal
 
+
+
+             // --- EKLENEN FONT OVERLAY TANIMLARI ---
+                "ComicSansFontOverlay" -> R.style.ComicSansFontOverlay
+                "GothamFontOverlay" -> R.style.GothamFontOverlay
+                "NetflixSansFontOverlay" -> R.style.NetflixSansFontOverlay
+                "UbuntuFontOverlay" -> R.style.UbuntuFontOverlay
+                "OpenSansFontOverlay" -> R.style.OpenSansFontOverlay
+
+
+
                 else -> R.style.OverlayPrimaryColorNormal
             }
 
