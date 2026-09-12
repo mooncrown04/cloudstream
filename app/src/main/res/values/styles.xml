@@ -188,32 +188,32 @@
     </style>
 
 <style name="GalatasarayOverlay" parent="ThemeOverlay.AppCompat">
-    <!-- Ana Vurgu Renkleri (Mavi renkleri ezmek için) -->
-    <item name="colorPrimary">@color/GSRed</item>
-    <item name="colorPrimarySecond">@color/GSYellow</item>
-    <item name="colorPrimaryDark">@color/GSDarkBackground</item>
-    <item name="colorAccent">@color/GSYellow</item>
-    <item name="colorSearch">@color/GSGrayBackground</item>
+    <!-- Ana Vurgu Renkleri -->
+    <item name="colorPrimary">@color/GalatasarayPrimaryGrayBackground</item>
+    <item name="colorPrimarySecond">@color/GalatasarayTextColor</item>
+    <item name="colorPrimaryDark">@color/GalatasarayBitDarkerGrayBackground</item>
+    <item name="colorAccent">@color/GalatasarayTextColor</item>
+    <item name="colorSearch">@color/GalatasarayItemBackground</item>
 
     <!-- Arka Plan Renkleri -->
-    <item name="primaryGrayBackground">@color/GSGrayBackground</item>
-    <item name="primaryBlackBackground">@color/GSDarkBackground</item>
-    <item name="iconGrayBackground">@color/GSGrayBackground</item>
-    <item name="boxItemBackground">@color/GSBoxBackground</item>
-    <item name="android:colorBackground">@color/GSDarkBackground</item>
+    <item name="primaryGrayBackground">@color/GalatasarayGrayBackground</item>
+    <item name="primaryBlackBackground">@color/GalatasarayBitDarkerGrayBackground</item>
+    <item name="iconGrayBackground">@color/GalatasarayGrayBackground</item>
+    <item name="boxItemBackground">@color/GalatasarayItemBackground</item>
+    <item name="android:colorBackground">@color/GalatasarayBitDarkerGrayBackground</item>
 
     <!-- Metin ve İkon Renkleri -->
-    <item name="textColor">@color/GSYellow</item>
-    <item name="grayTextColor">@color/GSTextLight</item>
-    <item name="iconColor">@color/GSYellow</item>
-    <item name="white">@color/GSYellow</item>
-    <item name="black">@color/GSRed</item>
+    <item name="textColor">@color/GalatasarayTextColor</item>
+    <item name="grayTextColor">@color/GalatasarayGrayTextColor</item>
+    <item name="iconColor">@color/GalatasarayIconColor</item>
+    <item name="white">@color/GalatasarayTextColor</item>
+    <item name="black">@color/GalatasarayPrimaryGrayBackground</item>
 
     <!-- Rozetler ve Oynatıcı Renkleri -->
-    <item name="dubColorBg">@color/GSRed</item>
-    <item name="dubColorText">@color/GSYellow</item>
-    <item name="subColorBg">@color/GSYellow</item>
-    <item name="subColorText">@color/GSDarkBackground</item>
+    <item name="dubColorBg">@color/GalatasarayPrimaryGrayBackground</item>
+    <item name="dubColorText">@color/GalatasarayTextColor</item>
+    <item name="subColorBg">@color/GalatasarayTextColor</item>
+    <item name="subColorText">@color/GalatasarayBitDarkerGrayBackground</item>
 </style>
 
     
