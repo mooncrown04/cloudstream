@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <Preference
         android:icon="@drawable/ic_baseline_language_24"
         android:key="@string/locale_key"
         android:title="@string/app_language" />
+
+    <!-- Uygulama Font Seçimi -->
+    <ListPreference
+        android:defaultValue="default"
+        android:entries="@array/app_font_names"
+        android:entryValues="@array/app_font_values"
+        android:icon="@drawable/ic_baseline_text_fields_24"
+        android:key="@string/app_font_key"
+        android:summary="%s"
+        android:title="@string/app_font_title" />
 
     <Preference
         android:icon="@drawable/ic_baseline_warning_24"
@@ -97,6 +108,7 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/LagradOst/QuickNovel" />
         </Preference>
+
         <Preference
             android:icon="@drawable/ic_baseline_discord_24"
             android:title="@string/discord"
@@ -105,6 +117,7 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://discord.gg/5Hus6fM" />
         </Preference>
+
         <Preference
             android:icon="@drawable/baseline_description_24"
             android:title="@string/cs3wiki"
