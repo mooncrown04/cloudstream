@@ -44,10 +44,12 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.settings_ui, rootKey)
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
-        (getPref(R.string.overscan_key)?.hideOn(PHONE or EMULATOR) as? SeekBarPreference)?.setOnPreferenceChangeListener { pref, newValue ->
-            val padding = (newValue as? Int)?.toPx ?: return@setOnPreferenceChangeListener true
-            (pref.context.getActivity() as? MainActivity)?.binding?.homeRoot?.setPadding(padding, padding, padding, padding)
-            return@setOnPreferenceChangeListener true
+        getPref(R.string.overscan_key)?.hideOn(PHONE or EMULATOR)?.let { pref ->
+            (pref as? SeekBarPreference)?.setOnPreferenceChangeListener { p, newValue ->
+                val padding = (newValue as? Int)?.toPx ?: return@setOnPreferenceChangeListener true
+                (p.context.getActivity() as? MainActivity)?.binding?.homeRoot?.setPadding(padding, padding, padding, padding)
+                true
+            }
         }
 
         getPref(R.string.bottom_title_key)?.setOnPreferenceChangeListener { _, _ ->
@@ -71,9 +73,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             val prefValues = keys.map {
                 settingsManager.getBoolean(it, true)
             }.mapIndexedNotNull { index, b ->
-                if (b) {
-                    index
-                } else null
+                if (b) index else null
             }
 
             activity?.showMultiDialog(
@@ -90,15 +90,13 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                 SearchResultBuilder.updateCache(it.context)
             }
 
-            return@setOnPreferenceClickListener true
+            true
         }
 
         getPref(R.string.app_layout_key)?.setOnPreferenceClickListener {
             val prefNames = resources.getStringArray(R.array.app_layout)
             val prefValues = resources.getIntArray(R.array.app_layout_values)
-
-            val currentLayout =
-                settingsManager.getInt(getString(R.string.app_layout_key), -1)
+            val currentLayout = settingsManager.getInt(getString(R.string.app_layout_key), -1)
 
             activity?.showBottomDialog(
                 items = prefNames.toList(),
@@ -106,25 +104,28 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                 name = getString(R.string.app_layout),
                 showApply = true,
                 dismissCallback = {},
-                callback = {
+                callback = { index ->
                     try {
-                        settingsManager.edit {
-                            putInt(getString(R.string.app_layout_key), prefValues[it])
+                        prefValues.getOrNull(index)?.let { selectedVal ->
+                            settingsManager.edit {
+                                putInt(getString(R.string.app_layout_key), selectedVal)
+                            }
+                            context?.updateTv()
+                            activity?.recreate()
                         }
-                        context?.updateTv()
-                        activity?.recreate()
                     } catch (e: Exception) {
                         logError(e)
                     }
                 }
             )
-            return@setOnPreferenceClickListener true
+            true
         }
 
         getPref(R.string.app_theme_key)?.setOnPreferenceClickListener {
             val prefNames = resources.getStringArray(R.array.themes_names).toMutableList()
             val prefValues = resources.getStringArray(R.array.themes_names_values).toMutableList()
-            val removeIncompatible = { text: String ->
+
+            fun removeIncompatible(text: String) {
                 val toRemove = prefValues
                     .mapIndexed { idx, s -> if (s.startsWith(text)) idx else null }
                     .filterNotNull()
@@ -135,15 +136,15 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                     offset += 1
                 }
             }
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { // remove monet on android 11 and less
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 removeIncompatible("Monet")
             }
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { // Remove system on android 9 and less
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 removeIncompatible("System")
             }
 
-            val currentLayout =
-                settingsManager.getString(getString(R.string.app_theme_key), prefValues.first())
+            val currentLayout = settingsManager.getString(getString(R.string.app_theme_key), prefValues.firstOrNull() ?: "AmoledLight")
 
             activity?.showBottomDialog(
                 prefNames.toList(),
@@ -151,24 +152,26 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                 getString(R.string.app_theme_settings),
                 true,
                 {}
-            ) {
+            ) { index ->
                 try {
-                    settingsManager.edit {
-                        putString(getString(R.string.app_theme_key), prefValues[it])
+                    prefValues.getOrNull(index)?.let { selectedTheme ->
+                        settingsManager.edit {
+                            putString(getString(R.string.app_theme_key), selectedTheme)
+                        }
+                        activity?.recreate()
                     }
-                    activity?.recreate()
                 } catch (e: Exception) {
                     logError(e)
                 }
             }
-            return@setOnPreferenceClickListener true
+            true
         }
+
         getPref(R.string.primary_color_key)?.setOnPreferenceClickListener {
             val prefNames = resources.getStringArray(R.array.themes_overlay_names).toMutableList()
-            val prefValues =
-                resources.getStringArray(R.array.themes_overlay_names_values).toMutableList()
+            val prefValues = resources.getStringArray(R.array.themes_overlay_names_values).toMutableList()
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { // remove monet on android 11 and less
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 val toRemove = prefValues
                     .mapIndexed { idx, s -> if (s.startsWith("Monet")) idx else null }
                     .filterNotNull()
@@ -180,8 +183,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                 }
             }
 
-            val currentLayout =
-                settingsManager.getString(getString(R.string.primary_color_key), prefValues.first())
+            val currentLayout = settingsManager.getString(getString(R.string.primary_color_key), prefValues.firstOrNull() ?: "Normal")
 
             activity?.showDialog(
                 prefNames.toList(),
@@ -189,17 +191,46 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                 getString(R.string.primary_color_settings),
                 true,
                 {}
-            ) {
+            ) { index ->
                 try {
-                    settingsManager.edit {
-                        putString(getString(R.string.primary_color_key), prefValues[it])
+                    prefValues.getOrNull(index)?.let { selectedColor ->
+                        settingsManager.edit {
+                            putString(getString(R.string.primary_color_key), selectedColor)
+                        }
+                        activity?.recreate()
                     }
-                    activity?.recreate()
                 } catch (e: Exception) {
                     logError(e)
                 }
             }
-            return@setOnPreferenceClickListener true
+            true
+        }
+
+        // Font Değiştirme Dinleyicisi
+        getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+            val prefNames = resources.getStringArray(R.array.app_font_names)
+            val prefValues = resources.getStringArray(R.array.app_font_values)
+            val currentFont = settingsManager.getString(getString(R.string.app_font_key), "Default")
+
+            activity?.showBottomDialog(
+                prefNames.toList(),
+                prefValues.indexOf(currentFont),
+                getString(R.string.app_font_settings),
+                true,
+                {}
+            ) { index ->
+                try {
+                    prefValues.getOrNull(index)?.let { selectedFont ->
+                        settingsManager.edit {
+                            putString(getString(R.string.app_font_key), selectedFont)
+                        }
+                        activity?.recreate()
+                    }
+                } catch (e: Exception) {
+                    logError(e)
+                }
+            }
+            true
         }
 
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
@@ -207,8 +238,8 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             val currentList = settingsManager.getStringSet(
                 getString(R.string.pref_filter_search_quality_key),
                 setOf()
-            )?.map {
-                it.toInt()
+            )?.mapNotNull {
+                it.toIntOrNull()
             } ?: listOf()
 
             activity?.showMultiDialog(
@@ -220,12 +251,12 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                 settingsManager.edit {
                     putStringSet(
                         getString(R.string.pref_filter_search_quality_key),
-                        selectedList.map { it.toString() }.toMutableSet()
+                        selectedList.map { it.toString() }.toSet()
                     )
                 }
             }
 
-            return@setOnPreferenceClickListener true
+            true
         }
 
         getPref(R.string.tv_layout_clock_key)?.hideOn(PHONE or EMULATOR)
@@ -242,12 +273,14 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                 showApply = true,
                 dismissCallback = {},
                 callback = { selectedOption ->
-                    settingsManager.edit {
-                        putInt(getString(R.string.confirm_exit_key), prefValues[selectedOption])
+                    prefValues.getOrNull(selectedOption)?.let { selectedVal ->
+                        settingsManager.edit {
+                            putInt(getString(R.string.confirm_exit_key), selectedVal)
+                        }
                     }
                 }
             )
-            return@setOnPreferenceClickListener true
+            true
         }
     }
 }
