@@ -386,12 +386,17 @@ object CommonActivity {
 
 
 
-             // --- EKLENEN FONT OVERLAY TANIMLARI ---
-                "ComicSansFontOverlay" -> R.style.ComicSansFontOverlay
-                "GothamFontOverlay" -> R.style.GothamFontOverlay
-                "NetflixSansFontOverlay" -> R.style.NetflixSansFontOverlay
-                "UbuntuFontOverlay" -> R.style.UbuntuFontOverlay
-                "OpenSansFontOverlay" -> R.style.OpenSansFontOverlay
+            // --- Font Overlay Uygulaması ---
+        val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.app_font_key), "Default")) {
+            "ComicSans" -> R.style.ComicSansFontOverlay
+            "Gotham" -> R.style.GothamFontOverlay
+            "NetflixSans" -> R.style.NetflixSansFontOverlay
+            "Ubuntu" -> R.style.UbuntuFontOverlay
+            "OpenSans" -> R.style.OpenSansFontOverlay
+            else -> null
+        }
+
+        currentFontOverlay?.let { act.theme.applyStyle(it, true) }
 
 
 
