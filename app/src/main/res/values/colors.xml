@@ -69,13 +69,18 @@
     <color name="lightGrayTextColor">#5f6267</color>
     <color name="lightIconColor">#5f6267</color>
 
-    <!-- Galatasaray Tema Renkleri -->
-    <color name="GSRed">#A90429</color> <!-- Koyu Kırmızı / Aslan Kırmızısı -->
-    <color name="GSYellow">#FDB912</color> <!-- Canlı Sarı -->
-    <color name="GSDarkBackground">#1A0005</color> <!-- Çok Koyu Kırmızı/Siyah Arka Plan -->
-    <color name="GSGrayBackground">#2A0A10</color> <!-- İkincil Koyu Arka Plan -->
-    <color name="GSBoxBackground">#3B1018</color> <!-- Kutu/Kart Arka Planı -->
-    <color name="GSTextLight">#FEE8A2</color> <!-- Açık Sarı Metin -->
+
+    
+	<!-- Galatasaray Tema Renk Yapısı -->
+    <color name="GalatasarayPrimaryGrayBackground">#2A0A10</color><!-- Koyu Kırmızı / Aslan Kırmızısı -->
+    <color name="GalatasarayBitDarkerGrayBackground">#1A0005</color><!-- Canlı Sarı -->
+    <color name="GalatasarayGrayBackground">#2A0A10</color><!-- Çok Koyu Kırmızı/Siyah Arka Plan -->
+    <color name="GalatasarayItemBackground">#3B1018</color><!-- İkincil Koyu Arka Plan -->
+    <color name="GalatasarayTextColor">#FDB912</color>
+    <color name="GalatasarayGrayTextColor">#FEE8A2</color>
+    <color name="GalatasarayIconColor">#FDB912</color>
+
+
 
     <!--Dracula Theme-->
     <color name="DraculaPrimaryGrayBackground">#414450</color>
