@@ -786,6 +786,7 @@
     <string name="top_center">Top center</string>
     <string name="top_right">Top right</string>
     <!-- App Font Settings Keys & Titles -->
+	<string name="app_font_title">App Font</string>
     <string name="app_font_key">app_font_key</string>
     <string name="app_font_settings">App Font</string>
     <string name="app_font_default">Default</string>
