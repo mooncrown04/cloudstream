@@ -187,7 +187,6 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
-<!-- Galatasaray Tema Renk Modu -->
 <style name="GalatasarayMode">
     <item name="primaryGrayBackground">@color/GalatasarayPrimaryGrayBackground</item>
     <item name="primaryBlackBackground">@color/GalatasarayBitDarkerGrayBackground</item>
@@ -200,7 +199,6 @@
     <item name="colorOnPrimary">@color/GSYellow</item>
 </style>
 
-<!-- Galatasaray Vurgu/Aksan Rengi Overlay Stili -->
 <style name="OverlayPrimaryColorGalatasaray">
     <item name="colorPrimary">@color/GSRed</item>
     <item name="android:colorPrimary">@color/GSRed</item>
