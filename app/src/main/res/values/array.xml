@@ -5,6 +5,7 @@
         <item>@id/cast_button_type_play_pause_toggle</item>
         <item>@id/cast_button_type_forward_30_seconds</item>
     </array>
+    
     <array name="cast_expanded_controller_control_buttons">
         <!-- Fake sources button -->
         <item>@id/cast_button_type_rewind_30_seconds</item>
@@ -18,18 +19,19 @@
         <item>@string/none</item>
         <item>Google</item>
         <item>Cloudflare</item>
-        <!--        <item>OpenDns</item>-->
+        <!-- <item>OpenDns</item>-->
         <item>AdGuard</item>
         <item>DNS.WATCH</item>
         <item>Quad9</item>
         <item>DNS.SB</item>
         <item>Canadian Shield</item>
     </array>
+    
     <array name="dns_pref_values">
         <item>0</item>
         <item>1</item>
         <item>2</item>
-        <!--        <item>3</item>-->
+        <!-- <item>3</item>-->
         <item>4</item>
         <item>5</item>
         <item>6</item>
@@ -41,6 +43,7 @@
         <item>@string/apk_installer_package_installer</item>
         <item>@string/apk_installer_legacy</item>
     </array>
+    
     <array name="apk_installer_values">
         <item>0</item>
         <item>1</item>
@@ -74,6 +77,7 @@
         <item>128 characters</item>
         <item>Hide Title</item>
     </array>
+    
     <array name="limit_title_pref_values">
         <item>0</item>
         <item>16</item>
@@ -121,6 +125,7 @@
         <item>3d</item>
         <item>7d</item>
     </string-array>
+    
     <!-- Values in hours -->
     <integer-array name="periodic_work_values">
         <item>0</item>
@@ -236,7 +241,7 @@
     </array>
 
     <array name="software_decoding_switch_values">
-        <item>-1</item> <!-- Auto-->
+        <item>-1</item> <!-- Auto -->
         <item>0</item>  <!-- HW+SW, aka on but prefer hw -->
         <item>2</item>  <!-- SW+HW, aka on but prefer sw -->
         <item>1</item>  <!-- HW, aka off -->
@@ -247,6 +252,7 @@
         <item>@string/show</item>
         <item>@string/dont_show</item>
     </array>
+    
     <array name="confirm_exit_values">
         <item>-1</item>
         <item>0</item>
@@ -305,10 +311,15 @@
         <item>Pink</item>
         <item>Lavender</item>
         <item>Monet</item>
-        <item>Monet2</item>      
+        <item>Monet2</item>
+        <item>ComicSans</item>
+        <item>Gotham</item>
+        <item>NetflixSans</item>
+        <item>Ubuntu</item>
+        <item>OpenSans</item>
     </string-array>
 
-<!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
+    <!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
     <string-array name="app_font_names">
         <item>Default</item>
         <item>Comic Sans</item>
@@ -336,7 +347,7 @@
         <item>System</item>
         <item>Material You</item>
         <item>Galatasaray</item>
-        <item>Dracula</item>        
+        <item>Dracula</item>
         <item>Lavender Dreams</item>
         <item>Silent Blue</item>
     </string-array>
