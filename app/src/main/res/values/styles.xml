@@ -1153,4 +1153,31 @@
         <item name="android:layout_height">@dimen/download_header_progress_size</item>
         <item name="android:background">@color/playIconBackground</item>
     </style>
+
+<!-- Font Temaları -->
+<style name="ComicSansFontOverlay">
+    <item name="android:fontFamily">@font/comic_sans</item>
+    <item name="fontFamily">@font/comic_sans</item>
+</style>
+
+<style name="GothamFontOverlay">
+    <item name="android:fontFamily">@font/gotham</item>
+    <item name="fontFamily">@font/gotham</item>
+</style>
+
+<style name="NetflixSansFontOverlay">
+    <item name="android:fontFamily">@font/netflix_sans</item>
+    <item name="fontFamily">@font/netflix_sans</item>
+</style>
+
+<style name="UbuntuFontOverlay">
+    <item name="android:fontFamily">@font/ubuntu_regular</item>
+    <item name="fontFamily">@font/ubuntu_regular</item>
+</style>
+
+<style name="OpenSansFontOverlay">
+    <item name="android:fontFamily">@font/open_sans</item>
+    <item name="fontFamily">@font/open_sans</item>
+</style>
+    
 </resources>
