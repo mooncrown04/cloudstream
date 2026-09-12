@@ -785,7 +785,11 @@
     <string name="top_left">Top left</string>
     <string name="top_center">Top center</string>
     <string name="top_right">Top right</string>
-    <plurals name="downloads_active">
+    <!-- App Font Settings Keys & Titles -->
+    <string name="app_font_key">app_font_key</string>
+    <string name="app_font_settings">App Font</string>
+    <string name="app_font_default">Default</string>
+	<plurals name="downloads_active">	
         <item quantity="one">%d active download</item>
         <item quantity="other">%d active downloads</item>
     </plurals>
