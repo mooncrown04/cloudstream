@@ -305,14 +305,29 @@
         <item>Pink</item>
         <item>Lavender</item>
         <item>Monet</item>
-        <item>Monet2</item>
-        <item>ComicSansFontOverlay</item>
-        <item>GothamFontOverlay</item>
-        <item>NetflixSansFontOverlay</item>
-        <item>UbuntuFontOverlay</item>
-        <item>OpenSansFontOverlay</item>
+        <item>Monet2</item>      
     </string-array>
 
+<!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
+    <string-array name="app_font_names">
+        <item>Default</item>
+        <item>Comic Sans</item>
+        <item>Gotham</item>
+        <item>Netflix Sans</item>
+        <item>Ubuntu</item>
+        <item>Open Sans</item>
+    </string-array>
+
+    <!-- Font Değerleri (Kod Tarafında Okunacak Değerler) -->
+    <string-array name="app_font_values">
+        <item>Default</item>
+        <item>ComicSans</item>
+        <item>Gotham</item>
+        <item>NetflixSans</item>
+        <item>Ubuntu</item>
+        <item>OpenSans</item>
+    </string-array>
+	
     <string-array name="themes_names">
         <item>Dark</item>
         <item>Gray</item>
