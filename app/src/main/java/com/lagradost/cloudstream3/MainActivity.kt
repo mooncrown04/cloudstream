@@ -676,7 +676,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
 
     //yeni eklendi
 override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-     // showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
+
 	  when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {
@@ -1222,8 +1222,10 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
 
         MainAPI.settingsForProvider = settingsForProvider
 
-        loadThemes(this)
-		// Seçilen font veya renk overlay temasını kontrol et ve yükle
+   // --- onCreate İçindeki Temizlenmiş Kısım ---
+loadThemes(this)
+
+// Seçilen font veya renk overlay temasını kontrol et ve yükle
 val primaryColor = settingsManager.getString(getString(R.string.primary_color_key), "")
 when (primaryColor) {
     "ComicSansFontOverlay" -> setTheme(R.style.ComicSansFontOverlay)
@@ -1233,11 +1235,10 @@ when (primaryColor) {
     "OpenSansFontOverlay" -> setTheme(R.style.OpenSansFontOverlay)
 }
 
-enableEdgeToEdgeCompat()
-        enableEdgeToEdgeCompat()
-        setNavigationBarColorCompat(R.attr.primaryGrayBackground)
-        updateLocale()
-        super.onCreate(savedInstanceState)
+enableEdgeToEdgeCompat() // Tek çağrı yeterli
+setNavigationBarColorCompat(R.attr.primaryGrayBackground)
+updateLocale()
+super.onCreate(savedInstanceState)
         try {
             if (isCastApiAvailable()) {
                 CastContext.getSharedInstance(this) { it.run() }
