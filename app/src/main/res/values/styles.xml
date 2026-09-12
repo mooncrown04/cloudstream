@@ -209,11 +209,6 @@
     <item name="white">@color/GalatasarayTextColor</item>
     <item name="black">@color/GalatasarayPrimaryGrayBackground</item>
 
-    <!-- Rozetler ve Oynatıcı Renkleri -->
-    <item name="dubColorBg">@color/GalatasarayPrimaryGrayBackground</item>
-    <item name="dubColorText">@color/GalatasarayTextColor</item>
-    <item name="subColorBg">@color/GalatasarayTextColor</item>
-    <item name="subColorText">@color/GalatasarayBitDarkerGrayBackground</item>
 </style>
 
     
