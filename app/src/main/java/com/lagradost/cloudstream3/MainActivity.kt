@@ -1223,6 +1223,17 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         MainAPI.settingsForProvider = settingsForProvider
 
         loadThemes(this)
+		// Seçilen font veya renk overlay temasını kontrol et ve yükle
+val primaryColor = settingsManager.getString(getString(R.string.primary_color_key), "")
+when (primaryColor) {
+    "ComicSansFontOverlay" -> setTheme(R.style.ComicSansFontOverlay)
+    "GothamFontOverlay" -> setTheme(R.style.GothamFontOverlay)
+    "NetflixSansFontOverlay" -> setTheme(R.style.NetflixSansFontOverlay)
+    "UbuntuFontOverlay" -> setTheme(R.style.UbuntuFontOverlay)
+    "OpenSansFontOverlay" -> setTheme(R.style.OpenSansFontOverlay)
+}
+
+enableEdgeToEdgeCompat()
         enableEdgeToEdgeCompat()
         setNavigationBarColorCompat(R.attr.primaryGrayBackground)
         updateLocale()
