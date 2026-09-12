@@ -365,28 +365,25 @@ object CommonActivity {
             }
 
         // Font Overlay Uygulaması
-        val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.app_font_key), "Default")) {
-            "ComicSans" -> R.style.ComicSansFontOverlay
-            "Gotham" -> R.style.GothamFontOverlay
-            "NetflixSans" -> R.style.NetflixSansFontOverlay
-            "Ubuntu" -> R.style.UbuntuFontOverlay
-            "OpenSans" -> R.style.OpenSansFontOverlay
-            else -> null
-        }
-
-        act.theme.applyStyle(currentTheme, true)
-        act.theme.applyStyle(currentOverlayTheme, true)
-        currentFontOverlay?.let { act.theme.applyStyle(it, true) }
-
-        appliedTheme = currentTheme
-        appliedColor = currentOverlayTheme
-        act.updateTv()
-        if (isLayout(TV)) act.theme.applyStyle(R.style.AppThemeTvOverlay, true)
-        act.theme.applyStyle(
-            R.style.LoadedStyle,
-            true
-        )
+    val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.app_font_key), "Default")) {
+        "ComicSans" -> R.style.ComicSansFontOverlay
+        "Gotham" -> R.style.GothamFontOverlay
+        "NetflixSans" -> R.style.NetflixSansFontOverlay
+        "Ubuntu" -> R.style.UbuntuFontOverlay
+        "OpenSans" -> R.style.OpenSansFontOverlay
+        else -> null
     }
+
+    act.theme.applyStyle(currentTheme, true)
+    act.theme.applyStyle(currentOverlayTheme, true)
+    currentFontOverlay?.let { act.theme.applyStyle(it, true) }
+
+    appliedTheme = currentTheme
+    appliedColor = currentOverlayTheme
+    act.updateTv()
+    if (isLayout(TV)) act.theme.applyStyle(R.style.AppThemeTvOverlay, true)
+    act.theme.applyStyle(R.style.LoadedStyle, true)
+}
 
     private fun localLook(from: View, id: Int): View? {
         if (id == NO_ID) return null
