@@ -302,6 +302,29 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
             return@setOnPreferenceClickListener true
         }
 
+        // Uygulama Font Seçici Mantığı
+        getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+            val fontNames = resources.getStringArray(R.array.app_font_names).toList()
+            val fontValues = resources.getStringArray(R.array.app_font_values)
+            val currentFont = settingsManager.getString(getString(R.string.app_font_key), "default")
+            val currentIndex = fontValues.indexOf(currentFont).let { if (it == -1) 0 else it }
+
+            activity?.showDialog(
+                fontNames, currentIndex, getString(R.string.app_font_title), true, { }
+            ) { selectedIndex ->
+                try {
+                    val selectedValue = fontValues[selectedIndex]
+                    settingsManager.edit {
+                        putString(getString(R.string.app_font_key), selectedValue)
+                    }
+                    activity?.recreate()
+                } catch (e: Exception) {
+                    logError(e)
+                }
+            }
+            return@setOnPreferenceClickListener true
+        }
+
         getPref(R.string.battery_optimisation_key)?.hideOn(TV or EMULATOR)?.setOnPreferenceClickListener {
             val ctx = context ?: return@setOnPreferenceClickListener false
 
