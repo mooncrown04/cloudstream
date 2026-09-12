@@ -187,18 +187,20 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
-<style name="GalatasarayMode">
-    <!-- Android & Material Standart Renkleri (Butonlar, Vurgular ve Odak Renkleri) -->
+<style name="GalatasarayOverlay" parent="ThemeOverlay.AppCompat">
+    <!-- Ana Vurgu Renkleri (Mavi renkleri ezmek için) -->
     <item name="colorPrimary">@color/GSRed</item>
+    <item name="colorPrimarySecond">@color/GSYellow</item>
     <item name="colorPrimaryDark">@color/GSDarkBackground</item>
-    <item name="colorSecondary">@color/GSYellow</item>
     <item name="colorAccent">@color/GSYellow</item>
+    <item name="colorSearch">@color/GSGrayBackground</item>
 
-    <!-- Cloudstream Özel Arka Plan Renkleri -->
+    <!-- Arka Plan Renkleri -->
     <item name="primaryGrayBackground">@color/GSGrayBackground</item>
     <item name="primaryBlackBackground">@color/GSDarkBackground</item>
     <item name="iconGrayBackground">@color/GSGrayBackground</item>
     <item name="boxItemBackground">@color/GSBoxBackground</item>
+    <item name="android:colorBackground">@color/GSDarkBackground</item>
 
     <!-- Metin ve İkon Renkleri -->
     <item name="textColor">@color/GSYellow</item>
@@ -206,15 +208,13 @@
     <item name="iconColor">@color/GSYellow</item>
     <item name="white">@color/GSYellow</item>
     <item name="black">@color/GSRed</item>
-    <item name="colorOnPrimary">@color/GSTextLight</item>
 
-    <!-- Sistem ve Pencere Katmanı -->
-    <item name="isLightTheme">false</item>
-    <item name="android:windowBackground">@color/GSDarkBackground</item>
-    <item name="android:statusBarColor">@color/GSDarkBackground</item>
-    <item name="android:navigationBarColor">@color/GSDarkBackground</item>
+    <!-- Rozetler ve Oynatıcı Renkleri -->
+    <item name="dubColorBg">@color/GSRed</item>
+    <item name="dubColorText">@color/GSYellow</item>
+    <item name="subColorBg">@color/GSYellow</item>
+    <item name="subColorText">@color/GSDarkBackground</item>
 </style>
-
 
     
     <style name="DraculaMode">
