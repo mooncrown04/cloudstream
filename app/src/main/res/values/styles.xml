@@ -187,24 +187,16 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
-<!-- Ana Galatasaray Teması -->
 <style name="GalatasarayMode" parent="AppTheme">
-    <item name="colorPrimary">@color/GSRed</item>
-    <item name="android:colorPrimary">@color/GSRed</item>
-    <item name="colorPrimaryDark">@color/GalatasarayBitDarkerGrayBackground</item>
-    <item name="colorAccent">@color/GSYellow</item>
-    <item name="colorOnPrimary">@color/GSYellow</item>
-    <item name="android:colorAccent">@color/GSYellow</item>
-
-    <!-- Arka Plan ve Kutu Renkleri -->
     <item name="primaryGrayBackground">@color/GalatasarayPrimaryGrayBackground</item>
     <item name="primaryBlackBackground">@color/GalatasarayBitDarkerGrayBackground</item>
     <item name="iconGrayBackground">@color/GalatasarayGrayBackground</item>
     <item name="boxItemBackground">@color/GalatasarayItemBackground</item>
     <item name="textColor">@color/GalatasarayTextColor</item>
-    <item name="iconColor">@color/GSYellow</item>
+    <item name="iconColor">@color/GalatasarayIconColor</item>
     <item name="white">@color/GalatasarayTextColor</item>
     <item name="black">@color/GalatasarayPrimaryGrayBackground</item>
+    <item name="colorOnPrimary">@color/GSYellow</item>
 </style>
 
 
