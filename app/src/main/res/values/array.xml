@@ -66,7 +66,6 @@
         <item>@string/show_media_info_key</item>
     </array>
 
-
     <array name="limit_title_pref_names">
         <item>@string/none</item>
         <item>16 characters</item>
@@ -277,7 +276,13 @@
         <item>Lavender</item>
         <item>Material You</item>
         <item>Material You (Secondary)</item>
+        <item>Comic Sans</item>
+        <item>Gotham</item>
+        <item>Netflix Sans</item>
+        <item>Ubuntu</item>
+        <item>Open Sans</item>
     </string-array>
+
     <string-array name="themes_overlay_names_values">
         <item>Normal</item>
         <item>DandelionYellow</item>
@@ -301,9 +306,14 @@
         <item>Lavender</item>
         <item>Monet</item>
         <item>Monet2</item>
+        <item>ComicSansFontOverlay</item>
+        <item>GothamFontOverlay</item>
+        <item>NetflixSansFontOverlay</item>
+        <item>UbuntuFontOverlay</item>
+        <item>OpenSansFontOverlay</item>
     </string-array>
 
-<string-array name="themes_names">
+    <string-array name="themes_names">
         <item>Dark</item>
         <item>Gray</item>
         <item>Amoled</item>
@@ -311,7 +321,7 @@
         <item>System</item>
         <item>Material You</item>
         <item>Galatasaray</item>
-		<item>Dracula</item>        
+        <item>Dracula</item>        
         <item>Lavender Dreams</item>
         <item>Silent Blue</item>
     </string-array>
@@ -323,39 +333,19 @@
         <item>Light</item>
         <item>System</item>
         <item>Monet</item>
-		<item>Galatasaray</item>
+        <item>Galatasaray</item>
         <item>Dracula</item>
         <item>Lavender</item>
         <item>SilentBlue</item>
     </string-array>
 
-<string-array name="themes_overlay_names">
-    <!-- Var olan renk/overlay seçeneklerinizin altına ekleyebilirsiniz -->
-    <item>Comic Sans</item>
-    <item>Gotham</item>
-    <item>Netflix Sans</item>
-    <item>Ubuntu</item>
-    <item>Open Sans</item>
-</string-array>
-
-<string-array name="themes_overlay_names_values">
-    <!-- Yukarıdaki sırayla aynı olacak şekilde style isimleri -->
-    <item>ComicSansFontOverlay</item>
-    <item>GothamFontOverlay</item>
-    <item>NetflixSansFontOverlay</item>
-    <item>UbuntuFontOverlay</item>
-    <item>OpenSansFontOverlay</item>
-</string-array>
-	
     <string-array name="extension_statuses">
         <item>Down</item>
-        <!-- "Ok" is usually capitalized as "OK". Ok android studio 🤓-->
         <item>Ok</item>
         <item>Slow</item>
         <item>Beta</item>
     </string-array>
 
-    <!--https://github.com/videolan/vlc-android/blob/72ccfb93db027b49855760001d1a930fa657c5a8/application/resources/src/main/res/values/arrays.xml#L266-->
     <string-array name="subtitles_encoding_list" tools:ignore="TypographyDashes">
         <item>@string/automatic</item>
         <item>Universal (UTF-8)</item>
@@ -400,6 +390,7 @@
         <item>Vietnamese (VISCII)</item>
         <item>Vietnamese (Windows-1258)</item>
     </string-array>
+
     <string-array name="subtitles_encoding_values" translatable="false" tools:ignore="TypographyDashes">
         <item></item>
         <item>UTF-8</item>
