@@ -210,11 +210,15 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
             val prefNames = resources.getStringArray(R.array.app_font_names)
             val prefValues = resources.getStringArray(R.array.app_font_values)
-            val currentFont = settingsManager.getString(getString(R.string.app_font_key), "Default")
+            val currentFont = settingsManager.getString(
+                getString(R.string.app_font_key), 
+                prefValues.firstOrNull() ?: ""
+            )
+            val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
 
             activity?.showBottomDialog(
                 prefNames.toList(),
-                prefValues.indexOf(currentFont),
+                currentIndex,
                 getString(R.string.app_font_settings),
                 true,
                 {}
