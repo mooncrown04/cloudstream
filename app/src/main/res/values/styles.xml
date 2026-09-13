@@ -187,7 +187,7 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
-<style name="GalatasarayMode"
+<style name="GalatasarayMode">
     <item name="primaryGrayBackground">@color/GalatasarayPrimaryGrayBackground</item>
     <item name="primaryBlackBackground">@color/GalatasarayBitDarkerGrayBackground</item>
     <item name="iconGrayBackground">@color/GalatasarayGrayBackground</item>
