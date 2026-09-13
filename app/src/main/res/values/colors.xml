@@ -74,7 +74,7 @@
     <!-- Arka Planlar (Kırmızı Tonları) -->
     <color name="GalatasarayPrimaryRedBackground">#A90432</color> <!-- Ana Arka Plan: Resmi GS Kırmızısı -->
     <color name="GalatasarayBitDarkerRedBackground">#800325</color> <!-- Bir tık koyu kırmızı (Gölgeler/Alt barlar için) -->
-    <color name="GalatasarayRedBackground">#C1053A</color> <!-- Bir tık açık kırmızı -->
+    <color name="GalatasarayGrayBackground">#C1053A</color> <!-- Bir tık açık kırmızı -->
     <color name="GalatasarayItemBackground">#B50436</color> <!-- Kartlar ve butonların arka planı -->   
     <!-- Metin ve İkonlar (Sarı ve Beyaz Kontrastı) -->
     <color name="GalatasarayTextColor">#FDB912</color> <!-- Resmi GS Sarısı (Kırmızı üzerinde harika okunur) -->
