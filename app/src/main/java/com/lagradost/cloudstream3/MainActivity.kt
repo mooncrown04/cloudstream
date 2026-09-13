@@ -2081,8 +2081,6 @@ super.onCreate(savedInstanceState)
 
 
 //font
-
-val settingsManager = PreferenceManager.getDefaultSharedPreferences(this)
 val fontValue = settingsManager.getString(getString(R.string.app_font_key), "Default") ?: "Default"
 
 val fontOverlayStyle = when (fontValue) {
