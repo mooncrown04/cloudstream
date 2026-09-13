@@ -2080,10 +2080,10 @@ super.onCreate(savedInstanceState)
 
 
 
+//font
 
-
-
-val fontValue = ... // Preference'dan okunan font değeri
+val settingsManager = PreferenceManager.getDefaultSharedPreferences(this)
+val fontValue = settingsManager.getString(getString(R.string.app_font_key), "Default") ?: "Default"
 
 val fontOverlayStyle = when (fontValue) {
     "ComicSans" -> R.style.ComicSansFontOverlay
