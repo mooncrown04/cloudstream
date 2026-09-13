@@ -11,10 +11,17 @@
             android:icon="@drawable/ic_baseline_color_lens_24"
             android:key="@string/app_theme_key"
             android:title="@string/app_theme_settings" />
-        <Preference
+        
+        <!-- DÜZELTİLEN KISIM: ListPreference yapıldı ve diziler bağlandı -->
+        <ListPreference
+            android:defaultValue="Default"
+            android:entries="@array/app_font_names"
+            android:entryValues="@array/app_font_values"
             android:icon="@drawable/ic_baseline_text_fields_24"
             android:key="@string/app_font_key"
+            android:summary="%s"
             android:title="@string/app_font_settings" />
+
         <Preference
             android:icon="@drawable/ic_baseline_tv_24"
             android:key="@string/app_layout_key"
@@ -94,11 +101,11 @@
             android:key="@string/show_player_metadata_key"
             android:title="@string/show_player_metadata_overlay" />
         <SwitchPreference
-                android:icon="@drawable/ic_baseline_clock_24"
-                android:summary="@string/tv_layout_clock_settings_des"
-                android:title="@string/tv_layout_clock_settings"
-                android:defaultValue="false"
-                android:key="@string/tv_layout_clock_key" />
+            android:defaultValue="false"
+            android:icon="@drawable/ic_baseline_clock_24"
+            android:key="@string/tv_layout_clock_key"
+            android:summary="@string/tv_layout_clock_settings_des"
+            android:title="@string/tv_layout_clock_settings" />
         <SwitchPreference
             android:icon="@drawable/ic_baseline_play_arrow_24"
             android:summary="@string/random_button_settings_desc"
