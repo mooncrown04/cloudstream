@@ -72,13 +72,12 @@
 
 
 <!-- Galatasaray Tema Renkleri -->
-    <color name="GSYellow">#FDB913</color>
-    <color name="GSRed">#A90429</color>
     <color name="GalatasarayPrimaryGrayBackground">#121212</color>
     <color name="GalatasarayBitDarkerGrayBackground">#0A0A0A</color>
     <color name="GalatasarayGrayBackground">#1E1E1E</color>
     <color name="GalatasarayItemBackground">#2A2A2A</color>
-    <color name="GalatasarayTextColor">#FFFFFF</color>
+    <color name="GalatasarayTextColor">#FDB912</color>
+	<color name="GalatasarayTextColor">#FFFFFF</color>
     <color name="GalatasarayIconColor">#FDB913</color>
 
     <!--Dracula Theme-->
