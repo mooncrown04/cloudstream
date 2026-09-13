@@ -77,7 +77,7 @@
     <color name="GalatasarayGrayBackground">#1E1E1E</color>
     <color name="GalatasarayItemBackground">#2A2A2A</color>
     <color name="GalatasarayTextColor">#FDB912</color>
-	<color name="GalatasarayTextColor">#FFFFFF</color>
+	<color name="GalatasarayGrayTextColor">#FFFFFF</color>
     <color name="GalatasarayIconColor">#FDB913</color>
 
     <!--Dracula Theme-->
