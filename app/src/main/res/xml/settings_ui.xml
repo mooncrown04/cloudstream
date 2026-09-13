@@ -12,15 +12,12 @@
             android:key="@string/app_theme_key"
             android:title="@string/app_theme_settings" />
         
-        <!-- DÜZELTİLEN KISIM: ListPreference yapıldı ve diziler bağlandı -->
-        <ListPreference
-            android:defaultValue="Default"
-            android:entries="@array/app_font_names"
-            android:entryValues="@array/app_font_values"
-            android:icon="@drawable/ic_baseline_text_fields_24"
-            android:key="@string/app_font_key"
-            android:summary="%s"
-            android:title="@string/app_font_settings" />
+  
+      <!-- DÜZELTİLEN KISIM: ListPreference yerine normal Preference yapıldı -->
+        <Preference
+    android:icon="@drawable/ic_baseline_text_fields_24"
+    android:key="@string/app_font_key"
+    android:title="@string/app_font_settings" />
 
         <Preference
             android:icon="@drawable/ic_baseline_tv_24"
