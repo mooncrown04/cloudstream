@@ -1225,17 +1225,6 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
    // --- onCreate İçindeki Temizlenmiş Kısım ---
 loadThemes(this)
 
-// Seçilen font veya renk overlay temasını kontrol et ve yükle
-val primaryColor = settingsManager.getString(getString(R.string.primary_color_key), "")
-when (primaryColor) {
-    "ComicSansFontOverlay" -> setTheme(R.style.ComicSansFontOverlay)
-    "GothamFontOverlay" -> setTheme(R.style.GothamFontOverlay)
-    "NetflixSansFontOverlay" -> setTheme(R.style.NetflixSansFontOverlay)
-    "UbuntuFontOverlay" -> setTheme(R.style.UbuntuFontOverlay)
-    "OpenSansFontOverlay" -> setTheme(R.style.OpenSansFontOverlay)
-}
-
-enableEdgeToEdgeCompat() // Tek çağrı yeterli
 setNavigationBarColorCompat(R.attr.primaryGrayBackground)
 updateLocale()
 super.onCreate(savedInstanceState)
@@ -2087,6 +2076,36 @@ super.onCreate(savedInstanceState)
             updateLocale()
             runDefault()
         }
+
+
+
+
+
+
+
+val fontValue = ... // Preference'dan okunan font değeri
+
+val fontOverlayStyle = when (fontValue) {
+    "ComicSans" -> R.style.ComicSansFontOverlay
+    "Gotham" -> R.style.GothamFontOverlay
+    "NetflixSans" -> R.style.NetflixSansFontOverlay
+    "Ubuntu" -> R.style.UbuntuFontOverlay
+    "OpenSans" -> R.style.OpenSansFontOverlay
+    else -> 0
+}
+
+if (fontOverlayStyle != 0) {
+    theme.applyStyle(fontOverlayStyle, true)
+}
+
+
+
+
+
+
+
+
+
 
         // Start the download queue
         DownloadQueueManager.init(this)
