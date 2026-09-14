@@ -363,15 +363,30 @@ object CommonActivity {
                 else -> R.style.OverlayPrimaryColorNormal
             }
 
-        // Font Overlay Uygulaması
-    val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.app_font_key), "Default")) {
-        "ComicSans" -> R.style.ComicSansFontOverlay
-        "Gotham" -> R.style.GothamFontOverlay
-        "NetflixSans" -> R.style.NetflixSansFontOverlay
-        "Ubuntu" -> R.style.UbuntuFontOverlay
-        "OpenSans" -> R.style.OpenSansFontOverlay
-        else -> null
-    }
+// Font Overlay Uygulaması
+val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.app_font_key), "Default")) {
+    "ComicSans" -> R.style.ComicSansFontOverlay
+    "Consola" -> R.style.ConsolaFontOverlay
+    "Futura" -> R.style.FuturaFontOverlay
+    "GoogleSans" -> R.style.GoogleSansFontOverlay
+    "Gotham" -> R.style.GothamFontOverlay
+    "LucidaGrande" -> R.style.LucidaGrandeFontOverlay
+    "NetflixSans" -> R.style.NetflixSansFontOverlay
+    "OpenSans" -> R.style.OpenSansFontOverlay
+    "Poppins" -> R.style.PoppinsFontOverlay
+    "ProductSans" -> R.style.ProductSansFontOverlay
+    "StixGeneral" -> R.style.StixGeneralFontOverlay
+    "TimesNewRoman" -> R.style.TimesNewRomanFontOverlay
+    "TrebuchetMs" -> R.style.TrebuchetMsFontOverlay
+    "Ubuntu" -> R.style.UbuntuFontOverlay
+    "Verdana" -> R.style.VerdanaFontOverlay
+    else -> null
+}
+
+// Temaya stili uygula
+currentFontOverlay?.let { styleRes ->
+    act.theme.applyStyle(styleRes, true)
+}
 
     act.theme.applyStyle(currentTheme, true)
     act.theme.applyStyle(currentOverlayTheme, true)
