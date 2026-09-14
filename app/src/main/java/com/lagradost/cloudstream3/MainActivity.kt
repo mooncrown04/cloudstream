@@ -2079,34 +2079,6 @@ super.onCreate(savedInstanceState)
 
 
 
-// Font Overlay Uygulaması
-val fontValue = settingsManager.getString(getString(R.string.app_font_key), "Default") ?: "Default"
-
-val fontOverlayStyle = when (fontValue) {
-    "ComicSans" -> R.style.ComicSansFontOverlay
-    "Consola" -> R.style.ConsolaFontOverlay
-    "Futura" -> R.style.FuturaFontOverlay
-    "GoogleSans" -> R.style.GoogleSansFontOverlay
-    "Gotham" -> R.style.GothamFontOverlay
-    "LucidaGrande" -> R.style.LucidaGrandeFontOverlay
-    "NetflixSans" -> R.style.NetflixSansFontOverlay
-    "OpenSans" -> R.style.OpenSansFontOverlay
-    "Poppins" -> R.style.PoppinsFontOverlay
-    "ProductSans" -> R.style.ProductSansFontOverlay
-    "StixGeneral" -> R.style.StixGeneralFontOverlay
-    "TimesNewRoman" -> R.style.TimesNewRomanFontOverlay
-    "TrebuchetMs" -> R.style.TrebuchetMsFontOverlay
-    "Ubuntu" -> R.style.UbuntuFontOverlay
-    "Verdana" -> R.style.VerdanaFontOverlay
-    else -> 0
-}
-
-if (fontOverlayStyle != 0) {
-    theme.applyStyle(fontOverlayStyle, true)
-}
-
-
-
 
 
 
