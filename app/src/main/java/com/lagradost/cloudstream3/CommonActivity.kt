@@ -383,21 +383,21 @@ val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.
     else -> null
 }
 
-// Temaya stili uygula
-currentFontOverlay?.let { styleRes ->
-    act.theme.applyStyle(styleRes, true)
-}
+// 2. Temaları Doğru Sırayla Uygula
+        act.theme.applyStyle(currentTheme, true)
+        act.theme.applyStyle(currentOverlayTheme, true)
 
-    act.theme.applyStyle(currentTheme, true)
-    act.theme.applyStyle(currentOverlayTheme, true)
-    currentFontOverlay?.let { act.theme.applyStyle(it, true) }
+        // Font Overlay'i En Son Uygula
+        currentFontOverlay?.let { styleRes ->
+            act.theme.applyStyle(styleRes, true)
+        }
 
-    appliedTheme = currentTheme
-    appliedColor = currentOverlayTheme
-    act.updateTv()
-    if (isLayout(TV)) act.theme.applyStyle(R.style.AppThemeTvOverlay, true)
-    act.theme.applyStyle(R.style.LoadedStyle, true)
-}
+        appliedTheme = currentTheme
+        appliedColor = currentOverlayTheme
+        act.updateTv()
+        if (isLayout(TV)) act.theme.applyStyle(R.style.AppThemeTvOverlay, true)
+        act.theme.applyStyle(R.style.LoadedStyle, true)
+    }
 
     private fun localLook(from: View, id: Int): View? {
         if (id == NO_ID) return null
