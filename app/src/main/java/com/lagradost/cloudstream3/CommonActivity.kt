@@ -370,16 +370,6 @@ val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.
     "Futura" -> R.style.FuturaFontOverlay
     "GoogleSans" -> R.style.GoogleSansFontOverlay
     "Gotham" -> R.style.GothamFontOverlay
-    "LucidaGrande" -> R.style.LucidaGrandeFontOverlay
-    "NetflixSans" -> R.style.NetflixSansFontOverlay
-    "OpenSans" -> R.style.OpenSansFontOverlay
-    "Poppins" -> R.style.PoppinsFontOverlay
-    "ProductSans" -> R.style.ProductSansFontOverlay
-    "StixGeneral" -> R.style.StixGeneralFontOverlay
-    "TimesNewRoman" -> R.style.TimesNewRomanFontOverlay
-    "TrebuchetMs" -> R.style.TrebuchetMsFontOverlay
-    "Ubuntu" -> R.style.UbuntuFontOverlay
-    "Verdana" -> R.style.VerdanaFontOverlay
     else -> null
 }
 
