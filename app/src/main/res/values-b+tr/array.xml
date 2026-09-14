@@ -265,6 +265,27 @@
         <item>SilentBlue</item>
     </string-array>
 
+
+<string-array name="app_font_names">
+        <item>Varsayılan</item>
+        <item>Comic Sans</item>
+        <item>Gotham</item>
+        <item>Netflix Sans</item>
+        <item>Ubuntu</item>
+        <item>Open Sans</item>
+    </string-array>
+
+    <!-- Key/Value eşleşmesi için values dizisini de eklemelisin -->
+    <string-array name="app_font_values">
+        <item>Default</item>
+        <item>ComicSans</item>
+        <item>Gotham</item>
+        <item>NetflixSans</item>
+        <item>Ubuntu</item>
+        <item>OpenSans</item>
+    </string-array>
+
+	
     <string-array name="extension_statuses">
         <item>Çöktü</item>
         <!-- "Ok" is usually capitalized as "OK". Ok android studio 🤓-->
