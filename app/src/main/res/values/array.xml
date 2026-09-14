@@ -319,25 +319,6 @@
         <item>OpenSans</item>
     </string-array>
 
-    <!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
-    <string-array name="app_font_names">
-        <item>Default</item>
-        <item>Comic Sans</item>
-        <item>Gotham</item>
-        <item>Netflix Sans</item>
-        <item>Ubuntu</item>
-        <item>Open Sans</item>
-    </string-array>
-
-    <!-- Font Değerleri (Kod Tarafında Okunacak Değerler) -->
-    <string-array name="app_font_values">
-        <item>Default</item>
-        <item>ComicSans</item>
-        <item>Gotham</item>
-        <item>NetflixSans</item>
-        <item>Ubuntu</item>
-        <item>OpenSans</item>
-    </string-array>
 	
     <string-array name="themes_names">
         <item>Dark</item>
@@ -365,6 +346,46 @@
         <item>SilentBlue</item>
     </string-array>
 
+<!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
+    <string-array name="app_font_names">
+        <item>Default</item>
+        <item>Comic Sans</item>
+        <item>Consolas</item>
+        <item>Futura</item>
+        <item>Google Sans</item>
+        <item>Gotham</item>
+        <item>Lucida Grande</item>
+        <item>Netflix Sans</item>
+        <item>Open Sans</item>
+        <item>Poppins</item>
+        <item>Product Sans</item>
+        <item>STIX General</item>
+        <item>Times New Roman</item>
+        <item>Trebuchet MS</item>
+        <item>Ubuntu</item>
+        <item>Verdana</item>
+    </string-array>
+
+    <string-array name="app_font_values">
+        <item>Default</item>
+        <item>ComicSans</item>
+        <item>Consola</item>
+        <item>Futura</item>
+        <item>GoogleSans</item>
+        <item>Gotham</item>
+        <item>LucidaGrande</item>
+        <item>NetflixSans</item>
+        <item>OpenSans</item>
+        <item>Poppins</item>
+        <item>ProductSans</item>
+        <item>StixGeneral</item>
+        <item>TimesNewRoman</item>
+        <item>TrebuchetMs</item>
+        <item>Ubuntu</item>
+        <item>Verdana</item>
+    </string-array>
+
+	
     <string-array name="extension_statuses">
         <item>Down</item>
         <item>Ok</item>
