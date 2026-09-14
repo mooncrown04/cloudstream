@@ -206,35 +206,42 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
-        // Font Değiştirme Dinleyicisi
-        getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+       // Font Değiştirme Dinleyicisi
+        getPref(R.string.app_font_key)?.apply {
+            isVisible = true // Arayüz gizleme kurallarını ezer
+            
             val prefNames = resources.getStringArray(R.array.app_font_names)
             val prefValues = resources.getStringArray(R.array.app_font_values)
             val currentFont = settingsManager.getString(
-                getString(R.string.app_font_key), 
-                prefValues.firstOrNull() ?: ""
+                getString(R.string.app_font_key),
+                prefValues.firstOrNull() ?: "Default"
             )
-            val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
 
-            activity?.showBottomDialog(
-                prefNames.toList(),
-                currentIndex,
-                getString(R.string.app_font_settings),
-                true,
-                {}
-            ) { index ->
-                try {
-                    prefValues.getOrNull(index)?.let { selectedFont ->
-                        settingsManager.edit {
-                            putString(getString(R.string.app_font_key), selectedFont)
+            // Seçili font değerinin index'ine göre listedeki görünen adını summary yap
+            val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
+            summary = prefNames.getOrNull(currentIndex) ?: currentFont
+
+            setOnPreferenceClickListener {
+                activity?.showBottomDialog(
+                    prefNames.toList(),
+                    currentIndex,
+                    getString(R.string.app_font_settings),
+                    true,
+                    {}
+                ) { index ->
+                    try {
+                        prefValues.getOrNull(index)?.let { selectedFont ->
+                            settingsManager.edit {
+                                putString(getString(R.string.app_font_key), selectedFont)
+                            }
+                            activity?.recreate()
                         }
-                        activity?.recreate()
+                    } catch (e: Exception) {
+                        logError(e)
                     }
-                } catch (e: Exception) {
-                    logError(e)
                 }
+                true
             }
-            true
         }
 
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
