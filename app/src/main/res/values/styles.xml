@@ -1154,10 +1154,25 @@
         <item name="android:background">@color/playIconBackground</item>
     </style>
 
-<!-- Font Temaları -->
+<!-- Font Overlay Stilleri -->
 <style name="ComicSansFontOverlay">
     <item name="android:fontFamily">@font/comic_sans</item>
     <item name="fontFamily">@font/comic_sans</item>
+</style>
+
+<style name="ConsolaFontOverlay">
+    <item name="android:fontFamily">@font/consola</item>
+    <item name="fontFamily">@font/consola</item>
+</style>
+
+<style name="FuturaFontOverlay">
+    <item name="android:fontFamily">@font/futura</item>
+    <item name="fontFamily">@font/futura</item>
+</style>
+
+<style name="GoogleSansFontOverlay">
+    <item name="android:fontFamily">@font/google_sans</item>
+    <item name="fontFamily">@font/google_sans</item>
 </style>
 
 <style name="GothamFontOverlay">
@@ -1165,9 +1180,44 @@
     <item name="fontFamily">@font/gotham</item>
 </style>
 
+<style name="LucidaGrandeFontOverlay">
+    <item name="android:fontFamily">@font/lucida_grande</item>
+    <item name="fontFamily">@font/lucida_grande</item>
+</style>
+
 <style name="NetflixSansFontOverlay">
     <item name="android:fontFamily">@font/netflix_sans</item>
     <item name="fontFamily">@font/netflix_sans</item>
+</style>
+
+<style name="OpenSansFontOverlay">
+    <item name="android:fontFamily">@font/open_sans</item>
+    <item name="fontFamily">@font/open_sans</item>
+</style>
+
+<style name="PoppinsFontOverlay">
+    <item name="android:fontFamily">@font/poppins_regular</item>
+    <item name="fontFamily">@font/poppins_regular</item>
+</style>
+
+<style name="ProductSansFontOverlay">
+    <item name="android:fontFamily">@font/productsans_regular</item>
+    <item name="fontFamily">@font/productsans_regular</item>
+</style>
+
+<style name="StixGeneralFontOverlay">
+    <item name="android:fontFamily">@font/stix_general</item>
+    <item name="fontFamily">@font/stix_general</item>
+</style>
+
+<style name="TimesNewRomanFontOverlay">
+    <item name="android:fontFamily">@font/times_new_roman</item>
+    <item name="fontFamily">@font/times_new_roman</item>
+</style>
+
+<style name="TrebuchetMsFontOverlay">
+    <item name="android:fontFamily">@font/trebuchet_ms</item>
+    <item name="fontFamily">@font/trebuchet_ms</item>
 </style>
 
 <style name="UbuntuFontOverlay">
@@ -1175,9 +1225,9 @@
     <item name="fontFamily">@font/ubuntu_regular</item>
 </style>
 
-<style name="OpenSansFontOverlay">
-    <item name="android:fontFamily">@font/open_sans</item>
-    <item name="fontFamily">@font/open_sans</item>
+<style name="VerdanaFontOverlay">
+    <item name="android:fontFamily">@font/verdana</item>
+    <item name="fontFamily">@font/verdana</item>
 </style>
     
 </resources>
