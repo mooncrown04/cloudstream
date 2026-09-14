@@ -206,44 +206,47 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
-    // Font Değiştirme Dinleyicisi
-getPref(R.string.app_font_key)?.apply {
-    // 1. CloudStream'in TV/Mobil gizleme kurallarını kesin olarak ezer
-    isVisible = true 
+// App Theme ile Birebir Aynı Mantıkta Font Dinleyicisi
+        getPref(R.string.app_font_key)?.apply {
+            // TV ve Mobil arayüz filtrelerinde kaybolmaması için zorunlu görünürlük
+            isVisible = true
 
-    val prefNames = resources.getStringArray(R.array.app_font_names)
-    val prefValues = resources.getStringArray(R.array.app_font_values)
+            val prefNames = resources.getStringArray(R.array.app_font_names)
+            val prefValues = resources.getStringArray(R.array.app_font_values)
+            
+            // Mevcut seçili fontu al (Yoksa Default)
+            val currentFont = settingsManager.getString(
+                getString(R.string.app_font_key), 
+                prefValues.firstOrNull() ?: "Default"
+            )
 
-    val currentFont = settingsManager.getString(
-        getString(R.string.app_font_key),
-        "Default"
-    ) ?: "Default"
+            // Seçili fontun adını summary olarak altına yaz
+            val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
+            summary = prefNames.getOrNull(currentIndex) ?: currentFont
 
-    val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
-    summary = prefNames.getOrNull(currentIndex) ?: currentFont
-
-    setOnPreferenceClickListener {
-        activity?.showBottomDialog(
-            prefNames.toList(),
-            currentIndex,
-            getString(R.string.app_font_settings),
-            true,
-            {}
-        ) { index ->
-            try {
-                prefValues.getOrNull(index)?.let { selectedFont ->
-                    settingsManager.edit {
-                        putString(getString(R.string.app_font_key), selectedFont)
+            // Tıklama diyaloğu (App Theme ile aynı diyalog yapısı)
+            setOnPreferenceClickListener {
+                activity?.showBottomDialog(
+                    prefNames.toList(),
+                    currentIndex,
+                    getString(R.string.app_font_settings),
+                    true,
+                    {}
+                ) { index ->
+                    try {
+                        prefValues.getOrNull(index)?.let { selectedFont ->
+                            settingsManager.edit {
+                                putString(getString(R.string.app_font_key), selectedFont)
+                            }
+                            activity?.recreate()
+                        }
+                    } catch (e: Exception) {
+                        logError(e)
                     }
-                    activity?.recreate()
                 }
-            } catch (e: Exception) {
-                logError(e)
+                true
             }
         }
-        true
-    }
-}
 
 
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
