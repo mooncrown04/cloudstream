@@ -274,16 +274,6 @@
         <item>Futura</item>
         <item>Google Sans</item>
         <item>Gotham</item>
-        <item>Lucida Grande</item>
-        <item>Netflix Sans</item>
-        <item>Open Sans</item>
-        <item>Poppins</item>
-        <item>Product Sans</item>
-        <item>STIX General</item>
-        <item>Times New Roman</item>
-        <item>Trebuchet MS</item>
-        <item>Ubuntu</item>
-        <item>Verdana</item>
     </string-array>
 
     <!-- Font Değerleri (Kod Tarafında Okunacak Değerler - İngilizce ile BİREBİR AYNI OL MALI) -->
@@ -294,16 +284,6 @@
         <item>Futura</item>
         <item>GoogleSans</item>
         <item>Gotham</item>
-        <item>LucidaGrande</item>
-        <item>NetflixSans</item>
-        <item>OpenSans</item>
-        <item>Poppins</item>
-        <item>ProductSans</item>
-        <item>StixGeneral</item>
-        <item>TimesNewRoman</item>
-        <item>TrebuchetMs</item>
-        <item>Ubuntu</item>
-        <item>Verdana</item>
     </string-array>
 
 
