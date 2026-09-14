@@ -266,24 +266,46 @@
     </string-array>
 
 
-<string-array name="app_font_names">
+ <!-- Font İsimleri (Türkçe Arayüzde Görünecek Metinler) -->
+    <string-array name="app_font_names">
         <item>Varsayılan</item>
         <item>Comic Sans</item>
+        <item>Consolas</item>
+        <item>Futura</item>
+        <item>Google Sans</item>
         <item>Gotham</item>
+        <item>Lucida Grande</item>
         <item>Netflix Sans</item>
-        <item>Ubuntu</item>
         <item>Open Sans</item>
+        <item>Poppins</item>
+        <item>Product Sans</item>
+        <item>STIX General</item>
+        <item>Times New Roman</item>
+        <item>Trebuchet MS</item>
+        <item>Ubuntu</item>
+        <item>Verdana</item>
     </string-array>
 
-    <!-- Key/Value eşleşmesi için values dizisini de eklemelisin -->
+    <!-- Font Değerleri (Kod Tarafında Okunacak Değerler - İngilizce ile BİREBİR AYNI OL MALI) -->
     <string-array name="app_font_values">
         <item>Default</item>
         <item>ComicSans</item>
+        <item>Consola</item>
+        <item>Futura</item>
+        <item>GoogleSans</item>
         <item>Gotham</item>
+        <item>LucidaGrande</item>
         <item>NetflixSans</item>
-        <item>Ubuntu</item>
         <item>OpenSans</item>
+        <item>Poppins</item>
+        <item>ProductSans</item>
+        <item>StixGeneral</item>
+        <item>TimesNewRoman</item>
+        <item>TrebuchetMs</item>
+        <item>Ubuntu</item>
+        <item>Verdana</item>
     </string-array>
+
 
 	
     <string-array name="extension_statuses">
