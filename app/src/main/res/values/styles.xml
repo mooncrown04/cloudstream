@@ -199,7 +199,17 @@
     <item name="colorOnPrimary">@color/GalatasarayTextColor</item>
 </style>
 
-
+<style name="GSMode">
+    <item name="primaryGrayBackground">@color/GSPrimaryGrayBackground</item>
+    <item name="primaryBlackBackground">@color/GSBitDarkerGrayBackground</item>
+    <item name="iconGrayBackground">@color/GSGrayBackground</item>
+    <item name="boxItemBackground">@color/GSItemBackground</item>
+    <item name="textColor">@color/GSTextColor</item>
+    <item name="iconColor">@color/GSIconColor</item>
+    <item name="white">@color/GSTextColor</item>
+    <item name="black">@color/GSPrimaryGrayBackground</item>
+    <item name="colorOnPrimary">@color/GSTextColor</item>
+</style>
     
     <style name="DraculaMode">
         <item name="primaryGrayBackground">@color/DraculaPrimaryGrayBackground</item>
