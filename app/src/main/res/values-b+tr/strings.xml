@@ -764,7 +764,5 @@
     <string name="actor_filmography_error">Filmografi yüklenemedi. Lütfen tekrar deneyin.</string>
     <string name="actor_filmography_retry">Tekrar dene</string>
 	<!-- Uygulama Font Ayarları Anahtarları ve Başlıkları -->
-<string name="app_font_key">app_font_key</string>
 <string name="app_font_settings">Uygulama Yazı Tipi</string>
-<string name="app_font_default">Varsayılan</string>
 </resources>
