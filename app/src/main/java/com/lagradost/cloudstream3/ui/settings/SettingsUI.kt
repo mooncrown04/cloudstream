@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.edit
+import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import androidx.preference.SeekBarPreference
 import com.lagradost.cloudstream3.CloudStreamApp.Companion.getActivity
@@ -206,30 +207,37 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
-      getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+getPref(R.string.app_font_key)?.apply {
     val prefNames = resources.getStringArray(R.array.app_font_names)
     val prefValues = resources.getStringArray(R.array.app_font_values)
-    val currentFont = settingsManager.getString(getString(R.string.app_font_key), prefValues.firstOrNull() ?: "Default")
+    val currentFont = settingsManager.getString(
+        getString(R.string.app_font_key),
+        prefValues.firstOrNull() ?: "Default"
+    )
     val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
 
-    summary = prefNames.getOrNull(currentIndex) ?: getString(R.string.app_font_default)
+    // summary yerine setSummary kullan
+    setSummary(prefNames.getOrNull(currentIndex) ?: getString(R.string.app_font_default))
 
-    activity?.showBottomDialog(
-        prefNames.toList(),
-        currentIndex,
-        getString(R.string.app_font_settings),
-        true,
-        {}
-    ) { index ->
-        prefValues.getOrNull(index)?.let { selectedFont ->
-            settingsManager.edit {
-                putString(getString(R.string.app_font_key), selectedFont)
+    setOnPreferenceClickListener {
+        activity?.showBottomDialog(
+            prefNames.toList(),
+            currentIndex,
+            getString(R.string.app_font_settings),
+            true,
+            {}
+        ) { index ->
+            prefValues.getOrNull(index)?.let { selectedFont ->
+                settingsManager.edit {
+                    putString(getString(R.string.app_font_key), selectedFont)
+                }
+                activity?.recreate()
             }
-            activity?.recreate()
         }
+        true
     }
-    true
 }
+
 
 
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
