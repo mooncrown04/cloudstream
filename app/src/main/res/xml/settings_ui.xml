@@ -14,11 +14,10 @@
         
   
       <!-- DÜZELTİLEN KISIM: ListPreference yerine normal Preference yapıldı -->
-        <Preference
+          <Preference
         android:icon="@drawable/ic_baseline_text_fields_24"
         android:key="@string/app_font_key"
-        android:title="@string/app_font_settings"
-        android:summary="@string/app_font_default" />
+        android:title="@string/app_font_settings" />
 
         <Preference
             android:icon="@drawable/ic_baseline_tv_24"
