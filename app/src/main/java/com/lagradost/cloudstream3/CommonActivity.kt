@@ -364,27 +364,30 @@ object CommonActivity {
             }
 
 // Font Overlay Uygulaması
-val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.app_font_key), "Default")) {
-    "ComicSans" -> R.style.ComicSansFontOverlay
-    "Consola" -> R.style.ConsolaFontOverlay
-    "Futura" -> R.style.FuturaFontOverlay
-    "GoogleSans" -> R.style.GoogleSansFontOverlay
-    "Gotham" -> R.style.GothamFontOverlay
-    else -> null
-}
-
-// 2. Temaları Doğru Sırayla Uygula
-        act.theme.applyStyle(currentTheme, true)
-        act.theme.applyStyle(currentOverlayTheme, true)
-
-        // Font Overlay'i En Son Uygula
-        currentFontOverlay?.let { styleRes ->
-            act.theme.applyStyle(styleRes, true)
+// Font Overlay Değişkeni
+        val currentFontOverlay = when (settingsManager.getString("app_font_key", "Default")) {
+            "ComicSans" -> R.style.ComicSansFontOverlay
+            "Consola" -> R.style.ConsolaFontOverlay
+            "Futura" -> R.style.FuturaFontOverlay
+            "GoogleSans" -> R.style.GoogleSansFontOverlay
+            "Gotham" -> R.style.GothamFontOverlay
+            else -> null
         }
 
         appliedTheme = currentTheme
         appliedColor = currentOverlayTheme
         act.updateTv()
+
+        // 1. Ana Temaları Uygula
+        act.theme.applyStyle(currentTheme, true)
+        act.theme.applyStyle(currentOverlayTheme, true)
+
+        // 2. Font Overlay'ini Uygula (Eksik olan kısım burasıydı)
+        currentFontOverlay?.let { fontStyle ->
+            act.theme.applyStyle(fontStyle, true)
+        }
+
+        // 3. TV ve Yükleme Stillerini En Son Giydir
         if (isLayout(TV)) act.theme.applyStyle(R.style.AppThemeTvOverlay, true)
         act.theme.applyStyle(R.style.LoadedStyle, true)
     }
