@@ -207,17 +207,21 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
+// UI Ayarları içerisine Font Seçimini Bağlama
 getPref(R.string.app_font_key)?.apply {
     val prefNames = resources.getStringArray(R.array.app_font_names)
     val prefValues = resources.getStringArray(R.array.app_font_values)
+    
     val currentFont = settingsManager.getString(
-        getString(R.string.app_font_key),
+        context.getString(R.string.app_font_key),
         prefValues.firstOrNull() ?: "Default"
     )
     val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
 
-    setSummary(prefNames.getOrNull(currentIndex) ?: getString(R.string.app_font_default))
+    // Seçili font adını özet (summary) kısmına yaz
+    summary = prefNames.getOrNull(currentIndex) ?: getString(R.string.app_font_default)
 
+    // Tıklanınca tema seçimine benzer Bottom Sheet Dialog aç
     setOnPreferenceClickListener {
         activity?.showBottomDialog(
             prefNames.toList(),
@@ -230,7 +234,7 @@ getPref(R.string.app_font_key)?.apply {
                 settingsManager.edit {
                     putString(getString(R.string.app_font_key), selectedFont)
                 }
-                activity?.recreate()
+                activity?.recreate() // Uygulamayı yeni font temasıyla (Overlay) yeniden başlatır
             }
         }
         true
