@@ -216,7 +216,6 @@ getPref(R.string.app_font_key)?.apply {
     )
     val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
 
-    // summary yerine setSummary kullan
     setSummary(prefNames.getOrNull(currentIndex) ?: getString(R.string.app_font_default))
 
     setOnPreferenceClickListener {
@@ -237,6 +236,7 @@ getPref(R.string.app_font_key)?.apply {
         true
     }
 }
+
 
 
 
