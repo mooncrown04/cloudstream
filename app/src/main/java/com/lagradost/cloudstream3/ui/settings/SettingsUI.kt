@@ -208,18 +208,18 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         }
 
 // UI Ayarları içerisine Font Seçimini Bağlama
-(getPref("app_font_key") ?: findPreference("app_font_key"))?.apply {
+(getPref(R.string.app_font_key) ?: findPreference(getString(R.string.app_font_key)))?.apply {
     val prefNames = resources.getStringArray(R.array.app_font_names)
     val prefValues = resources.getStringArray(R.array.app_font_values)
     
-    // Doğrudan "app_font_key" metni kullanılıyor
+    val fontKey = context.getString(R.string.app_font_key)
+    
     val currentFont = settingsManager.getString(
-        "app_font_key",
+        fontKey,
         prefValues.firstOrNull() ?: "Default"
     )
     val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
 
-    // Silinen app_font_default yerine varsayılan dize veya listedeki ilk isim atanıyor
     summary = prefNames.getOrNull(currentIndex) ?: "Default"
 
     setOnPreferenceClickListener {
@@ -232,7 +232,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         ) { index ->
             prefValues.getOrNull(index)?.let { selectedFont ->
                 settingsManager.edit {
-                    putString("app_font_key", selectedFont)
+                    putString(fontKey, selectedFont)
                 }
                 activity?.recreate()
             }
@@ -240,7 +240,6 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         true
     }
 }
-
 
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
             val names = enumValues<SearchQuality>().sorted().map { it.name }
