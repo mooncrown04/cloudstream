@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.edit
+import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import androidx.preference.SeekBarPreference
 import com.lagradost.cloudstream3.CloudStreamApp.Companion.getActivity
@@ -206,41 +207,40 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
-// SettingsUI.kt içindeki font bloğun
-getPref(R.string.app_font_key)?.apply {
-    // 1. DÜZELTME: Cihaz düzeni (TV/Phone) ne olursa olsun görünür olmasını sağla
-    isVisible = true 
+        // KESİN ÇÖZÜM: findPreference ile doğrudan PreferenceScreen üzerinden bağlama
+        val fontPref = findPreference<Preference>(getString(R.string.app_font_key)) ?: getPref(R.string.app_font_key)
+        fontPref?.apply {
+            isVisible = true 
 
-    val prefNames = resources.getStringArray(R.array.app_font_names)
-    val prefValues = resources.getStringArray(R.array.app_font_values)
-    
-    val currentFont = settingsManager.getString(
-        getString(R.string.app_font_key), 
-        prefValues.firstOrNull() ?: "Default"
-    )
+            val prefNames = resources.getStringArray(R.array.app_font_names)
+            val prefValues = resources.getStringArray(R.array.app_font_values)
+            
+            val currentFont = settingsManager.getString(
+                getString(R.string.app_font_key), 
+                prefValues.firstOrNull() ?: "Default"
+            )
 
-    val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
-    summary = prefNames.getOrNull(currentIndex) ?: currentFont
+            val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
+            summary = prefNames.getOrNull(currentIndex) ?: currentFont
 
-    setOnPreferenceClickListener {
-        activity?.showBottomDialog(
-            prefNames.toList(),
-            currentIndex,
-            getString(R.string.app_font_settings),
-            true,
-            {}
-        ) { index ->
-            prefValues.getOrNull(index)?.let { selectedFont ->
-                settingsManager.edit {
-                    putString(getString(R.string.app_font_key), selectedFont)
+            setOnPreferenceClickListener {
+                activity?.showBottomDialog(
+                    prefNames.toList(),
+                    currentIndex,
+                    getString(R.string.app_font_settings),
+                    true,
+                    {}
+                ) { index ->
+                    prefValues.getOrNull(index)?.let { selectedFont ->
+                        settingsManager.edit {
+                            putString(getString(R.string.app_font_key), selectedFont)
+                        }
+                        activity?.recreate()
+                    }
                 }
-                activity?.recreate()
+                true
             }
         }
-        true
-    }
-}
-
 
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
             val names = enumValues<SearchQuality>().sorted().map { it.name }
