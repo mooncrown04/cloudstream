@@ -78,6 +78,15 @@
     <color name="GalatasarayTextColor">#FDB912</color> <!-- Ana Yazı Rengi (Resmi GS Sarısı) -->
     <color name="GalatasarayGrayTextColor">#D08D9A</color> <!-- İkincil Yazı Rengi (Yumuşak Bordo-Kırmızı) -->
     <color name="GalatasarayIconColor">#FDB912</color> <!-- İkon Rengi (Resmi GS Sarısı) -->
+   
+    <!-- GS Theme (Net Geçişli Palet) -->
+    <color name="GSPrimaryGrayBackground">#A90432</color> <!-- Ana Arka Plan: Resmi GS Kırmızısı -->
+    <color name="GSBitDarkerGrayBackground">#800325</color> <!-- Bir tık koyu kırmızı (Gölgeler/Alt barlar için) -->
+    <color name="GSGrayBackground">#C1053A</color> <!-- Bir tık açık kırmızı -->
+    <color name="GSItemBackground">#B50436</color> <!-- Kartlar ve butonların arka planı -->   
+    <color name="GSTextColor">#FDB912</color> <!-- Resmi GS Sarısı (Kırmızı üzerinde harika okunur) -->
+    <color name="GSGrayTextColor">#FFFFFF</color> <!-- Beyaz Yazı Rengi -->
+    <color name="GSIconColor">#FDB912</color> <!-- İkon Sarısı -->
 
 
     <!--Dracula Theme-->
