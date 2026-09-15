@@ -687,12 +687,23 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
             
             // Medya Duraklatma tuşuna basıldığında profil seçim ekranını açar
         KeyEvent.KEYCODE_MEDIA_PLAY,KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,KeyEvent.KEYCODE_PROG_BLUE,
-            KeyEvent.KEYCODE_BUTTON_START,
-            KeyEvent.KEYCODE_MEDIA_PAUSE -> { 
-    showToast("ayarlar seçimi tuşla tetiklendi", Toast.LENGTH_SHORT)
-       val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-           navHostFragment?.navController?.navigate(R.id.navigation_settings)
-    return true
+KeyEvent.KEYCODE_BUTTON_START,
+KeyEvent.KEYCODE_MEDIA_PAUSE -> { 
+
+    val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+    val navController = navHostFragment?.navController
+
+    // Ekranın 'Player' (oynatıcı) olup olmadığını kontrol et
+    val isPlayingVideo = navController?.currentDestination?.id == R.id.navigation_player
+
+    // Video oynatılmıyorsa (menüdeyse) Ayarlar'ı aç
+    if (!isPlayingVideo) {
+        showToast("ayarlar seçimi tuşla tetiklendi", Toast.LENGTH_SHORT)
+        navController?.navigate(R.id.navigation_settings)
+        return true
+    }
+
+    // Video oynatılıyorsa hiçbir şey yapma, tuşu videoya bırak
 }
         }
         
