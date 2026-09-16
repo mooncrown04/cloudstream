@@ -207,38 +207,34 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
-// UI Ayarları içerisine Font Seçimini Bağlama
-(getPref(R.string.app_font_key) ?: findPreference(getString(R.string.app_font_key)))?.apply {
-    val prefNames = resources.getStringArray(R.array.app_font_names)
-    val prefValues = resources.getStringArray(R.array.app_font_values)
-    
-    val fontKey = context.getString(R.string.app_font_key)
-    
+getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+    val prefNames = resources.getStringArray(R.array.app_font_names).toMutableList()
+    val prefValues = resources.getStringArray(R.array.app_font_values).toMutableList()
+
     val currentFont = settingsManager.getString(
-        fontKey,
+        getString(R.string.app_font_key),
         prefValues.firstOrNull() ?: "Default"
     )
-    val currentIndex = prefValues.indexOf(currentFont).let { if (it != -1) it else 0 }
 
-    summary = prefNames.getOrNull(currentIndex) ?: "Default"
-
-    setOnPreferenceClickListener {
-        activity?.showBottomDialog(
-            prefNames.toList(),
-            currentIndex,
-            getString(R.string.app_font_settings),
-            true,
-            {}
-        ) { index ->
+    activity?.showBottomDialog(
+        prefNames.toList(),
+        prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
+        getString(R.string.app_font_settings),
+        true,
+        {}
+    ) { index ->
+        try {
             prefValues.getOrNull(index)?.let { selectedFont ->
                 settingsManager.edit {
-                    putString(fontKey, selectedFont)
+                    putString(getString(R.string.app_font_key), selectedFont)
                 }
                 activity?.recreate()
             }
+        } catch (e: Exception) {
+            logError(e)
         }
-        true
     }
+    true
 }
 
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
