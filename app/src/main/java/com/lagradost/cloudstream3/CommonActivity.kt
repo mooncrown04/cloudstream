@@ -364,7 +364,7 @@ object CommonActivity {
                 else -> R.style.OverlayPrimaryColorNormal
             }
 
-// Font Overlay Uygulaması
+
 // Font Overlay Değişkeni
         val currentFontOverlay = when (settingsManager.getString("app_font_key", "Default")) {
             "ComicSans" -> R.style.ComicSansFontOverlay
@@ -375,22 +375,28 @@ object CommonActivity {
             else -> null
         }
 
-        appliedTheme = currentTheme
-        appliedColor = currentOverlayTheme
-        act.updateTv()
-
-        // 1. Ana Temaları Uygula
+// 1. Ana temayı ve renk paleti overlay'ini uygula
         act.theme.applyStyle(currentTheme, true)
         act.theme.applyStyle(currentOverlayTheme, true)
 
-        // 2. Font Overlay'ini Uygula (Eksik olan kısım burasıydı)
+        // 2. Font overlay'i uygula (Eğer seçilen font varsayılandan farklıysa)
         currentFontOverlay?.let { fontStyle ->
             act.theme.applyStyle(fontStyle, true)
         }
 
-        // 3. TV ve Yükleme Stillerini En Son Giydir
+        // 3. Durum takip değişkenlerini güncelle
+        appliedTheme = currentTheme
+        appliedColor = currentOverlayTheme
+        appliedFont = currentFontOverlay // Font durumunu kaydet
+
+        // 4. TV Düzeni ve Son Yükleme Stillerini uygula
+        act.updateTv()
         if (isLayout(TV)) act.theme.applyStyle(R.style.AppThemeTvOverlay, true)
-        act.theme.applyStyle(R.style.LoadedStyle, true)
+        
+        act.theme.applyStyle(
+            R.style.LoadedStyle,
+            true
+        ) // THEME IS SET BEFORE VIEW IS CREATED TO APPLY THE THEME TO THE MAIN VIEW
     }
 
     private fun localLook(from: View, id: Int): View? {
