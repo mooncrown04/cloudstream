@@ -373,7 +373,7 @@ object CommonActivity {
             "Futura" -> R.style.FuturaFontOverlay
             "GoogleSans" -> R.style.GoogleSansFontOverlay
             "Gotham" -> R.style.GothamFontOverlay
-            else -> null
+            else -> R.style.AppTheme // veya varsayılan font stiliniz
         }
 
 // 1. Ana temayı ve renk paleti overlay'ini uygula
