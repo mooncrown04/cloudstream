@@ -66,6 +66,10 @@ class UIPreferences(preferences: PreferenceStore) {
     val layout = preferences.getInt(
         "app_layout_key", -1
     )
+    // UIPreferences sınıfı içine ekleyin:
+val appFont = preferences.getString(
+    "app_font_key", "Default"
+)
     val bottomTitle = preferences.getBoolean(
         "bottom_title_key", true
     )
