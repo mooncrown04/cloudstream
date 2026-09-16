@@ -761,6 +761,7 @@ class PlayerView @JvmOverloads constructor(
             is EpisodeSeekEvent -> when (event.offset) {
                 -1 -> callbacks?.prevEpisode()
                 1 -> callbacks?.nextEpisode()
+            else -> if (event.offset < 0) callbacks?.prevEpisode() else callbacks?.nextEpisode() 
             }
             is StatusEvent -> {
                 updateIsPlaying(wasPlaying = event.wasPlaying, isPlaying = event.isPlaying)
