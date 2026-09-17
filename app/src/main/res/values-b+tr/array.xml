@@ -267,28 +267,35 @@
         <item>SilentBlue</item>
     </string-array>
 
-
  <!-- Font İsimleri (Türkçe Arayüzde Görünecek Metinler) -->
     <string-array name="app_font_names">
         <item>Varsayılan</item>
-        <item>Comic Sans</item>
-        <item>Consolas</item>
-        <item>Futura</item>
-        <item>Google Sans</item>
-        <item>Gotham</item>
-    </string-array>
-
-    <!-- Font Değerleri (Kod Tarafında Okunacak Değerler - İngilizce ile BİREBİR AYNI OL MALI) -->
-    <string-array name="app_font_values">
-        <item>Default</item>
-        <item>ComicSans</item>
+		<item>TimesNew_roman</item>
+        <item>StixGeneral</item>
+		<item>ComicSans</item>
+		<item>Rasdelia</item>
+        <item>Lacheyard</item>
+        <item>Nerdropol</item>
         <item>Consola</item>
         <item>Futura</item>
         <item>GoogleSans</item>
         <item>Gotham</item>
     </string-array>
 
-
+    <!-- Font Değerleri (Kod Tarafında Okunacak Değerler - İngilizce ile BİREBİR AYNI OL MALI) -->
+    <string-array name="app_font_values">
+        <item>Default</item>
+        <item>TimesNew_roman</item>
+        <item>StixGeneral</item>
+		<item>ComicSans</item>
+		<item>Rasdelia</item>
+        <item>Lacheyard</item>
+        <item>Nerdropol</item>
+        <item>Consola</item>
+        <item>Futura</item>
+        <item>GoogleSans</item>
+        <item>Gotham</item>
+    </string-array>
 	
     <string-array name="extension_statuses">
         <item>Çöktü</item>
