@@ -1165,10 +1165,35 @@
     </style>
 
 <!-- Font Overlay Stilleri -->
+<style name="TimesNewRomanFontOverlay">
+    <item name="android:fontFamily">@font/times_new_roman</item>
+    <item name="fontFamily">@font/times_new_roman</item>
+</style>
+
+<style name="StixGeneralFontOverlay">
+    <item name="android:fontFamily">@font/stix_general</item>
+    <item name="fontFamily">@font/stix_general</item>
+</style>
+
 <style name="ComicSansFontOverlay">
     <item name="android:fontFamily">@font/comic_sans</item>
     <item name="fontFamily">@font/comic_sans</item>
 </style>
+<style name="RasdeliaFontOverlay">
+    <item name="android:fontFamily">@font/rasdelia</item>
+    <item name="fontFamily">@font/rasdelia</item>
+</style>
+
+<style name="LacheyardFontOverlay">
+    <item name="android:fontFamily">@font/lacheyard</item>
+    <item name="fontFamily">@font/lacheyard</item>
+</style>
+
+<style name="NerdropolFontOverlay">
+    <item name="android:fontFamily">@font/nerdropol</item>
+    <item name="fontFamily">@font/nerdropol</item>
+</style>
+
 
 <style name="ConsolaFontOverlay">
     <item name="android:fontFamily">@font/consola</item>
