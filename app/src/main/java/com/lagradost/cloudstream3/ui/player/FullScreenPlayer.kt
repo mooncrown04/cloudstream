@@ -1083,8 +1083,8 @@ KeyEvent.KEYCODE_DPAD_DOWN -> {
                     showToast("Önceki: $newTitle")
                 }, 300)
             } else {
-                // YUKARI - Kısa Basma: Sonraki Bölüm
-                player.handleEvent(CSPlayerEvent.NextEpisode)
+                // YUKARI - Kısa Basma: önceki Bölüm
+                player.handleEvent(CSPlayerEvent.PrevEpisode)
                 
                 playerBinding?.playerVideoTitle?.postDelayed({
                     val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
