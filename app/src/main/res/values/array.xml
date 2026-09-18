@@ -348,15 +348,15 @@
         <item>SilentBlue</item>
     </string-array>
 
-	<!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
+	 <!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
     <string-array name="app_font_names">
         <item>Default</item>
        	<item>TimesNew_roman</item>
         <item>StixGeneral</item>
 		<item>ComicSans</item>
-		<item>Rasdelia</item>
-        <item>Lacheyard</item>
-        <item>Nerdropol</item>
+	    <item>Maybach</item>
+        <item>Perfume</item>
+        <item>Naxmos</item>
         <item>Consola</item>
         <item>Futura</item>
         <item>GoogleSans</item>
@@ -368,9 +368,9 @@
       	<item>TimesNew_roman</item>
         <item>StixGeneral</item>
 		<item>ComicSans</item>
-		<item>Rasdelia</item>
-        <item>Lacheyard</item>
-        <item>Nerdropol</item>
+		<item>Maybach</item>
+        <item>Perfume</item>
+        <item>Naxmos</item>
         <item>Consola</item>
         <item>Futura</item>
         <item>GoogleSans</item>
