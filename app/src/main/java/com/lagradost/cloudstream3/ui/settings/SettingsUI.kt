@@ -236,6 +236,25 @@ getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
     true
 }
 
+// ==========================================
+        // AFİŞ BOYUTU AÇ / KAPA (SWITCH) DİNLEYİCİSİ
+        // ==========================================
+        getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, newValue ->
+            val isWide = newValue as? Boolean ?: false
+            val selectedSize = if (isWide) "wide" else "default"
+
+            settingsManager.edit {
+                putString(getString(R.string.poster_size_key), selectedSize)
+            }
+
+            HomeChildItemAdapter.sharedPool.clear()
+            ParentItemAdapter.sharedPool.clear()
+            SearchAdapter.sharedPool.clear()
+
+            activity?.recreate()
+            true
+        }
+
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
             val names = enumValues<SearchQuality>().sorted().map { it.name }
             val currentList = settingsManager.getStringSet(
