@@ -366,25 +366,27 @@ object CommonActivity {
             }
 
 
-// Font Overlay Değişkeni
-        val currentFontOverlay = when (settingsManager.getString("app_font_key", "Default")) {
-            "ComicSans" -> R.style.ComicSansFontOverlay
-            "Consola" -> R.style.ConsolaFontOverlay
-            "Futura" -> R.style.FuturaFontOverlay
-            "GoogleSans" -> R.style.GoogleSansFontOverlay
-            "Gotham" -> R.style.GothamFontOverlay
-            else -> R.style.AppTheme // veya varsayılan font stiliniz
-        }
+// Font Overlay Uygulaması
+val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.app_font_key), "Default")) {
+    "TimesNewRoman" -> R.style.TimesNewRomanFontOverlay
+    "StixGeneral" -> R.style.StixGeneralFontOverlay
+	"ComicSans" -> R.style.ComicSansFontOverlay
+    "Maybach" -> R.style.MaybachFontOverlay
+    "Perfume" -> R.style.PerfumeFontOverlay
+    "Naxmos" -> R.style.NaxmosFontOverlay	
+	"Consola" -> R.style.ConsolaFontOverlay
+    "Futura" -> R.style.FuturaFontOverlay
+    "GoogleSans" -> R.style.GoogleSansFontOverlay
+    "Gotham" -> R.style.GothamFontOverlay
+    else -> R.style.AppTheme // veya varsayılan font stiliniz
+}
 
 // 1. Ana temayı ve renk paleti overlay'ini uygula
         act.theme.applyStyle(currentTheme, true)
         act.theme.applyStyle(currentOverlayTheme, true)
+        act.theme.applyStyle(currentFontTheme, true)
 
-        // 2. Font overlay'i uygula (Eğer seçilen font varsayılandan farklıysa)
-        currentFontOverlay?.let { fontStyle ->
-            act.theme.applyStyle(fontStyle, true)
-        }
-
+        
         // 3. Durum takip değişkenlerini güncelle
         appliedTheme = currentTheme
         appliedColor = currentOverlayTheme
