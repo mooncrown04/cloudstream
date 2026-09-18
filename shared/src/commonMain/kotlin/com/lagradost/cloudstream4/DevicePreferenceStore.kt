@@ -70,6 +70,11 @@ class UIPreferences(preferences: PreferenceStore) {
 val appFont = preferences.getString(
     "app_font_key", "Default"
 )
+
+// SwitchPreferenceCompat kullandığınız için getBoolean olmalıdır:
+    val isWidePoster = preferences.getBoolean(
+        "poster_size_key", false
+    )
     val bottomTitle = preferences.getBoolean(
         "bottom_title_key", true
     )
