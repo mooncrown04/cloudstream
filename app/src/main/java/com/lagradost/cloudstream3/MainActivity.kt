@@ -676,7 +676,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
 
     //yeni eklendi
 override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-
+     // showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
 	  when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {
@@ -685,30 +685,41 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
 			   return true
             }
             
+			// Hızlı Geri tuşu ile Doğrudan Depo / Eklentiler Sayfasını Aç
+            KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+                val navController = navHostFragment?.navController
+                
+                // Oynatıcı ekranında değilse eklentiler/depo ayarlarını aç
+                if (navController?.currentDestination?.id != R.id.navigation_player) {
+                    showToast("Depo / Eklentiler menüsü açılıyor", Toast.LENGTH_SHORT)
+                    navController?.navigate(R.id.navigation_settings_extensions)
+                    return true
+                }
+            }
+			
+			
+			
             // Medya Duraklatma tuşuna basıldığında profil seçim ekranını açar
         KeyEvent.KEYCODE_MEDIA_PLAY,KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,KeyEvent.KEYCODE_PROG_BLUE,
-KeyEvent.KEYCODE_BUTTON_START,
-KeyEvent.KEYCODE_MEDIA_PAUSE -> { 
-
+            KeyEvent.KEYCODE_BUTTON_START,
+            KeyEvent.KEYCODE_MEDIA_PAUSE -> { 
     val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
     val navController = navHostFragment?.navController
-
     // Ekranın 'Player' (oynatıcı) olup olmadığını kontrol et
     val isPlayingVideo = navController?.currentDestination?.id == R.id.navigation_player
-
     // Video oynatılmıyorsa (menüdeyse) Ayarlar'ı aç
     if (!isPlayingVideo) {
         showToast("ayarlar seçimi tuşla tetiklendi", Toast.LENGTH_SHORT)
         navController?.navigate(R.id.navigation_settings)
         return true
     }
-
     // Video oynatılıyorsa hiçbir şey yapma, tuşu videoya bırak
 }
-        }
-        
+        }        
         return CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
     }
+
 
   //yeni eklendi
 
@@ -1233,12 +1244,11 @@ KeyEvent.KEYCODE_MEDIA_PAUSE -> {
 
         MainAPI.settingsForProvider = settingsForProvider
 
-   // --- onCreate İçindeki Temizlenmiş Kısım ---
-loadThemes(this)
-
-setNavigationBarColorCompat(R.attr.primaryGrayBackground)
-updateLocale()
-super.onCreate(savedInstanceState)
+        loadThemes(this)
+        enableEdgeToEdgeCompat()
+        setNavigationBarColorCompat(R.attr.primaryGrayBackground)
+        updateLocale()
+        super.onCreate(savedInstanceState)
         try {
             if (isCastApiAvailable()) {
                 CastContext.getSharedInstance(this) { it.run() }
@@ -2087,12 +2097,6 @@ super.onCreate(savedInstanceState)
             updateLocale()
             runDefault()
         }
-
-
-
-
-
-
 
         // Start the download queue
         DownloadQueueManager.init(this)
