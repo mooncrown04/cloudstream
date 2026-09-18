@@ -385,7 +385,7 @@ val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.
 // 1. Ana temayı ve renk paleti overlay'ini uygula
         act.theme.applyStyle(currentTheme, true)
         act.theme.applyStyle(currentOverlayTheme, true)
-        act.theme.applyStyle(currentFontTheme, true)
+        act.theme.applyStyle(currentFontOverlay, true)
 
         
         // 3. Durum takip değişkenlerini güncelle
