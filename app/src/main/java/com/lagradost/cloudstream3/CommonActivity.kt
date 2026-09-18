@@ -327,6 +327,7 @@ object CommonActivity {
                 "AmoledLight" -> R.style.AmoledModeLight
                 "Monet" -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     R.style.MonetMode else R.style.AppTheme
+				"GalatasarayBlue" -> R.style.GalatasarayBlueMode
                 "Galatasaray" -> R.style.GalatasarayMode // <-- BURAYA EKLENDİ
                 "GS" -> R.style.GSMode // <-- BURAYA EKLENDİ
                 "Dracula" -> R.style.DraculaMode
