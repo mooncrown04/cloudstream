@@ -758,6 +758,16 @@
         <item quantity="one">%d gizli bağlantı</item>
         <item quantity="other">%d gizli bağlantı</item>
     </plurals>
+	<!-- Oyuncu / Aktör Bilgileri -->
+    <string name="actor_info_loading">Oyuncu bilgileri yükleniyor…</string>
+    <string name="actor_info_missing">TMDB\'de eşleşen kişi bulunamadı.</string>
+    <string name="actor_info_error">Oyuncu bilgileri yüklenemedi. Geri dönüp tekrar deneyin.</string>
+    <string name="actor_info_no_biography">Biyografi bulunmuyor.</string>
+    <string name="actor_info_born">Doğum Tarihi: %1$s</string>
+    <string name="actor_info_died">Ölüm Tarihi: %1$s</string>
+    <string name="actor_info_age">Yaş: %1$d</string>
+    <string name="actor_info_age_at_death">Öldüğündeki Yaşı: %1$d</string>
+    <string name="actor_info_birthplace">Doğum Yeri: %1$s</string>
     <!-- Oyuncu Filmografisi (TMDB) -->
     <string name="actor_filmography_hint">TMDB üzerindeki film ve diziler. Sağlayıcılarınızda aramak için bir başlık seçin.</string>
     <string name="actor_filmography_empty">Bu oyuncu için hiçbir film veya dizi bulunamadı.</string>
