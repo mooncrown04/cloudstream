@@ -162,7 +162,5 @@
         <item quantity="other">@string/episodes</item>
     </plurals>
 
-    <!-- Ayar Anahtarı (Key) -->
-    <string name="poster_size_key">poster_size_key</string>
 
 </resources>
