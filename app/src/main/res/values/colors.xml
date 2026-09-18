@@ -69,7 +69,15 @@
     <color name="lightGrayTextColor">#5f6267</color>
     <color name="lightIconColor">#5f6267</color>
 
-
+<!-- Galatasaray Blue Theme (Net Geçişli Palet) 2.versiyon - Ters Renkler -->
+    <color name="GalatasarayBluePrimaryGrayBackground">#2A1D00</color> <!-- Ana Arka Plan (Derin/Koyu Koyu Sarı-Kahve) -->
+    <color name="GalatasarayBlueBitDarkerGrayBackground">#181000</color> <!-- En Koyu Arka Plan (Gölge/Alt Bar - Çok Koyu Sarı) -->
+    <color name="GalatasarayBlueGrayBackground">#FDB912</color> <!-- Orta Ton (Resmi GS Sarısı) -->
+    <color name="GalatasarayBlueItemBackground">#C89100</color> <!-- Kartlar ve Elemanlar (Koyu Altın Sarı) -->
+    <color name="GalatasarayBlueTextColor">#A90432</color> <!-- Ana Yazı Rengi (Resmi GS Kırmızısı) -->
+    <color name="GalatasarayBlueGrayTextColor">#800325</color> <!-- İkincil Yazı Rengi (Net Bordo) -->
+    <color name="GalatasarayBlueIconColor">#A90432</color> <!-- İkon Rengi (Resmi GS Kırmızısı) -->
+    
 <!-- Galatasaray Theme (Net Geçişli Palet) -->
     <color name="GalatasarayPrimaryGrayBackground">#2B040D</color> <!-- Ana Arka Plan (Derin/Koyu Bordo) -->
     <color name="GalatasarayBitDarkerGrayBackground">#1A0207</color> <!-- En Koyu Arka Plan (Gölge/Alt Bar) -->
