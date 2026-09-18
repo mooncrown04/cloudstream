@@ -1179,21 +1179,21 @@
     <item name="android:fontFamily">@font/comic_sans</item>
     <item name="fontFamily">@font/comic_sans</item>
 </style>
-<style name="RasdeliaFontOverlay">
-    <item name="android:fontFamily">@font/rasdelia</item>
-    <item name="fontFamily">@font/rasdelia</item>
+
+<style name="MaybachFontOverlay">
+    <item name="android:fontFamily">@font/maybach</item>
+    <item name="fontFamily">@font/maybach</item>
 </style>
 
-<style name="LacheyardFontOverlay">
-    <item name="android:fontFamily">@font/lacheyard</item>
-    <item name="fontFamily">@font/lacheyard</item>
+<style name="PerfumeFontOverlay">
+    <item name="android:fontFamily">@font/perfume</item>
+    <item name="fontFamily">@font/perfume</item>
 </style>
 
-<style name="NerdropolFontOverlay">
-    <item name="android:fontFamily">@font/nerdropol</item>
-    <item name="fontFamily">@font/nerdropol</item>
+<style name="NaxmosFontOverlay">
+    <item name="android:fontFamily">@font/naxmos</item>
+    <item name="fontFamily">@font/naxmos</item>
 </style>
-
 
 <style name="ConsolaFontOverlay">
     <item name="android:fontFamily">@font/consola</item>
