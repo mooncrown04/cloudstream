@@ -6,6 +6,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.lagradost.cloudstream3.LoadResponse
@@ -95,6 +96,20 @@ open class ParentItemAdapter(
         val binding = holder.view
         if (binding !is HomepageParentBinding) return
         val info = item.list
+        
+        // =========================================================================
+        // TERCIH OKUMA: Switch açıkken "wide", kapalıysa veya yoksa "default" döner
+        // =========================================================================
+        val context = binding.root.context
+        val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
+        val posterSizePref = settingsManager.getString(context.getString(R.string.poster_size_key), "default")
+
+        val isWideLayout = when (posterSizePref) {
+            "wide" -> true
+            "normal" -> false
+            else -> info.isHorizontalImages
+        }
+
         binding.apply {
             val currentAdapter = homeChildRecyclerview.adapter as? HomeChildItemAdapter
             if (currentAdapter == null) {
@@ -105,13 +120,13 @@ open class ParentItemAdapter(
                     nextFocusUp = homeChildRecyclerview.nextFocusUpId,
                     nextFocusDown = homeChildRecyclerview.nextFocusDownId,
                 ).apply {
-                    isHorizontal = info.isHorizontalImages
+                    isHorizontal = isWideLayout
                     hasNext = item.hasNext
                     submitList(item.list.list)
                 }
             } else {
                 currentAdapter.apply {
-                    isHorizontal = info.isHorizontalImages
+                    isHorizontal = isWideLayout
                     hasNext = item.hasNext
                     this.clickCallback = this@ParentItemAdapter.clickCallback
                     nextFocusUp = homeChildRecyclerview.nextFocusUpId
@@ -143,14 +158,7 @@ open class ParentItemAdapter(
 
                     val count = adapter.itemCount
                     val hasNext = adapter.hasNext
-                    /*println(
-                        "scolling ${recyclerView.isRecyclerScrollable()} ${
-                            recyclerView.canScrollHorizontally(
-                                1
-                            )
-                        }"
-                    )*/
-                    //!recyclerView.canScrollHorizontally(1)
+
                     if (!recyclerView.isRecyclerScrollable() && hasNext && expandCount != count) {
                         expandCount = count
                         expandCallback?.invoke(name)
@@ -158,7 +166,6 @@ open class ParentItemAdapter(
                 }
             })
 
-            //(recyclerView.adapter as HomeChildItemAdapter).notifyDataSetChanged()
             if (isLayout(PHONE)) {
                 homeChildMoreInfo.setOnClickListener {
                     moreInfoClickCallback.invoke(item)
@@ -179,7 +186,6 @@ open class ParentItemAdapter(
             HomepageParentBinding.bind(inflater.inflate(layoutResId, parent, false))
         } catch (t: Throwable) {
             logError(t)
-            // just in case someone forgot we don't want to crash
             HomepageParentBinding.inflate(inflater)
         }
 
