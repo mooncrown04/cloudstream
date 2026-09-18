@@ -3,8 +3,6 @@
     <!-- FORMAT MIGHT TRANSLATE, WILL CAUSE CRASH IF APPLIED WRONG -->
 	<string name="log_cat">Logcat</string>
 	<string name="app_dub_sub_episode_text_format" formatted="true">%1$s Ep %2$d</string>
-   <string name="discover_search_providers">Search Providers</string>
-	<string name="cast_format" formatted="true">Cast: %s</string>
     <string name="next_episode_format" formatted="true">Episode %d will be released in</string>
     <string name="next_season_episode_format" formatted="true">Season %1$d Episode %2$d will be released in</string>
     <string name="next_episode_time_day_format" formatted="true">%1$dd %2$dh %3$dm</string>
@@ -785,13 +783,6 @@
     <string name="top_left">Top left</string>
     <string name="top_center">Top center</string>
     <string name="top_right">Top right</string>
- <string name="discover_preview_loading">Yükleniyor...</string>
-<string name="discover_watchlist_remove">İzleme Listesinden Çıkar</string>
-<string name="discover_watchlist_add">İzleme Listesine Ekle</string>
-<string name="discover_preview_no_overview">Özet bulunamadı.</string>
-<string name="discover_preview_seasons">Sezonlar</string>
-<string name="discover_preview_runtime">Süre</string>
-<string name="discover_preview_error">Bir hata oluştu.</string>
 	<!-- App Font Settings Keys & Titles -->
 	<string name="app_font_title">App Font</string>
     <string name="app_font_settings">App Font</string>
