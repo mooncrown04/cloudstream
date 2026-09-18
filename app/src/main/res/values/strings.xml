@@ -785,7 +785,14 @@
     <string name="top_left">Top left</string>
     <string name="top_center">Top center</string>
     <string name="top_right">Top right</string>
-  <!-- App Font Settings Keys & Titles -->
+ <string name="discover_preview_loading">Yükleniyor...</string>
+<string name="discover_watchlist_remove">İzleme Listesinden Çıkar</string>
+<string name="discover_watchlist_add">İzleme Listesine Ekle</string>
+<string name="discover_preview_no_overview">Özet bulunamadı.</string>
+<string name="discover_preview_seasons">Sezonlar</string>
+<string name="discover_preview_runtime">Süre</string>
+<string name="discover_preview_error">Bir hata oluştu.</string>
+	<!-- App Font Settings Keys & Titles -->
 	<string name="app_font_title">App Font</string>
     <string name="app_font_settings">App Font</string>
     <string name="app_font_default">Default</string>
