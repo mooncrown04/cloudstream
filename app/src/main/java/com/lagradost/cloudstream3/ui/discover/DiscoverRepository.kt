@@ -75,7 +75,9 @@ internal class DiscoverRepository(
 
     suspend fun genres(type: DiscoverMediaType): List<TmdbGenre> =
         parseJson<GenresResponse>(
-            request("/genre/${type.path}/list", mapOf("language" to "en-US"))
+           // request("/genre/${type.path}/list", mapOf("language" to "en-US"))
+			request("/genre/${type.path}/list", mapOf("language" to TmdbMetadata.currentAppLanguage))
+			//request("/genre/${type.path}/list", mapOf("language" to "tr-TR"))
         ).genres.orEmpty().filter { it.id > 0 && it.name.isNotBlank() }.distinctBy { it.id }
             .also { genreNames = genreNames + it.associate { genre -> genre.id to genre.name } }
 
@@ -95,7 +97,9 @@ internal class DiscoverRepository(
         require(yearTo == null || yearTo in 1900..2100)
         require(yearFrom == null || yearTo == null || yearFrom <= yearTo)
         val params = mutableMapOf(
-            "language" to "en-US",
+           // "language" to "tr-TR",
+			"language" to TmdbMetadata.currentAppLanguage,
+			//"language" to "en-US",
             "include_adult" to "false",
             "sort_by" to sort.sortBy(type),
             "page" to page.toString(),
