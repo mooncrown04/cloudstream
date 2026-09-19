@@ -268,19 +268,21 @@ object SettingsUIScreen : SearchableSettings {
 // =========================================================================
         // YENİ EKLENEN KISIM: GENİŞ AFİŞ DÜZENİ SWITCH'İ
         // =========================================================================
-        Preference.PreferenceItem.SwitchPreference(
-            preference = settings.ui.isWidePoster,
-            title = stringResource(R.string.poster_size_settings),
-            icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
-            onValueChanged = { newValue ->
-                HomeChildItemAdapter.sharedPool.clear()
-                ParentItemAdapter.sharedPool.clear()
-                SearchAdapter.sharedPool.clear()
-                safe {
-                    activity?.recreate()
-                }
-            }
-        ),
+Preference.PreferenceItem.SwitchPreference(
+    preference = settings.ui.isWidePoster,
+    title = stringResource(R.string.poster_size_settings),
+    icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
+    onValueChanged = { newValue ->
+        HomeChildItemAdapter.sharedPool.clear()
+        ParentItemAdapter.sharedPool.clear()
+        SearchAdapter.sharedPool.clear()
+        safe {
+            activity?.recreate()
+        }
+        true // <- Hatanın çözümü: Lambda sonucunun Boolean dönmesi gerekiyor
+    }
+),
+					
                     Preference.PreferenceItem.SliderPreference(
                         value = posterSize,
                         title = stringResource(R.string.poster_size_settings),
