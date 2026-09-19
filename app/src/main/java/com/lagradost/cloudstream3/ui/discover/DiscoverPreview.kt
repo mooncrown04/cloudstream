@@ -68,7 +68,7 @@ internal object DiscoverPreview {
                     parseJson<Details>(TmdbMetadata.request(
                        // "/${if (tv) "tv" else "movie"}/$id", mapOf("language" to "en-US")))
 					//	"/${if (tv) "tv" else "movie"}/$id", mapOf("language" to "tr-TR")))
-						"/${if (tv) "tv" else "movie"}/$id", mapOf("language" to TmdbMetadata.currentAppLanguage)
+						"/${if (tv) "tv" else "movie"}/$id", mapOf("language" to TmdbMetadata.currentAppLanguage)))
                 }
                 binding.previewOverview.text = details.overview?.takeIf { it.isNotBlank() }
                     ?: context.getString(R.string.discover_preview_no_overview)
