@@ -10,8 +10,10 @@ import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import com.lagradost.cloudstream3.AcraApplication
+
+import android.content.res.Resources
 import java.util.Locale
+
 /** Shared metadata transport and cards for discovery and actor credits. */
 internal object TmdbMetadata {
     // The application key already used by TmdbProvider and actor filmography.
@@ -26,9 +28,8 @@ internal object TmdbMetadata {
     // Uygulama/Sistem dilini alırken null-safety garantisi sağlayan yapı
 val currentAppLanguage: String
         get() {
-            val context = CloudStreamApp.context
-            val locale = try {
-                context?.resources?.configuration?.locales?.get(0) ?: Locale.getDefault()
+            val locale: Locale = try {
+                Resources.getSystem().configuration.locales.get(0) ?: Locale.getDefault()
             } catch (_: Throwable) {
                 Locale.getDefault()
             }
@@ -48,6 +49,7 @@ val currentAppLanguage: String
         return response.text
     }
 }
+    
 //yeni eklendi
 
 
