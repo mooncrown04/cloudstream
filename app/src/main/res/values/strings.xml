@@ -797,4 +797,6 @@
         <item quantity="other">%d downloads queued</item>
     </plurals>
     <string name="player_is_live">Live</string>
+	<string name="wide_poster_settings">Wide Poster Layout</string>
+<string name="wide_poster_settings_des">Expands posters to 16:9 aspect ratio</string>
 </resources>
