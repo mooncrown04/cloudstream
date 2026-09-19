@@ -98,14 +98,20 @@ open class ParentItemAdapter(
         val info = item.list
         
         // =========================================================================
-        // TERCIH OKUMA: Boolean tipinde doğru okuma yapılarak çökme engellendi
+        // TERCIH OKUMA: Çakışmayı önlemek için 'wide_poster_key' kullanılıyor
         // =========================================================================
         val context = binding.root.context
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
-        val posterKey = context.getString(R.string.poster_size_key)
+        
+        // 'poster_size_key' (Int slider) yerine yeni oluşturduğumuz 'wide_poster_key' (Boolean switch)
+        val widePosterKey = context.getString(R.string.wide_poster_key)
 
-        val isWideLayout = if (settingsManager.contains(posterKey)) {
-            settingsManager.getBoolean(posterKey, false)
+        val isWideLayout = if (settingsManager.contains(widePosterKey)) {
+            try {
+                settingsManager.getBoolean(widePosterKey, false)
+            } catch (e: ClassCastException) {
+                false
+            }
         } else {
             info.isHorizontalImages
         }
