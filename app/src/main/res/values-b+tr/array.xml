@@ -272,7 +272,7 @@
  <!-- Font İsimleri (Türkçe Arayüzde Görünecek Metinler) -->
     <string-array name="app_font_names">
         <item>Varsayılan</item>
-		<item>TimesNew_roman</item>
+		<item>TimesNewRoman</item>
         <item>StixGeneral</item>
 		<item>ComicSans</item>
 		<item>Maybach</item>
@@ -287,7 +287,7 @@
     <!-- Font Değerleri (Kod Tarafında Okunacak Değerler - İngilizce ile BİREBİR AYNI OL MALI) -->
     <string-array name="app_font_values">
         <item>Default</item>
-        <item>TimesNew_roman</item>
+        <item>TimesNewRoman</item>
         <item>StixGeneral</item>
 		<item>ComicSans</item>
 		<item>Maybach</item>
