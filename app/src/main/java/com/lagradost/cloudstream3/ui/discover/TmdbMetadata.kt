@@ -10,7 +10,8 @@ import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-
+import com.lagradost.cloudstream3.AcraApplication
+import java.util.Locale
 /** Shared metadata transport and cards for discovery and actor credits. */
 internal object TmdbMetadata {
     // The application key already used by TmdbProvider and actor filmography.
@@ -21,14 +22,17 @@ internal object TmdbMetadata {
     val cards = object : MainAPI() {
         override var name = "TMDB"
     }
-// Cloudstream APK'sının aktif dilini doğrudan Context üzerinden alır:
-val currentAppLanguage: String
-        get() {
-            val context = AcraApplication.context
-            val locale = context?.resources?.configuration?.locales?.get(0)
-                ?: Locale.getDefault()
 
-            val lang = locale.language.takeIf { it.isNotBlank() } ?: "en"
+    // Uygulama/Sistem dilini alırken null-safety garantisi sağlayan yapı
+    val currentAppLanguage: String
+        get() {
+            val locale: Locale = try {
+                AcraApplication.context?.resources?.configuration?.locales?.get(0) ?: Locale.getDefault()
+            } catch (_: Throwable) {
+                Locale.getDefault()
+            }
+
+            val lang = locale.language.ifBlank { "en" }
             val country = locale.country
             return if (country.isNotBlank()) "$lang-$country" else lang
         }
