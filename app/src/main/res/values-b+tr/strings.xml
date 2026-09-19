@@ -820,8 +820,6 @@
     <string name="discover_preview_error">Özet yüklenemedi. Yine de bu içeriği kaydedebilir veya eklentilerde arayabilirsiniz.</string>
     <string name="discover_preview_runtime">%1$d dk</string>
     <string name="discover_preview_seasons">Sezon Sayısı: %1$d</string>
-<string name="ok">Tamam</string>
-<string name="cancel">İptal</string>
 	<!-- Uygulama Font Ayarları Anahtarları ve Başlıkları -->
 <string name="app_font_title">Uygulama Yazı Tipi</string>
 <string name="app_font_key">app_font_key</string>
