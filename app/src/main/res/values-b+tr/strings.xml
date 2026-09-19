@@ -829,4 +829,17 @@
 <string name="action_ok">Tamam</string>
 <string name="action_cancel">İptal</string>
 <string name="apply">Uygula</string>
+<!-- Yeni Geniş Afiş Switch'i İçin -->
+<string name="wide_poster_key" translatable="false">wide_poster_key</string>
+<string name="wide_poster_settings">Geniş Afiş Düzeni</string>
+<string name="wide_poster_settings_des">Afişleri 16:9 formatına genişletir</string>	
+<string name="legal_notice_text">Bu uygulamadaki içerikle ilgili tüm yasal sorunlar, tarafımızca hiçbir bağlantımız bulunmayan asıl dosya sunucuları ve sağlayıcıları ile çözülmelidir.
+
+\n\nTelif hakkı ihlali durumunda lütfen doğrudan sorumlu taraflarla veya yayın web siteleriyle iletişime geçin.
+
+\n\nUygulama yalnızca eğitim ve kişisel kullanım amaçlıdır.
+
+\n\nCloudStream, uygulama üzerinde hiçbir içeriğe ev sahipliği yapmaz ve hangi medyanın yüklendiği veya kaldırıldığı üzerinde hiçbir kontrole sahip değildir. CloudStream, Google gibi diğer arama motorlarıyla aynı mantıkla çalışır. CloudStream; herhangi bir video, film veya içeriği barındırmaz, yüklemez veya yönetmez. Yalnızca bağlantıları tarar, bir araya getirir ve pratik, kullanıcı dostu bir arayüzde görüntüler.
+
+\n\nYalnızca sıradan bir web tarayıcısı üzerinden kamuya açık olan 3. taraf web sitelerini tarar (scrape eder). Bulunduğu bölgenin yasalarını ihlal edebilecek eylemlerden kaçınmak kullanıcının kendi sorumluluğundadır. CloudStream\'i kullanırken riski kendiniz üstlenirsiniz.</string>	
 </resources>
