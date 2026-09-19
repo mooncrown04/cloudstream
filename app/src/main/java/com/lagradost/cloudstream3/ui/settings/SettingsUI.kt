@@ -59,14 +59,14 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
-        // Afiş Boyutu / Geniş Afiş Düzeni Switch Dinleyicisi
-        getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, _ ->
-            HomeChildItemAdapter.sharedPool.clear()
-            ParentItemAdapter.sharedPool.clear()
-            SearchAdapter.sharedPool.clear()
-            activity?.recreate()
-            true
-        }
+  // Geniş Afiş Düzeni Switch Dinleyicisi
+getPref(R.string.wide_poster_key)?.setOnPreferenceChangeListener { _, _ ->
+    HomeChildItemAdapter.sharedPool.clear()
+    ParentItemAdapter.sharedPool.clear()
+    SearchAdapter.sharedPool.clear()
+    activity?.recreate()
+    true
+}
 
         getPref(R.string.poster_ui_key)?.setOnPreferenceClickListener {
             val prefNames = resources.getStringArray(R.array.poster_ui_options)
