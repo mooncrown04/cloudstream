@@ -25,10 +25,11 @@
             android:title="@string/app_layout" />
  <!-- poster geniş  -->
 <SwitchPreference
-    android:icon="@drawable/ic_baseline_aspect_ratio_24"
-    android:key="@string/poster_size_key"
-    android:title="@string/poster_size_settings"
-    android:defaultValue="false" />
+    app:defaultValue="false"
+    app:icon="@drawable/ic_baseline_aspect_ratio_24"
+    app:summary="@string/poster_size_settings_des"
+    app:title="@string/poster_size_settings"
+    app:key="@string/poster_size_key" />
         
         <SwitchPreference
             android:defaultValue="true"
