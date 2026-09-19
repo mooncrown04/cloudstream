@@ -21,13 +21,32 @@ internal object TmdbMetadata {
     val cards = object : MainAPI() {
         override var name = "TMDB"
     }
+//yeni eklendi  Uygulama ayarlarından değiştirilen aktif dili okur (Örn: "tr", "en", "de"):
+    val currentAppLanguage: String
+        get() {
+            val context = app.get()?.currentActivity ?: app.get()?.context
+            val locale = context?.resources?.configuration?.locales?.get(0) 
+                ?: java.util.Locale.getDefault()
+            
+            val lang = locale.language.takeIf { it.isNotBlank() } ?: "en"
+            val country = locale.country
+            return if (country.isNotBlank()) "${lang}-${country}" else lang
+        }
 
     suspend fun request(path: String, params: Map<String, String>): String {
-        val response = app.get(API_URL + path, params = params + ("api_key" to API_KEY))
+        // Parametrelerde dil yoksa, uygulamanın seçili dilini basar
+        val defaultParams = mapOf(
+            "api_key" to API_KEY,
+            "language" to currentAppLanguage
+        )
+        val response = app.get(API_URL + path, params = defaultParams + params)
         check(response.isSuccessful) { "TMDB request failed (${response.code})" }
         return response.text
     }
 }
+
+//yeni eklendi
+
 
 internal enum class TmdbRatingFilter(val minimum: Int) {
     ALL(0),
