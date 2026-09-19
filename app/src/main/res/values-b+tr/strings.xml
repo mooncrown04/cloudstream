@@ -825,4 +825,8 @@
 <string name="app_font_key">app_font_key</string>
 <string name="app_font_settings">Uygulama Yazı Tipi</string>
 <string name="app_font_default">Varsayılan</string>
+<string name="sort_cancel">İptal</string>
+<string name="action_ok">Tamam</string>
+<string name="action_cancel">İptal</string>
+<string name="apply">Uygula</string>
 </resources>
