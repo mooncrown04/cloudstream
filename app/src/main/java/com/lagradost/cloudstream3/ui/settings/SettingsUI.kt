@@ -59,11 +59,12 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
-        getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, newValue ->
+        // Afiş Boyutu / Geniş Afiş Düzeni Switch Dinleyicisi
+        getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, _ ->
             HomeChildItemAdapter.sharedPool.clear()
             ParentItemAdapter.sharedPool.clear()
             SearchAdapter.sharedPool.clear()
-            context?.let { HomeChildItemAdapter.updatePosterSize(it, newValue as? Int) }
+            activity?.recreate()
             true
         }
 
@@ -206,52 +207,33 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
-getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
-    val prefNames = resources.getStringArray(R.array.app_font_names).toMutableList()
-    val prefValues = resources.getStringArray(R.array.app_font_values).toMutableList()
+        getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+            val prefNames = resources.getStringArray(R.array.app_font_names).toMutableList()
+            val prefValues = resources.getStringArray(R.array.app_font_values).toMutableList()
 
-    val currentFont = settingsManager.getString(
-        getString(R.string.app_font_key),
-        prefValues.firstOrNull() ?: "Default"
-    )
+            val currentFont = settingsManager.getString(
+                getString(R.string.app_font_key),
+                prefValues.firstOrNull() ?: "Default"
+            )
 
-    activity?.showBottomDialog(
-        prefNames.toList(),
-        prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
-        getString(R.string.app_font_settings),
-        true,
-        {}
-    ) { index ->
-        try {
-            prefValues.getOrNull(index)?.let { selectedFont ->
-                settingsManager.edit {
-                    putString(getString(R.string.app_font_key), selectedFont)
+            activity?.showBottomDialog(
+                prefNames.toList(),
+                prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
+                getString(R.string.app_font_settings),
+                true,
+                {}
+            ) { index ->
+                try {
+                    prefValues.getOrNull(index)?.let { selectedFont ->
+                        settingsManager.edit {
+                            putString(getString(R.string.app_font_key), selectedFont)
+                        }
+                        activity?.recreate()
+                    }
+                } catch (e: Exception) {
+                    logError(e)
                 }
-                activity?.recreate()
             }
-        } catch (e: Exception) {
-            logError(e)
-        }
-    }
-    true
-}
-
-// ==========================================
-        // AFİŞ BOYUTU AÇ / KAPA (SWITCH) DİNLEYİCİSİ
-        // ==========================================
-        getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, newValue ->
-            val isWide = newValue as? Boolean ?: false
-            val selectedSize = if (isWide) "wide" else "default"
-
-            settingsManager.edit {
-                putString(getString(R.string.poster_size_key), selectedSize)
-            }
-
-            HomeChildItemAdapter.sharedPool.clear()
-            ParentItemAdapter.sharedPool.clear()
-            SearchAdapter.sharedPool.clear()
-
-            activity?.recreate()
             true
         }
 
