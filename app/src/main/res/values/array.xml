@@ -353,7 +353,7 @@
 	 <!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
     <string-array name="app_font_names">
         <item>Default</item>
-       	<item>TimesNew_roman</item>
+       	<item>TimesNewRoman</item>
         <item>StixGeneral</item>
 		<item>ComicSans</item>
 	    <item>Maybach</item>
@@ -367,7 +367,7 @@
 
     <string-array name="app_font_values">
        <item>Default</item>
-      	<item>TimesNew_roman</item>
+      	<item>TimesNewRoman</item>
         <item>StixGeneral</item>
 		<item>ComicSans</item>
 		<item>Maybach</item>
