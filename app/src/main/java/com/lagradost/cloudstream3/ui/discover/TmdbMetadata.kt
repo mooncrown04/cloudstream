@@ -21,27 +21,26 @@ internal object TmdbMetadata {
     val cards = object : MainAPI() {
         override var name = "TMDB"
     }
-//yeni eklendi  Uygulama ayarlarından değiştirilen aktif dili okur (Örn: "tr", "en", "de"):
+// Cloudstream APK'sının aktif dilini doğrudan Context üzerinden alır:
     val currentAppLanguage: String
         get() {
-            val context = app.get()?.currentActivity ?: app.get()?.context
-            val locale = context?.resources?.configuration?.locales?.get(0) 
-                ?: java.util.Locale.getDefault()
-            
+            val context = AcraApplication.context
+            val locale = context?.resources?.configuration?.locales?.get(0)
+                ?: Locale.getDefault()
+
             val lang = locale.language.takeIf { it.isNotBlank() } ?: "en"
             val country = locale.country
             return if (country.isNotBlank()) "${lang}-${country}" else lang
         }
 
-    suspend fun request(path: String, params: Map<String, String>): String {
-        // Parametrelerde dil yoksa, uygulamanın seçili dilini basar
+    suspend fun request(path: String, params: Map<String, String> = emptyMap()): String {
         val defaultParams = mapOf(
-            "api_key" to API_KEY,
+            "api_key" to API_KEY,[cite: 12]
             "language" to currentAppLanguage
         )
-        val response = app.get(API_URL + path, params = defaultParams + params)
-        check(response.isSuccessful) { "TMDB request failed (${response.code})" }
-        return response.text
+        val response = app.get(API_URL + path, params = defaultParams + params)[cite: 12]
+        check(response.isSuccessful) { "TMDB request failed (${response.code})" }[cite: 12]
+        return response.text[cite: 12]
     }
 }
 
