@@ -24,10 +24,11 @@ internal object TmdbMetadata {
     }
 
     // Uygulama/Sistem dilini alırken null-safety garantisi sağlayan yapı
-    val currentAppLanguage: String
+val currentAppLanguage: String
         get() {
-            val locale: Locale = try {
-                AcraApplication.context?.resources?.configuration?.locales?.get(0) ?: Locale.getDefault()
+            val context = CloudStreamApp.context
+            val locale = try {
+                context?.resources?.configuration?.locales?.get(0) ?: Locale.getDefault()
             } catch (_: Throwable) {
                 Locale.getDefault()
             }
