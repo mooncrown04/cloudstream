@@ -24,7 +24,7 @@
             android:key="@string/app_layout_key"
             android:title="@string/app_layout" />
  <!-- poster geniş  -->
-<SwitchPreferenceCompat
+<SwitchPreference
     android:icon="@drawable/ic_baseline_aspect_ratio_24"
     android:key="@string/poster_size_key"
     android:title="@string/poster_size_settings"
