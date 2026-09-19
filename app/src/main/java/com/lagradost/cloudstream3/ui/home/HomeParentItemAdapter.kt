@@ -85,8 +85,8 @@ open class ParentItemAdapter(
         if (binding !is HomepageParentBinding) return
         (binding.homeChildRecyclerview.adapter as? HomeChildItemAdapter)?.submitList(item.list.list)
     }
-
-    override fun onBindContent(
+//*************************************************************************************
+   override fun onBindContent(
         holder: ViewHolderState<Bundle>,
         item: HomeViewModel.ExpandableHomepageList,
         position: Int
@@ -98,16 +98,16 @@ open class ParentItemAdapter(
         val info = item.list
         
         // =========================================================================
-        // TERCIH OKUMA: Switch açıkken "wide", kapalıysa veya yoksa "default" döner
+        // TERCIH OKUMA: Boolean tipinde doğru okuma yapılarak çökme engellendi
         // =========================================================================
         val context = binding.root.context
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
-        val posterSizePref = settingsManager.getString(context.getString(R.string.poster_size_key), "default")
+        val posterKey = context.getString(R.string.poster_size_key)
 
-        val isWideLayout = when (posterSizePref) {
-            "wide" -> true
-            "normal" -> false
-            else -> info.isHorizontalImages
+        val isWideLayout = if (settingsManager.contains(posterKey)) {
+            settingsManager.getBoolean(posterKey, false)
+        } else {
+            info.isHorizontalImages
         }
 
         binding.apply {
@@ -173,7 +173,7 @@ open class ParentItemAdapter(
             }
         }
     }
-
+//***************************************************************
     override fun onCreateContent(parent: ViewGroup): ParentItemHolder {
         val layoutResId = when {
             isLayout(TV) -> R.layout.homepage_parent_tv
