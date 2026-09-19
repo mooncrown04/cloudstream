@@ -270,7 +270,7 @@ object SettingsUIScreen : SearchableSettings {
         // =========================================================================
 Preference.PreferenceItem.SwitchPreference(
     preference = settings.ui.isWidePoster,
-    title = stringResource(R.string.poster_size_settings),
+    title = stringResource(R.string.wide_poster_settings), // <-- Yeni title referansı
     icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
     onValueChanged = { newValue ->
         HomeChildItemAdapter.sharedPool.clear()
@@ -279,7 +279,7 @@ Preference.PreferenceItem.SwitchPreference(
         safe {
             activity?.recreate()
         }
-        true // <- Hatanın çözümü: Lambda sonucunun Boolean dönmesi gerekiyor
+        true
     }
 ),
 					
