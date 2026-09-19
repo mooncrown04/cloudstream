@@ -162,5 +162,5 @@
         <item quantity="other">@string/episodes</item>
     </plurals>
 
-
+<string name="wide_poster_key" translatable="false">wide_poster_key</string>
 </resources>
