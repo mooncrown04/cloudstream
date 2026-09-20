@@ -41,8 +41,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
-import com.lagradost.cloudstream3.utils.UIHelper.setImage
-
+import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
+//impor yeni eklendi
 /** Arguments and view-scoped work allow dismissal and Activity recreation during a lookup. */
 class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
     BaseFragment.BindingCreator.Inflate(ActorFilmographyBinding::inflate)
@@ -460,10 +460,10 @@ withContext(Dispatchers.IO) {
             binding.filmographyBio.isVisible = false
         }
  
-// Oyuncu resmini yükle (Glide / setImage ile)
+// Oyuncu resmini yükle (Glide / imageUrl ile)
         val imageUrl = actor.image
         if (!imageUrl.isNullOrEmpty()) {
-            binding.filmographyActorImage.setImage(imageUrl)
+            binding.filmographyActorImage.loadImage(imageUrl)
             binding.filmographyActorImage.isVisible = true
         } else {
             binding.filmographyActorImage.isVisible = false
