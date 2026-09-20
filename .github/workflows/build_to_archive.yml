@@ -40,9 +40,43 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    # Lint kontrolü: Eksik string'leri ve hardcoded metinleri loglara yazdırır
-    - name: Run Android Lint Check
-      run: ./gradlew lint
+    # Türkçe (values-tr) dosyasında eksik kalan metin anahtarlarını tespit eden hafif kontrol adımı
+    - name: Check Missing Turkish Strings
+      run: |
+        python3 -c "
+        import xml.etree.ElementTree as ET
+        import os
+
+        default_xml = 'app/src/main/res/values/strings.xml'
+        tr_xml = 'app/src/main/res/values-tr/strings.xml'
+
+        if not os.path.exists(default_xml) or not os.path.exists(tr_xml):
+            print('XML dosyalarindan biri bulunamadi, kontrol atlaniyor.')
+            exit(0)
+
+        def parse_keys(file_path):
+            tree = ET.parse(file_path)
+            root = tree.getroot()
+            keys = set()
+            for child in root:
+                if 'name' in child.attrib:
+                    keys.add(child.attrib['name'])
+            return keys
+
+        def_keys = parse_keys(default_xml)
+        tr_keys = parse_keys(tr_xml)
+
+        missing = def_keys - tr_keys
+
+        print('==================================================')
+        if missing:
+            print(f'Turkce (values-tr) dosyasinda eksik olan {len(missing)} adet string anahtari bulundu:')
+            for key in sorted(missing):
+                print(f' - {key}')
+        else:
+            print('Tebrikler! Turkce strings.xml dosyasinda eksik anahtar bulunamadi.')
+        print('==================================================')
+        "
       continue-on-error: true
 
     - name: Run Gradle Build
