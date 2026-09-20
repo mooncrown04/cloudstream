@@ -445,6 +445,28 @@ class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
 
         loadJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
+			// --- BİYOGRAFİ ÇEKME VE EKLEME KISMI ---
+            withContext(Dispatchers.IO) {
+                val personId = repository.resolvePersonId(actor)
+                if (personId != null) {
+                    val details = repository.details(personId)
+                    val bio = details?.biography?.trim()
+                    withContext(Dispatchers.Main) {
+                        if (!bio.isNullOrEmpty()) {
+                            binding.filmographyBio.text = bio // XML'deki TextView ID'si
+                            binding.filmographyBio.isVisible = true
+                        } else {
+                            binding.filmographyBio.isVisible = false
+                        }
+                    }
+                }
+            }
+            // ----------------------------------------
+			
+			
+			
+			
+			
                 val credits = withContext(Dispatchers.IO) { repository.load(actor) }
                 allCredits = credits
                 availableGenres = credits.flatMap { it.genres.orEmpty() }.distinct().sorted()
