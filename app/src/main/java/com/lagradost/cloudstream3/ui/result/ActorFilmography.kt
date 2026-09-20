@@ -445,24 +445,21 @@ class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
 
         loadJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
-			// --- BİYOGRAFİ ÇEKME VE EKLEME KISMI ---
-            withContext(Dispatchers.IO) {
-                val personId = repository.resolvePersonId(actor)
-                if (personId != null) {
-                    val details = repository.details(personId)
-                    val bio = details?.biography?.trim()
-                    withContext(Dispatchers.Main) {
-                        if (!bio.isNullOrEmpty()) {
-                            binding.filmographyBio.text = bio // XML'deki TextView ID'si
-                            binding.filmographyBio.isVisible = true
-                        } else {
-                            binding.filmographyBio.isVisible = false
-                        }
-                    }
-                }
-            }
-            // ----------------------------------------
-			
+	// --- BİYOGRAFİ ÇEKME VE EKLEME KISMI ---
+withContext(Dispatchers.IO) {
+    // resolvePersonId yerine doğrudan actor nesnesini geçiyoruz
+    val details = repository.details(actor)
+    val bio = details?.biography?.trim()
+    withContext(Dispatchers.Main) {
+        if (!bio.isNullOrEmpty()) {
+            binding.filmographyBio.text = bio
+            binding.filmographyBio.isVisible = true
+        } else {
+            binding.filmographyBio.isVisible = false
+        }
+    }
+}
+// ----------------------------------------
 			
 			
 			
