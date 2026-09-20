@@ -355,7 +355,7 @@ class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
     }
 
     private fun isDefault(): Boolean =
-        activeFilter == FilmographyFilter.MOVIES &&
+        activeFilter == FilmographyFilter.ALL &&
             languageFilter == DiscoverLanguage.ENGLISH &&
             ratingFilter == TmdbRatingFilter.SEVEN &&
             selectedGenres.isEmpty() &&
@@ -364,7 +364,7 @@ class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
 
     private fun resetFilters() {
         if (isDefault()) return
-        activeFilter = FilmographyFilter.MOVIES
+        activeFilter = FilmographyFilter.ALL
         languageFilter = DiscoverLanguage.ENGLISH
         ratingFilter = TmdbRatingFilter.SEVEN
         selectedGenres = emptySet()
@@ -445,6 +445,7 @@ class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
 
         loadJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
+
 	// --- BİYOGRAFİ ÇEKME VE EKLEME KISMI ---
 withContext(Dispatchers.IO) {
     // resolvePersonId yerine doğrudan actor nesnesini geçiyoruz
@@ -460,10 +461,7 @@ withContext(Dispatchers.IO) {
     }
 }
 // ----------------------------------------
-			
-			
-			
-			
+						
                 val credits = withContext(Dispatchers.IO) { repository.load(actor) }
                 allCredits = credits
                 availableGenres = credits.flatMap { it.genres.orEmpty() }.distinct().sorted()
