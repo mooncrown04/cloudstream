@@ -40,6 +40,11 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
+    # Lint kontrolü: Eksik string'leri ve hardcoded metinleri loglara yazdırır
+    - name: Run Android Lint Check
+      run: ./gradlew lint
+      continue-on-error: true
+
     - name: Run Gradle Build
       run: ./gradlew clean assembleDebug --stacktrace --info
       env:
