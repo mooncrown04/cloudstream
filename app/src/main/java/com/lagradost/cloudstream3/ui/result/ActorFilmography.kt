@@ -458,8 +458,18 @@ withContext(Dispatchers.IO) {
         } else {
             binding.filmographyBio.isVisible = false
         }
+ 
+// Oyuncu resmini yükle (Glide / setImage ile)
+        val imageUrl = actor.image
+        if (!imageUrl.isNullOrEmpty()) {
+            binding.filmographyActorImage.setImage(imageUrl)
+            binding.filmographyActorImage.isVisible = true
+        } else {
+            binding.filmographyActorImage.isVisible = false
+        }
     }
 }
+
 // ----------------------------------------
 						
                 val credits = withContext(Dispatchers.IO) { repository.load(actor) }
