@@ -1,5 +1,6 @@
 package com.lagradost.cloudstream3.ui.result
 
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -91,15 +92,50 @@ class ActorAdaptor(
                     }
                 }
 
+                // =========================================================================
+                // 1. PENCERE: NORMAL KISA TIKLAMA (OK Tuşu / Ekrana Dokunma)
+                // NOT: Hem biyografi hem de oynadığı film/dizileri gösteren alt sayfayı (ActorFilmography) açar.
+                // =========================================================================
                 itemView.setOnClickListener {
-                    // Anime cast entries may describe a character; look up the real performer.
                     ActorFilmography.show(itemView.context, item.voiceActor ?: item.actor)
                 }
 
+                // =========================================================================
+                // 2. PENCERE: UZUN BASMA (OK Tuşuna Basılı Tutma)
+                // NOT: Sadece oyuncunun biyografisini gösteren küçük pop-up penceresini (ActorInfoDialog) açar.
+                // =========================================================================
                 itemView.setOnLongClickListener {
-                    // Match single-click identity: real performer, not anime character.
                     ActorInfoDialog.show(itemView.context, item.voiceActor ?: item.actor)
                     true
+                }
+
+                // =========================================================================
+                // 3. PENCERE: TV KUMANDASI VEYA TKLAMA İLE ÖZEL TUŞ BASIMI
+                // NOT: Kumandadaki Menü, Sarı, Mavi veya Bilgi (Info) tuşuna basıldığında tetiklenir.
+                // =========================================================================
+                itemView.setOnKeyListener { view, keyCode, event ->
+                    if (event.action == KeyEvent.ACTION_DOWN) {
+                        when (keyCode) {
+                            // İstediğiniz kumanda tuş kodlarını buraya ekleyebilirsiniz:
+                            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,  // Ortadaki Oynat/Durdur tuşu
+                            KeyEvent.KEYCODE_MEDIA_PLAY,        // Sadece Oynat tuşu olan kumandalar için
+                            KeyEvent.KEYCODE_MEDIA_PAUSE,          // Kumanda Menü tuşu
+                            KeyEvent.KEYCODE_PROG_YELLOW,   // Kumanda Sarı tuş
+                            KeyEvent.KEYCODE_INFO -> {      // Kumanda Bilgi (Info) tuşu
+                                
+                                // Buraya açılmasını istediğiniz 3. ekran kodunu çağırın.
+                                // Örnek: Arama ekranını doğrudan o oyuncunun ismiyle tetiklemek için:
+                                // com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment.pushSearch(
+                                //     view.context, (item.voiceActor ?: item.actor).name
+                                // )
+                                
+                                true // Tuş olayının işlendiğini belirtir.
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
                 }
 
                 binding.apply {
