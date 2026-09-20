@@ -35,6 +35,27 @@
             app:tint="?attr/textColor" />
     </LinearLayout>
 
+<!-- EKLENEN BİYOGRAFİ ALANI -->
+    <TextView
+        android:id="@+id/filmography_bio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:textColor="?attr/textColor"
+        android:textSize="14sp"
+        android:maxLines="4"
+        android:ellipsize="end"
+        android:visibility="gone"
+        tools:text="Actor biography goes here..."
+        tools:visibility="visible" />
+
+
+
+
+
     <HorizontalScrollView
         android:id="@+id/filmography_filter_scroll"
         android:layout_width="match_parent"
