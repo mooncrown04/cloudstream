@@ -41,6 +41,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
+import com.lagradost.cloudstream3.utils.UIHelper.setImage
 
 /** Arguments and view-scoped work allow dismissal and Activity recreation during a lookup. */
 class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
