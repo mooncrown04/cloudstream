@@ -66,14 +66,14 @@ internal class ActorFilmographyRepository(
 
     suspend fun details(actor: Actor): ActorDetails? {
         val id = resolvePersonId(actor) ?: return null
-         return parseJson<ActorDetails>(request("/person/$id", emptyMap()))
+         return parseJson<ActorDetails>(request("/person/$id", mapOf("language" to TmdbMetadata.currentAppLanguage))
 		//return parseJson<ActorDetails>(request("/person/$id", mapOf("language" to "en-US")))
     }
 
     suspend fun load(actor: Actor): List<SearchResponse> {
         val id = resolvePersonId(actor) ?: return emptyList()
         val credits = parseJson<TmdbCombinedCredits>(
-            return parseJson<ActorDetails>(request("/person/$id", emptyMap()))
+            return parseJson<ActorDetails>(request("/person/$id", mapOf("language" to TmdbMetadata.currentAppLanguage))
 			//request("/person/$id/combined_credits", mapOf("language" to "en-US"))
 			
         ).cast.orEmpty()
