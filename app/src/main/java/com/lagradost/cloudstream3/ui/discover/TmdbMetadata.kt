@@ -11,10 +11,9 @@ import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-import com.lagradost.cloudstream3.SearchQuality
 import android.content.res.Resources
 import java.util.Locale
-//3 import yeni eklendi
+//2 import yeni eklendi
 
 /** Shared metadata transport and cards for discovery and actor credits. */
 internal object TmdbMetadata {
@@ -117,11 +116,7 @@ internal data class TmdbTitle(
             it.isFinite() && it > 0 && it <= 10 && (voteCount == null || voteCount > 0)
         }?.let { Score.from10(it) }
         val poster = posterPath?.takeIf { it.isNotBlank() }?.let { TmdbMetadata.IMAGE_URL + it }
-        
-			// ETİKET YAZISI: İçeriğin türüne göre metin belirleniyor
-    val typeQuality = SearchQuality.text(if (isTv) "Dizi" else "Film")
-		
-		
+        		
 		if (isTv) {
             newTvSeriesSearchResponse(
                 name = displayTitle, url = "https://www.themoviedb.org/tv/$id",
@@ -130,7 +125,6 @@ internal data class TmdbTitle(
                 this.id = cardId
                 posterUrl = poster
                 score = rating
-				quality = typeQuality // <--- BOŞ KALAN ETİKETE "Dizi" YAZAR
                 year = this@TmdbTitle.year
                 genres = resolveGenres(genreNames)
                 originalLanguage = this@TmdbTitle.originalLanguage?.takeIf { it.isNotBlank() }
@@ -143,7 +137,6 @@ internal data class TmdbTitle(
                 this.id = cardId
                 posterUrl = poster
                 score = rating
-				quality = typeQuality // <--- BOŞ KALAN ETİKETE "Dizi" YAZAR
                 year = this@TmdbTitle.year
                 genres = resolveGenres(genreNames)
                 originalLanguage = this@TmdbTitle.originalLanguage?.takeIf { it.isNotBlank() }
