@@ -123,11 +123,14 @@ class ActorAdaptor(
                             KeyEvent.KEYCODE_PROG_YELLOW,   // Kumanda Sarı tuş
                             KeyEvent.KEYCODE_INFO -> {      // Kumanda Bilgi (Info) tuşu
                                 
-                                // Buraya açılmasını istediğiniz 3. ekran kodunu çağırın.
-                                // Örnek: Arama ekranını doğrudan o oyuncunun ismiyle tetiklemek için:
-                                // com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment.pushSearch(
-                                //     view.context, (item.voiceActor ?: item.actor).name
-                                // )
+                            val targetActor = item.voiceActor ?: item.actor
+                val activity = view.context as? androidx.fragment.app.FragmentActivity
+                activity?.supportFragmentManager?.let { fm ->
+                    com.lagradost.cloudstream3.ui.result.ActorFilmography.newInstance(
+                        name = targetActor.name,
+                        image = targetActor.image
+                    ).show(fm, "ActorFilmography")
+                }
                                 
                                 true // Tuş olayının işlendiğini belirtir.
                             }
