@@ -113,16 +113,6 @@ class ActorAdaptor(
                 // 3. PENCERE: TV KUMANDASI VEYA TKLAMA İLE ÖZEL TUŞ BASIMI
                 // NOT: Kumandadaki Menü, Sarı, Mavi veya Bilgi (Info) tuşuna basıldığında tetiklenir.
                 // =========================================================================
-                itemView.setOnKeyListener { view, keyCode, event ->
-                    if (event.action == KeyEvent.ACTION_DOWN) {
-                        when (keyCode) {
-                            // İstediğiniz kumanda tuş kodlarını buraya ekleyebilirsiniz:
-                            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,  // Ortadaki Oynat/Durdur tuşu
-                            KeyEvent.KEYCODE_MEDIA_PLAY,        // Sadece Oynat tuşu olan kumandalar için
-                            KeyEvent.KEYCODE_MEDIA_PAUSE,          // Kumanda Menü tuşu
-                            KeyEvent.KEYCODE_PROG_YELLOW,   // Kumanda Sarı tuş
-                            KeyEvent.KEYCODE_INFO -> {      // Kumanda Bilgi (Info) tuşu
-                                
                itemView.setOnKeyListener { view, keyCode, event ->
                     if (event.action == KeyEvent.ACTION_DOWN) {
                         when (keyCode) {
