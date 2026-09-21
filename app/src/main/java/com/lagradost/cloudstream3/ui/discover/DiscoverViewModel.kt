@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 internal data class DiscoverState(
-    val type: DiscoverMediaType = DiscoverMediaType.MOVIES,
+    val type: DiscoverMediaType = DiscoverMediaType.ALL,  //MOVIES, değişti
     val language: DiscoverLanguage = DiscoverLanguage.ENGLISH,
     val rating: TmdbRatingFilter = TmdbRatingFilter.SEVEN,
     val genreIds: Set<Int> = emptySet(),
@@ -29,7 +29,7 @@ internal data class DiscoverState(
     val error: Boolean = false,
 ) {
     val isDefault: Boolean
-        get() = type == DiscoverMediaType.MOVIES &&
+        get() = type == DiscoverMediaType.ALL &&   //MOVIES, değişti
             language == DiscoverLanguage.ENGLISH &&
             rating == TmdbRatingFilter.SEVEN &&
             genreIds.isEmpty() &&
@@ -43,7 +43,7 @@ internal class DiscoverViewModel(private val savedState: SavedStateHandle) : Vie
         DiscoverState(
             type = DiscoverMediaType.entries.firstOrNull {
                 it.name == savedState.get<String>("type")
-            } ?: DiscoverMediaType.MOVIES,
+            } ?: DiscoverMediaType.ALL, // MOVIES yerine ALL
             language = DiscoverLanguage.entries.firstOrNull {
                 it.name == savedState.get<String>("language")
             } ?: DiscoverLanguage.ENGLISH,
@@ -127,7 +127,7 @@ internal class DiscoverViewModel(private val savedState: SavedStateHandle) : Vie
     fun resetFilters() {
         val current = mutableState.value ?: return
         if (current.isDefault) return
-        savedState["type"] = DiscoverMediaType.MOVIES.name
+        savedState["type"] = DiscoverMediaType.ALL.name // MOVIES yerine ALL
         savedState["language"] = DiscoverLanguage.ENGLISH.name
         savedState["rating"] = TmdbRatingFilter.SEVEN.minimum
         savedState.remove<IntArray>("genre_ids")
