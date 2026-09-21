@@ -800,7 +800,6 @@
 	<string name="wide_poster_settings">Wide Poster Layout</string>
 <string name="wide_poster_settings_des">Expands posters to 16:9 aspect ratio</string>
 	<!-- System Dialog  -->
-    <string name="action_ok">OK</string>
-    <string name="action_cancel">Cancel</string>
+    <string name="sort_cancel">Cancel</string>
     <string name="apply">Apply</string>
 </resources>
