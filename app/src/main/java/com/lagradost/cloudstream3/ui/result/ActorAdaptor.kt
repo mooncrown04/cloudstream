@@ -123,14 +123,13 @@ class ActorAdaptor(
                             KeyEvent.KEYCODE_PROG_YELLOW,   // Kumanda Sarı tuş
                             KeyEvent.KEYCODE_INFO -> {      // Kumanda Bilgi (Info) tuşu
                                 
-                            val targetActor = item.voiceActor ?: item.actor
-                val activity = view.context as? androidx.fragment.app.FragmentActivity
-                activity?.supportFragmentManager?.let { fm ->
-                    com.lagradost.cloudstream3.ui.result.ActorFilmography.newInstance(
-                        name = targetActor.name,
-                        image = targetActor.image
-                    ).show(fm, "ActorFilmography")
-                }
+                val targetActor = item.voiceActor ?: item.actor
+                
+                // Tam ekran Arama/İçerik listesi sayfasını oyuncu ismiyle tetikler:
+                com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment.pushSearch(
+                    view.context,
+                    targetActor.name
+                )
                                 
                                 true // Tuş olayının işlendiğini belirtir.
                             }
