@@ -51,7 +51,6 @@ internal class ActorFilmographyRepository(
             request(
                 "/search/person",
                 mapOf("query" to actorName, "language" to TmdbMetadata.currentAppLanguage, "include_adult" to "false"),
-			//	mapOf("query" to actorName, "language" to "en-US", "include_adult" to "false"),
             )
         ).results.orEmpty().filter { (it.id ?: 0) > 0 }
 
@@ -67,16 +66,15 @@ internal class ActorFilmographyRepository(
 
     suspend fun details(actor: Actor): ActorDetails? {
         val id = resolvePersonId(actor) ?: return null
-         return parseJson<ActorDetails>(request("/person/$id", mapOf("language" to TmdbMetadata.currentAppLanguage)))
-		//return parseJson<ActorDetails>(request("/person/$id", mapOf("language" to "en-US")))
+        return parseJson<ActorDetails>(
+            request("/person/$id", mapOf("language" to TmdbMetadata.currentAppLanguage))
+        )
     }
 
     suspend fun load(actor: Actor): List<SearchResponse> {
         val id = resolvePersonId(actor) ?: return emptyList()
         val credits = parseJson<TmdbCombinedCredits>(
-            return parseJson<ActorDetails>(request("/person/$id", mapOf("language" to TmdbMetadata.currentAppLanguage)))
-			//request("/person/$id/combined_credits", mapOf("language" to "en-US"))
-			
+            request("/person/$id/combined_credits", mapOf("language" to TmdbMetadata.currentAppLanguage))
         ).cast.orEmpty()
 
         val filtered = credits.asSequence()
