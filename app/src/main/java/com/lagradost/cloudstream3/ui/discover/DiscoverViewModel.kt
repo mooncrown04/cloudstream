@@ -43,7 +43,7 @@ internal class DiscoverViewModel(private val savedState: SavedStateHandle) : Vie
         DiscoverState(
             type = DiscoverMediaType.entries.firstOrNull {
                 it.name == savedState.get<String>("type")
-            } ?: DiscoverMediaType.ALL, // MOVIES yerine ALL
+            } ?: DiscoverMediaType.MOVIES,
             language = DiscoverLanguage.entries.firstOrNull {
                 it.name == savedState.get<String>("language")
             } ?: DiscoverLanguage.ENGLISH,
