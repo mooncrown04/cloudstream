@@ -842,6 +842,4 @@
 \n\nYalnızca sıradan bir web tarayıcısı üzerinden kamuya açık olan 3. taraf web sitelerini tarar (scrape eder). Bulunduğu bölgenin yasalarını ihlal edebilecek eylemlerden kaçınmak kullanıcının kendi sorumluluğundadır. CloudStream\'i kullanırken riski kendiniz üstlenirsiniz.</string>	
 <!-- Eksik Türkçe Çeviriler -->
     <string name="log_cat">Logcat</string>
-<string name="sort_cancel">İptal</string>
-
 </resources>
