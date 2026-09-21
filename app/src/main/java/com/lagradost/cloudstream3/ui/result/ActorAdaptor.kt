@@ -123,13 +123,28 @@ class ActorAdaptor(
                             KeyEvent.KEYCODE_PROG_YELLOW,   // Kumanda Sarı tuş
                             KeyEvent.KEYCODE_INFO -> {      // Kumanda Bilgi (Info) tuşu
                                 
-                val targetActor = item.voiceActor ?: item.actor
-                
-                // Tam ekran Arama/İçerik listesi sayfasını oyuncu ismiyle tetikler:
-                com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment.pushSearch(
-                    view.context,
-                    targetActor.name
+               itemView.setOnKeyListener { view, keyCode, event ->
+                    if (event.action == KeyEvent.ACTION_DOWN) {
+                        when (keyCode) {
+                            // İstediğiniz kumanda tuş kodlarını buraya ekleyebilirsiniz:
+                            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,  // Ortadaki Oynat/Durdur tuşu
+                            KeyEvent.KEYCODE_MEDIA_PLAY,        // Sadece Oynat tuşu olan kumandalar için
+                            KeyEvent.KEYCODE_MEDIA_PAUSE,          // Kumanda Menü tuşu
+                            KeyEvent.KEYCODE_PROG_YELLOW,   // Kumanda Sarı tuş
+                            KeyEvent.KEYCODE_INFO -> {      // Kumanda Bilgi (Info) tuşu
+                                
+               
+                fun pushSearch(autoSearch: String? = null, providers: Array<String>? = null)
                 )
+                                
+                                true // Tuş olayının işlendiğini belirtir.
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                }
                                 
                                 true // Tuş olayının işlendiğini belirtir.
                             }
