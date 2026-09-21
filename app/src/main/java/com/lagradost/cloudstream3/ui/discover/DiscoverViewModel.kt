@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 internal data class DiscoverState(
-    val type: DiscoverMediaType = DiscoverMediaType.ALL,  //MOVIES, değişti
+    val type: DiscoverMediaType = DiscoverMediaType.MOVIES,
     val language: DiscoverLanguage = DiscoverLanguage.ENGLISH,
     val rating: TmdbRatingFilter = TmdbRatingFilter.SEVEN,
     val genreIds: Set<Int> = emptySet(),
@@ -29,7 +29,7 @@ internal data class DiscoverState(
     val error: Boolean = false,
 ) {
     val isDefault: Boolean
-        get() = type == DiscoverMediaType.ALL &&   //MOVIES, değişti
+        get() = type == DiscoverMediaType.MOVIES &&
             language == DiscoverLanguage.ENGLISH &&
             rating == TmdbRatingFilter.SEVEN &&
             genreIds.isEmpty() &&
