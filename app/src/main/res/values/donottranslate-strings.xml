@@ -131,7 +131,6 @@
     <string name="subtitles_none">@string/none</string>
     <string name="type_none">@string/none</string>
     <string name="duplicate_cancel">@string/cancel</string>
-    <string name="sort_cancel">@string/cancel</string>
     <string name="default_subtitles">@string/action_default</string>
     <string name="default_account">@string/action_default</string>
 
