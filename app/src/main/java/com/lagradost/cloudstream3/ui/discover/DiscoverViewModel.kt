@@ -136,12 +136,12 @@ internal class DiscoverViewModel(private val savedState: SavedStateHandle) : Vie
         savedState.remove<Int>("year")
         savedState["sort"] = DiscoverSort.POPULAR.name
         mutableState.value = current.copy(
-            type = DiscoverMediaType.MOVIES,
+          type = DiscoverMediaType.ALL, // <-- İŞTE BURASI: MOVIES YERİNE ALL OLMALI
             language = DiscoverLanguage.ENGLISH,
             rating = TmdbRatingFilter.SEVEN,
             genreIds = emptySet(),
-            genres = if (current.type == DiscoverMediaType.MOVIES) current.genres else emptyList(),
-            yearFrom = null,
+            genres = if (current.type == DiscoverMediaType.ALL) current.genres else emptyList(), // <-- BURASI DA ALL OLMALI
+			yearFrom = null,
             yearTo = null,
             sort = DiscoverSort.POPULAR,
         )
