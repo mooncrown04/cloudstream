@@ -127,7 +127,7 @@ internal class DiscoverViewModel(private val savedState: SavedStateHandle) : Vie
     fun resetFilters() {
         val current = mutableState.value ?: return
         if (current.isDefault) return
-        savedState["type"] = DiscoverMediaType.ALL.name // MOVIES yerine ALL
+        savedState["type"] = DiscoverMediaType.MOVIES.name
         savedState["language"] = DiscoverLanguage.ENGLISH.name
         savedState["rating"] = TmdbRatingFilter.SEVEN.minimum
         savedState.remove<IntArray>("genre_ids")
@@ -136,11 +136,11 @@ internal class DiscoverViewModel(private val savedState: SavedStateHandle) : Vie
         savedState.remove<Int>("year")
         savedState["sort"] = DiscoverSort.POPULAR.name
         mutableState.value = current.copy(
-          type = DiscoverMediaType.ALL, // <-- İŞTE BURASI: MOVIES YERİNE ALL OLMALI
+          type = DiscoverMediaType.MOVIES, 
             language = DiscoverLanguage.ENGLISH,
             rating = TmdbRatingFilter.SEVEN,
             genreIds = emptySet(),
-            genres = if (current.type == DiscoverMediaType.ALL) current.genres else emptyList(), // <-- BURASI DA ALL OLMALI
+            genres = if (current.type == DiscoverMediaType.MOVIES) current.genres else emptyList(),
 			yearFrom = null,
             yearTo = null,
             sort = DiscoverSort.POPULAR,
