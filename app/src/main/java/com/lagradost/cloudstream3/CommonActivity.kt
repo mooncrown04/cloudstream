@@ -379,7 +379,7 @@ val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.
     "Futura" -> R.style.FuturaFontOverlay
     "GoogleSans" -> R.style.GoogleSansFontOverlay
     "Gotham" -> R.style.GothamFontOverlay
-    else -> R.style.AppTheme // veya varsayılan font stiliniz
+     else -> R.style.TimesNewRomanFontOverlay //varsayılan font stiliniz
 }
 
 // 1. Ana temayı ve renk paleti overlay'ini uygula
