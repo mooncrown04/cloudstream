@@ -11,9 +11,10 @@ import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+import com.lagradost.cloudstream3.SearchQuality
 import android.content.res.Resources
 import java.util.Locale
-//2 import yeni eklendi
+//3 import yeni eklendi
 
 /** Shared metadata transport and cards for discovery and actor credits. */
 internal object TmdbMetadata {
