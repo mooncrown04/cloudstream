@@ -78,6 +78,26 @@ class SkipNextEpisodeController(val view: ImageView) : UIController() {
         }
     }
 }
+class SkipPrevEpisodeController(val view: ImageView) : UIController() {
+    init {
+        view.setImageResource(R.drawable.ic_baseline_skip_previous_24)
+        view.setOnClickListener {
+            remoteMediaClient?.let {
+                it.queuePrev(JSONObject())
+                view.visibility = GONE // Çift tıklamayı önlemek için
+            }
+        }
+    }
+
+    override fun onMediaStatusUpdated() {
+        super.onMediaStatusUpdated()
+        view.visibility = GONE
+        val currentIdIndex = remoteMediaClient?.getItemIndex() ?: return
+        if (currentIdIndex > 0) {
+            view.visibility = VISIBLE
+        }
+    }
+}
 
 @Serializable
 data class MetadataHolder(
@@ -371,6 +391,8 @@ class ControllerActivity : ExpandedControllerActivity() {
         val skipBackButton: ImageView = getButtonImageViewAt(1)
         val skipForwardButton: ImageView = getButtonImageViewAt(2)
         val skipOpButton: ImageView = getButtonImageViewAt(3)
+        // Eğer düzeninizde 5. bir buton slotu (index 4) mevcutsa:
+    val skipPrevButton: ImageView = getButtonImageViewAt(4)
         uiMediaController.bindViewToUIController(
             sourcesButton,
             SelectSourceController(sourcesButton, this)
@@ -387,5 +409,10 @@ class ControllerActivity : ExpandedControllerActivity() {
             skipOpButton,
             SkipNextEpisodeController(skipOpButton)
         )
+        uiMediaController.bindViewToUIController(
+            skipPrevButton,
+            SkipPrevEpisodeController(skipPrevButton)
+    )
+        
     }
 }
