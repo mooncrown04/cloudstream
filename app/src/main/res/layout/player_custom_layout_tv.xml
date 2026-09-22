@@ -353,7 +353,7 @@
                     android:orientation="vertical">
 
                  <LinearLayout
-    android:id="@+id/player_video_clock"
+    android:id="@+id/player_video_clock_container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="end"
@@ -375,16 +375,19 @@
         android:src="@drawable/ic_baseline_clock_24"
         app:tint="?attr/colorAccent" />
 
+    <!-- ID BURAYA EKLENDİ -->
     <TextClock
+        android:id="@+id/player_video_clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/google_sans"
-        android:format12Hour="EEE, dd MMM - hh:mm a"
-        android:format24Hour="EEE, dd MMM - HH:mm"
+        android:fontFamily="?android:attr/fontFamily"
+        android:format12Hour="EEEE, dd MMMM - hh:mm a"
+        android:format24Hour="EEEE, dd MMMM - HH:mm"
         android:textColor="?attr/colorAccent"
         android:textSize="14sp"
         android:textStyle="bold" />
 </LinearLayout>
+
 
                     <LinearLayout
                         android:id="@+id/player_video_title_holder"
