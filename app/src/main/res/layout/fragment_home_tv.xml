@@ -164,20 +164,25 @@
         tools:listitem="@layout/homepage_parent_tv"
         tools:visibility="gone" />
 
-  <LinearLayout
+ <LinearLayout
     android:id="@+id/home_clock_container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="start"
+    android:layout_gravity="start|top"
     android:layout_margin="12dp"
     android:background="@drawable/bg_clock_pill"
-    android:gravity="center_vertical"
+    android:gravity="center"
     android:orientation="horizontal"
     android:paddingStart="10dp"
     android:paddingTop="4dp"
     android:paddingEnd="12dp"
     android:paddingBottom="4dp"
-    android:visibility="visible">
+    android:focusable="false"
+    android:clickable="false"
+    android:clipChildren="true"
+    android:clipToPadding="true"
+    android:elevation="10dp"
+    android:translationZ="10dp">
 
     <ImageView
         android:layout_width="16dp"
@@ -187,17 +192,20 @@
         android:src="@drawable/ic_baseline_clock_24"
         app:tint="?attr/colorAccent" />
 
-    <!-- ID BURAYA EKLENDİ -->
     <TextClock
         android:id="@+id/home_clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="?android:attr/fontFamily"
+        app:fontFamily="?attr/fontFamily"
         android:format12Hour="EEEE, dd MMMM - hh:mm a"
         android:format24Hour="EEEE, dd MMMM - HH:mm"
         android:textColor="?attr/colorAccent"
         android:textSize="15sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:ellipsize="none"
+        android:includeFontPadding="false" />
 </LinearLayout>
     <LinearLayout
         android:id="@+id/home_api_holder"
