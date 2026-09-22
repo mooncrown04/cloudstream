@@ -447,20 +447,62 @@ class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
         loadJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
 
-	// --- BİYOGRAFİ ÇEKME VE EKLEME KISMI ---
+
+// --- BİYOGRAFİ VE OYUNCU BİLGİLERİ KISMI ---
 withContext(Dispatchers.IO) {
-    // resolvePersonId yerine doğrudan actor nesnesini geçiyoruz
     val details = repository.details(actor)
     val bio = details?.biography?.trim()
+
+    val formattedBio = if (!bio.isNullOrEmpty()) {
+        bio
+    } else {
+        // Biyografi yoksa ActorDetails nesnesindeki verilerden özet oluştur
+        val infoList = mutableListOf<String>()
+
+        // 1. Bilinen Alan (Oyunculuk, Yönetmenlik vb.)
+        details?.department?.trim()?.takeIf { it.isNotEmpty() }?.let { dept ->
+            infoList.add("Meslek: $dept")
+        }
+
+        // 2. Doğum Yeri
+        details?.birthplace?.trim()?.takeIf { it.isNotEmpty() }?.let { place ->
+            infoList.add("Doğum Yeri: $place")
+        }
+
+        // 3. Doğum Tarihi ve Yaş
+        details?.birthday?.trim()?.takeIf { it.isNotEmpty() }?.let { bday ->
+            val formattedBday = formatDate(bday)
+            val age = details.age()
+            if (age != null) {
+                // Hayattaysa yaş, vefat ettiyse öldüğü yaştaki bilgisi
+                val ageText = if (details.deathday.isNullOrBlank()) "$age yaşında" else "$age yaşında vefat etti"
+                infoList.add("Doğum Tarihi: $formattedBday ($ageText)")
+            } else {
+                infoList.add("Doğum Tarihi: $formattedBday")
+            }
+        }
+
+        // 4. Ölüm Tarihi (Varsa)
+        details?.deathday?.trim()?.takeIf { it.isNotEmpty() }?.let { dday ->
+            infoList.add("Ölüm Tarihi: ${formatDate(dday)}")
+        }
+
+        if (infoList.isNotEmpty()) {
+            infoList.joinToString(" • ")
+        } else {
+            null
+        }
+    }
+
     withContext(Dispatchers.Main) {
-        if (!bio.isNullOrEmpty()) {
-            binding.filmographyBio.text = bio
+        if (!formattedBio.isNullOrEmpty()) {
+            binding.filmographyBio.text = formattedBio
             binding.filmographyBio.isVisible = true
         } else {
             binding.filmographyBio.isVisible = false
         }
- 
-// Oyuncu resmini yükle (Glide / imageUrl ile)
+
+        // Oyuncu resmini yükle
         val imageUrl = actor.image
         if (!imageUrl.isNullOrEmpty()) {
             binding.filmographyActorImage.loadImage(imageUrl)
@@ -470,8 +512,8 @@ withContext(Dispatchers.IO) {
         }
     }
 }
-
 // ----------------------------------------
+
 						
                 val credits = withContext(Dispatchers.IO) { repository.load(actor) }
                 allCredits = credits
