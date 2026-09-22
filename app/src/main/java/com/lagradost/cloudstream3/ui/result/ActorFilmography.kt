@@ -513,12 +513,7 @@ withContext(Dispatchers.IO) {
     }
 }
 
-private fun formatDate(dateStr: String): String {
-    return runCatching {
-        val parts = dateStr.split("-")
-        if (parts.size == 3) "${parts[2]}.${parts[1]}.${parts[0]}" else dateStr
-    }.getOrDefault(dateStr)
-}
+
 
 // ----------------------------------------
 
@@ -569,4 +564,14 @@ private fun formatDate(dateStr: String): String {
         binding?.filmographyResults?.adapter = null
         super.onDestroyView()
     }
+//yeni
+private fun formatDate(dateStr: String): String {
+    return runCatching {
+        val parts = dateStr.split("-")
+        if (parts.size == 3) "${parts[2]}.${parts[1]}.${parts[0]}" else dateStr
+    }.getOrDefault(dateStr)
+
+//yeni
+}
+
 }
