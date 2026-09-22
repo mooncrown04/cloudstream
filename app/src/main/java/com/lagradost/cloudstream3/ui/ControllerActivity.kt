@@ -80,7 +80,7 @@ class SkipNextEpisodeController(val view: ImageView) : UIController() {
 }
 class SkipPrevEpisodeController(val view: ImageView) : UIController() {
     init {
-        view.setImageResource(R.drawable.ic_baseline_skip_previous_24)
+        view.setImageResource(R.drawable.baseline_skip_previous_24)
         view.setOnClickListener {
             remoteMediaClient?.let {
                 it.queuePrev(JSONObject())
