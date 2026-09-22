@@ -75,7 +75,7 @@ class ActorFilmography : BaseBottomSheetDialogFragment<ActorFilmographyBinding>(
     private var loadJob: Job? = null
     private val repository = ActorFilmographyRepository()
     private var allCredits: List<SearchResponse> = emptyList()
-    private var activeFilter = FilmographyFilter.MOVIES
+    private var activeFilter = FilmographyFilter.ALL
     private var languageFilter = DiscoverLanguage.ENGLISH
     private var ratingFilter = TmdbRatingFilter.SEVEN
     private var selectedGenres: Set<String> = emptySet()
@@ -512,6 +512,14 @@ withContext(Dispatchers.IO) {
         }
     }
 }
+
+private fun formatDate(dateStr: String): String {
+    return runCatching {
+        val parts = dateStr.split("-")
+        if (parts.size == 3) "${parts[2]}.${parts[1]}.${parts[0]}" else dateStr
+    }.getOrDefault(dateStr)
+}
+
 // ----------------------------------------
 
 						
