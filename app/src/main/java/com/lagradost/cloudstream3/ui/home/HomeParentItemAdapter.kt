@@ -6,7 +6,7 @@ import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.preference.PreferenceManager
+//import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.lagradost.cloudstream3.LoadResponse
@@ -100,9 +100,9 @@ open class ParentItemAdapter(
         // =========================================================================
         // TERCIH OKUMA: Çakışmayı önlemek için 'wide_poster_key' kullanılıyor
         // =========================================================================
-        val context = binding.root.context
-        val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
-        
+        val context = binding.root.context       
+   //     val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
+        val settingsManager = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
         // 'poster_size_key' (Int slider) yerine yeni oluşturduğumuz 'wide_poster_key' (Boolean switch)
         val widePosterKey = context.getString(R.string.wide_poster_key)
 
