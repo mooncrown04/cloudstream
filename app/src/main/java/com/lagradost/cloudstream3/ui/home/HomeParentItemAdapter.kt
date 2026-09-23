@@ -1,5 +1,6 @@
 package com.lagradost.cloudstream3.ui.home
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -95,6 +96,25 @@ open class ParentItemAdapter(
         val binding = holder.view
         if (binding !is HomepageParentBinding) return
         val info = item.list
+
+        // =========================================================================
+        // TERCIH OKUMA: PreferenceManager bağımlılığı olmadan sheref preferences okunuyor
+        // =========================================================================
+        val context = binding.root.context
+        val settingsManager = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
+        
+        val widePosterKey = context.getString(R.string.wide_poster_key)
+
+        val isWideLayout = if (settingsManager.contains(widePosterKey)) {
+            try {
+                settingsManager.getBoolean(widePosterKey, false)
+            } catch (e: ClassCastException) {
+                false
+            }
+        } else {
+            info.isHorizontalImages
+        }
+
         binding.apply {
             val currentAdapter = homeChildRecyclerview.adapter as? HomeChildItemAdapter
             if (currentAdapter == null) {
@@ -105,13 +125,13 @@ open class ParentItemAdapter(
                     nextFocusUp = homeChildRecyclerview.nextFocusUpId,
                     nextFocusDown = homeChildRecyclerview.nextFocusDownId,
                 ).apply {
-                    isHorizontal = info.isHorizontalImages
+                    isHorizontal = isWideLayout
                     hasNext = item.hasNext
                     submitList(item.list.list)
                 }
             } else {
                 currentAdapter.apply {
-                    isHorizontal = info.isHorizontalImages
+                    isHorizontal = isWideLayout
                     hasNext = item.hasNext
                     this.clickCallback = this@ParentItemAdapter.clickCallback
                     nextFocusUp = homeChildRecyclerview.nextFocusUpId
@@ -143,14 +163,7 @@ open class ParentItemAdapter(
 
                     val count = adapter.itemCount
                     val hasNext = adapter.hasNext
-                    /*println(
-                        "scolling ${recyclerView.isRecyclerScrollable()} ${
-                            recyclerView.canScrollHorizontally(
-                                1
-                            )
-                        }"
-                    )*/
-                    //!recyclerView.canScrollHorizontally(1)
+
                     if (!recyclerView.isRecyclerScrollable() && hasNext && expandCount != count) {
                         expandCount = count
                         expandCallback?.invoke(name)
@@ -158,7 +171,6 @@ open class ParentItemAdapter(
                 }
             })
 
-            //(recyclerView.adapter as HomeChildItemAdapter).notifyDataSetChanged()
             if (isLayout(PHONE)) {
                 homeChildMoreInfo.setOnClickListener {
                     moreInfoClickCallback.invoke(item)
@@ -179,7 +191,6 @@ open class ParentItemAdapter(
             HomepageParentBinding.bind(inflater.inflate(layoutResId, parent, false))
         } catch (t: Throwable) {
             logError(t)
-            // just in case someone forgot we don't want to crash
             HomepageParentBinding.inflate(inflater)
         }
 
