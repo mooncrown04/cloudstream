@@ -101,8 +101,7 @@ open class ParentItemAdapter(
         // TERCIH OKUMA: Çakışmayı önlemek için 'wide_poster_key' kullanılıyor
         // =========================================================================
         val context = binding.root.context       
-   //     val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
-        val settingsManager = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
+        val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
         // 'poster_size_key' (Int slider) yerine yeni oluşturduğumuz 'wide_poster_key' (Boolean switch)
         val widePosterKey = context.getString(R.string.wide_poster_key)
 
