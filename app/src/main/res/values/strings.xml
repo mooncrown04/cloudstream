@@ -802,4 +802,6 @@
 	<!-- System Dialog  -->
     <string name="sort_cancel">Cancel</string>
     <string name="apply">Apply</string>
+	<string name="zapping_settings">Zapping</string>
+    <string name="zapping_settings_des">Use DPAD up/down to switch between Live TV channels in the same Home category</string>
 </resources>
