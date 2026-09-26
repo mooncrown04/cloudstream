@@ -1723,8 +1723,8 @@ class GeneratorPlayer : FullScreenPlayer() {
 
 
 
-  private fun isZappingEnabled(): Boolean {Collapse commentComment on line R1724fire-light42 commented on Sep 25, 2026 fire-light42on Sep 25, 2026CollaboratorMore actionsUse AppSettings(context).player.zappingEnabled insteadReact👍React with 👍1WiojeltWrite a replyResolve comment
-        return context?.let { com.lagradost.cloudstream4.AppSettings(it).player.zappingEnabled.get() } == true
+private fun isZappingEnabled(): Boolean {
+        return context?.let { com.lagradost.cloudstream3.AppSettings(it).player.zappingEnabled.get() } == true
     }
 
     private fun isLiveZapping(): Boolean {
