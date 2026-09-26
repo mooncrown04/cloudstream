@@ -165,6 +165,7 @@ class PlayerPreferences(preferences: PreferenceStore) {
     val episodeSync = preferences.getBoolean("episode_sync_enabled_key", true)
     val defaultPlayer = preferences.getString("player_default_key", "")
     val limitPlayerTitle = preferences.getInt("prefer_limit_title_key", 0)
+    val zappingEnabled = preferences.getBoolean("zapping_enabled_key", true)
     val hidePlayerControlNames = preferences.getBoolean("hide_player_control_names_key", false)
     val showName = preferences.getBoolean("show_name", true)
     val showResolution = preferences.getBoolean("show_resolution", true)
