@@ -146,6 +146,13 @@ object SettingsPlayerScreen : SearchableSettings {
                         subtitle = stringResource(R.string.autoplay_next_settings_des),
                         icon = painterResource(R.drawable.skip_next_24px),
                     ),
+					Preference.PreferenceItem.SwitchPreference(
+                        preference = settings.player.zappingEnabled,
+                        title = stringResource(R.string.zapping_settings),
+                        subtitle = stringResource(R.string.zapping_settings_des),
+                        icon = painterResource(R.drawable.autorenew_24px),
+                    ),
+					
                     Preference.PreferenceItem.SwitchPreference(
                         preference = settings.player.skipOpEnabled,
                         title = stringResource(R.string.video_skip_op),
