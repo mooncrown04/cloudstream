@@ -1721,12 +1721,6 @@ class GeneratorPlayer : FullScreenPlayer() {
         super.onDestroy()
     }
 
-
-
-private fun isZappingEnabled(): Boolean {
-        return context?.let { com.lagradost.cloudstream3.AppSettings(it).player.zappingEnabled.get() } == true
-    }
-
     private fun isLiveZapping(): Boolean {
         return isZappingEnabled() &&
             (viewModel.generator as? LiveZappingGenerator)?.videos?.size?.let { it > 1 } == true
