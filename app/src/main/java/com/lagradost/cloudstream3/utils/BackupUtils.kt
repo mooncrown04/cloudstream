@@ -1,7 +1,9 @@
 package com.lagradost.cloudstream3.utils
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -32,6 +34,8 @@ import com.lagradost.cloudstream3.utils.UIHelper.requestRW
 import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.setupStream
 import com.lagradost.cloudstream3.utils.downloader.DownloadObjects
 import com.lagradost.cloudstream3.utils.downloader.DownloadQueueManager.QUEUE_KEY
+import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.DOWNLOAD_EPISODE_CACHE
+import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.DOWNLOAD_EPISODE_CACHE_BACKUP
 import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_DOWNLOAD_INFO
 import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_RESUME_IN_QUEUE
 import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_RESUME_PACKAGES
@@ -47,8 +51,7 @@ import java.lang.System.currentTimeMillis
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import android.content.ActivityNotFoundException
-import android.content.Intent
+
 object BackupUtils {
 
     /**
@@ -88,7 +91,6 @@ object BackupUtils {
         "subdl_user",
         "simkl_token",
 
-
         // Downloads can not be restored from backups.
         // The download path URI can not be transferred.
         // In the future we may potentially write metadata to files in the download directory
@@ -100,7 +102,6 @@ object BackupUtils {
         // We can therefore not prune download headers in backups.
         // DOWNLOAD_HEADER_CACHE_BACKUP,
         // DOWNLOAD_HEADER_CACHE,
-        
 
         // This may overwrite valid local data with invalid data
         KEY_DOWNLOAD_INFO,
@@ -194,8 +195,38 @@ object BackupUtils {
         }
 
         // Make sure the library is fresh
-        for(api in AccountManager.syncApis) {
+        for (api in AccountManager.syncApis) {
             api.requireLibraryRefresh = true
+        }
+    }
+
+    /**
+     * Uri üzerinden yedek dosyasını okuyup geri yükleme işlemini çalıştırır.
+     */
+    fun restoreFromUri(activity: Activity, uri: Uri) {
+        ioSafe {
+            try {
+                val input = activity.contentResolver.openInputStream(uri)
+                    ?: return@ioSafe
+
+                val text = input.bufferedReader().readText()
+                val restoredValue = parseJson<BackupFile>(text)
+
+                restore(
+                    activity,
+                    restoredValue,
+                    restoreSettings = true,
+                    restoreDataStore = true,
+                )
+                activity.runOnUiThread { activity.recreate() }
+            } catch (e: Exception) {
+                logError(e)
+                main {
+                    showToast(
+                        activity.getString(R.string.restore_failed_format).format(e.toString())
+                    )
+                }
+            }
         }
     }
 
@@ -248,36 +279,12 @@ object BackupUtils {
         )
     }
 
-   fun FragmentActivity.setUpBackup() {
+    fun FragmentActivity.setUpBackup() {
         try {
             restoreFileSelector =
                 registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
                     if (uri == null) return@registerForActivityResult
-                    val activity = this
-                    ioSafe {
-                        try {
-                            val input = activity.contentResolver.openInputStream(uri)
-                                ?: return@ioSafe
-
-                            val text = input.bufferedReader().readText()
-                            val restoredValue = parseJson<BackupFile>(text)
-
-                            restore(
-                                activity,
-                                restoredValue,
-                                restoreSettings = true,
-                                restoreDataStore = true,
-                            )
-                            activity.runOnUiThread { activity.recreate() }
-                        } catch (e: Exception) {
-                            logError(e)
-                            main { // smth can fail in .format
-                                showToast(
-                                    getString(R.string.restore_failed_format).format(e.toString())
-                                )
-                            }
-                        }
-                    }
+                    restoreFromUri(this, uri)
                 }
         } catch (e: Exception) {
             logError(e)
