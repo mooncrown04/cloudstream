@@ -61,13 +61,15 @@
     <!-- <color name="freeStorageColor">?attr/grayTextColor</color> #676767-->
 
     <!--Light Mode -->
-    <color name="lightPrimaryGrayBackground">#f1f1f1</color>
-    <color name="lightBitDarkerGrayBackground">#fff</color>
-    <color name="lightGrayBackground">#eeeeee</color>
-    <color name="lightItemBackground">#eeeeee</color>
-    <color name="lightTextColor">#202125</color>
-    <color name="lightGrayTextColor">#5f6267</color>
-    <color name="lightIconColor">#5f6267</color>
+ 	<!-- Galatasaray Theme (Görsel Test Paleti - Revize) -->
+	<color name="lightPrimaryGrayBackground">#FF0000</color> <!-- Kırmızı (Ana Arka Plan) -->
+    <color name="lightBitDarkerGrayBackground">#00FFFF</color> <!-- Turkuaz (En Koyu Arka Plan / Gölge / Alt Bar) -->
+    <color name="lightGrayBackground">#00FF00</color> <!-- Yeşil (Orta Ton / Bölüm Arka Planları) -->
+    <color name="lightItemBackground">#0000FF</color> <!-- Mavi (Kartlar, Butonlar ve Liste Elemanları) -->
+    <color name="lightTextColor">#FFFF00</color> <!-- Sarı (Ana Yazı Rengi ve Başlıklar) -->
+    <color name="lightGrayTextColor">#FF00FF</color> <!-- Fuşya/Pembe (İkincil Yazı Rengi ve Açıklamalar) -->
+    <color name="lightIconColor">#FFFFFF</color> <!-- Beyaz (Simgeler ve İkonlar) -->
+	
 
     <!--Dracula Theme-->
     <color name="DraculaPrimaryGrayBackground">#414450</color>
