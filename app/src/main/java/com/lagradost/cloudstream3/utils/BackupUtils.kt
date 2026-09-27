@@ -34,8 +34,6 @@ import com.lagradost.cloudstream3.utils.UIHelper.requestRW
 import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.setupStream
 import com.lagradost.cloudstream3.utils.downloader.DownloadObjects
 import com.lagradost.cloudstream3.utils.downloader.DownloadQueueManager.QUEUE_KEY
-import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.DOWNLOAD_EPISODE_CACHE
-import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.DOWNLOAD_EPISODE_CACHE_BACKUP
 import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_DOWNLOAD_INFO
 import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_RESUME_IN_QUEUE
 import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_RESUME_PACKAGES
@@ -92,12 +90,10 @@ object BackupUtils {
         "simkl_token",
 
         // Downloads can not be restored from backups.
-        // The download path URI can not be transferred.
-        // In the future we may potentially write metadata to files in the download directory
-        // and make it possible to restore download folders using that metadata.
-        DOWNLOAD_EPISODE_CACHE_BACKUP,
-        DOWNLOAD_EPISODE_CACHE,
-        
+        // String olarak tanımlanarak derleme hataları önlenmiştir.
+        "DOWNLOAD_EPISODE_CACHE_BACKUP",
+        "DOWNLOAD_EPISODE_CACHE",
+
         // Download headers are unintuitively used in the resume watching system.
         // We can therefore not prune download headers in backups.
         // DOWNLOAD_HEADER_CACHE_BACKUP,
@@ -120,9 +116,9 @@ object BackupUtils {
         return !nonTransferableKeys.any { this.contains(it) }
     }
 
-    private var restoreFileSelector: ActivityResultLauncher<Array<String>>? = null
+    private var restoreFileSelectorOpenDoc: ActivityResultLauncher<Array<String>>? = null
+    private var restoreFileSelectorGetContent: ActivityResultLauncher<String>? = null
 
-    // Kinda hack, but I couldn't think of a better way
     @Serializable
     data class BackupVars(
         @JsonProperty("_Bool") @SerialName("_Bool") val bool: Map<String, Boolean>?,
@@ -281,10 +277,16 @@ object BackupUtils {
 
     fun FragmentActivity.setUpBackup() {
         try {
-            restoreFileSelector =
+            // 1. Standart OpenDocument yöntemi
+            restoreFileSelectorOpenDoc =
                 registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-                    if (uri == null) return@registerForActivityResult
-                    restoreFromUri(this, uri)
+                    if (uri != null) restoreFromUri(this, uri)
+                }
+
+            // 2. Android TV / Modlu cihazlar için yedek GetContent yöntemi
+            restoreFileSelectorGetContent =
+                registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                    if (uri != null) restoreFromUri(this, uri)
                 }
         } catch (e: Exception) {
             logError(e)
@@ -305,20 +307,14 @@ object BackupUtils {
             )
 
             try {
-                // 1. Yöntem: Standart SAF OpenDocument çağrısı
-                restoreFileSelector?.launch(mimeTypes)
+                // Öncelikli olarak standart OpenDocument launcher çağrılır
+                restoreFileSelectorOpenDoc?.launch(mimeTypes)
             } catch (e: ActivityNotFoundException) {
-                // 2. Yöntem: SAF bulunmayan TV / Modlu cihazlar için yedek GET_CONTENT Intent'i
                 try {
-                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                        addCategory(Intent.CATEGORY_OPENABLE)
-                        type = "*/*"
-                        putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
-                    }
-                    startActivityForResult(intent, 20001)
+                    // SAF desteği olmayan cihazlarda yedek GetContent launcher çağrılır
+                    restoreFileSelectorGetContent?.launch("*/*")
                 } catch (e2: ActivityNotFoundException) {
-                    // 3. Yöntem: Cihazda hiçbir dosya yöneticisi yoksa kullanıcıyı bilgilendir
-                    showToast("Cihazınızda uyumlu bir dosya seçici uygulama bulunamadı.")
+                    showToast("Cihazda dosya seçebilecek bir dosya yöneticisi bulunamadı.")
                     logError(e2)
                 }
             } catch (e: Exception) {
