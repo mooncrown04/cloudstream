@@ -247,7 +247,7 @@ object BackupUtils {
         )
     }
 
-    fun FragmentActivity.setUpBackup() {
+   fun FragmentActivity.setUpBackup() {
         try {
             restoreFileSelector =
                 registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
@@ -285,18 +285,34 @@ object BackupUtils {
 
     fun Activity.restorePrompt() {
         runOnUiThread {
+            val mimeTypes = arrayOf(
+                "text/plain",
+                "text/str",
+                "text/x-unknown",
+                "application/json",
+                "unknown/unknown",
+                "content/unknown",
+                "application/octet-stream",
+                "*/*"
+            )
+
             try {
-                restoreFileSelector?.launch(
-                    arrayOf(
-                        "text/plain",
-                        "text/str",
-                        "text/x-unknown",
-                        "application/json",
-                        "unknown/unknown",
-                        "content/unknown",
-                        "application/octet-stream",
-                    )
-                )
+                // 1. Yöntem: Standart SAF OpenDocument çağrısı
+                restoreFileSelector?.launch(mimeTypes)
+            } catch (e: ActivityNotFoundException) {
+                // 2. Yöntem: SAF bulunmayan TV / Modlu cihazlar için yedek GET_CONTENT Intent'i
+                try {
+                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "*/*"
+                        putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+                    }
+                    startActivityForResult(intent, 20001)
+                } catch (e2: ActivityNotFoundException) {
+                    // 3. Yöntem: Cihazda hiçbir dosya yöneticisi yoksa kullanıcıyı bilgilendir
+                    showToast("Cihazınızda uyumlu bir dosya seçici uygulama bulunamadı.")
+                    logError(e2)
+                }
             } catch (e: Exception) {
                 showToast(e.message)
                 logError(e)
