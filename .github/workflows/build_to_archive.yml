@@ -9,8 +9,9 @@ on:
       - '**/wcokey.txt'
   workflow_dispatch:
 
-permissions:
-  contents: read
+# Node.js 24 uyarısını susturmak için opsiyonel env
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
   group: "Archive-build"
@@ -20,26 +21,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Generate access token
-      id: generate_token
-      uses: tibdex/github-app-token@v2
-      with:
-        app_id: ${{ secrets.GH_APP_ID }}
-        private_key: ${{ secrets.GH_APP_KEY }}
-        repository: "recloudstream/secrets"
+    - uses: actions/checkout@v4
 
-    - name: Generate access token (archive)
-      id: generate_archive_token
-      uses: tibdex/github-app-token@v2
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        app_id: ${{ secrets.GH_APP_ID }}
-        private_key: ${{ secrets.GH_APP_KEY }}
-        repository: "recloudstream/cloudstream-archive"
-
-    - uses: actions/checkout@v6
+        python-version: '3.x'
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v4
       with:
         distribution: temurin
         java-version: 17
@@ -47,49 +37,77 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Fetch keystore
-      id: fetch_keystore
-      run: |
-        TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
-        mkdir -p "${TMP_KEYSTORE_FILE_PATH}"
-        curl -H "Authorization: token ${{ steps.generate_token.outputs.token }}" -o "${TMP_KEYSTORE_FILE_PATH}/prerelease_keystore.keystore" "https://raw.githubusercontent.com/recloudstream/secrets/master/keystore.jks"
-        curl -H "Authorization: token ${{ steps.generate_token.outputs.token }}" -o "keystore_password.txt" "https://raw.githubusercontent.com/recloudstream/secrets/master/keystore_password.txt"
-        KEY_PWD="$(cat keystore_password.txt)"
-        echo "::add-mask::${KEY_PWD}"
-        echo "key_pwd=$KEY_PWD" >> $GITHUB_OUTPUT
-
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v5
-      with:
-        cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+      uses: gradle/actions/setup-gradle@v3
 
-    - name: Run Gradle
-      run: ./gradlew assemblePrereleaseRelease
+    # Türkçe (values-b+tr) dosyasında eksik kalan metin anahtarlarını kontrol eden adım
+    - name: Check Missing Turkish Strings
+      run: |
+        python3 -c "
+        import xml.etree.ElementTree as ET
+        import os, glob
+
+        # values ve values-b+tr dizinlerindeki strings.xml dosyalarını otomatik bulur
+        default_files = glob.glob('**/src/main/res/values/strings.xml', recursive=True)
+        tr_files = glob.glob('**/src/main/res/values-b+tr/strings.xml', recursive=True)
+
+        if not default_files:
+            print('HATA: Varsayılan (values/strings.xml) bulunamadı.')
+            exit(0)
+
+        if not tr_files:
+            print('HATA: Türkçe (values-b+tr/strings.xml) bulunamadı.')
+            exit(0)
+
+        default_xml = default_files[0]
+        tr_xml = tr_files[0]
+
+        print(f'Eşleşen Varsayılan XML: {default_xml}')
+        print(f'Eşleşen Türkçe XML: {tr_xml}')
+
+        def parse_keys(file_path):
+            try:
+                tree = ET.parse(file_path)
+                root = tree.getroot()
+                keys = set()
+                for child in root:
+                    if 'name' in child.attrib:
+                        keys.add(child.attrib['name'])
+                return keys
+            except Exception as e:
+                print(f'XML Ayrıştırma Hatası ({file_path}): {e}')
+                return set()
+
+        def_keys = parse_keys(default_xml)
+        tr_keys = parse_keys(tr_xml)
+
+        missing = def_keys - tr_keys
+
+        print('==================================================')
+        if missing:
+            print(f'Turkce dosyasında eksik olan {len(missing)} adet string anahtarı bulundu:')
+            for key in sorted(missing):
+                print(f' - {key}')
+        else:
+            print('Tebrikler! Türkçe strings.xml dosyasında eksik anahtar bulunamadı.')
+        print('==================================================')
+        "
+      continue-on-error: true
+
+    - name: Run Gradle Build
+      run: ./gradlew clean assembleDebug --stacktrace --info
       env:
-        SIGNING_KEY_ALIAS: "key0"
-        SIGNING_KEY_PASSWORD: ${{ steps.fetch_keystore.outputs.key_pwd }}
-        SIGNING_STORE_PASSWORD: ${{ steps.fetch_keystore.outputs.key_pwd }}
         SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
         SIMKL_CLIENT_SECRET: ${{ secrets.SIMKL_CLIENT_SECRET }}
-        TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
         MDL_API_KEY: ${{ secrets.MDL_API_KEY }}
-        MAL_KEY: ${{ secrets.MAL_KEY }}
-        ANILIST_KEY: ${{ secrets.ANILIST_KEY }}
 
-    - uses: actions/checkout@v6
+    # Üretilen APK'nın yerini kesin olarak bulmak için bu adımı ekledik
+    - name: Find APK Path
+      run: find app/build/outputs/apk/ -name "*.apk"
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
       with:
-        repository: "recloudstream/cloudstream-archive"
-        token: ${{ steps.generate_archive_token.outputs.token }}
-        path: "archive"
-
-    - name: Move build
-      run: cp app/build/outputs/apk/prerelease/release/*.apk "archive/$(git rev-parse --short HEAD).apk"
-
-    - name: Push archive
-      run: |
-        cd $GITHUB_WORKSPACE/archive
-        git config --local user.email "actions@github.com"
-        git config --local user.name "GitHub Actions"
-        git add .
-        git commit --amend -m "Build $GITHUB_SHA" || exit 0   # do not error if nothing to commit
-        git push --force
+        name: CloudStream-Debug-APK
+        # 'debug/*.apk' yerine '**/*.apk' kullanarak tüm alt klasörleri tarıyoruz
+        path: "app/build/outputs/apk/**/*.apk"
