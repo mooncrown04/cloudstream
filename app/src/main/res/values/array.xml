@@ -303,17 +303,22 @@
         <item>Monet2</item>
     </string-array>
 
-    <string-array name="themes_names">
+   <string-array name="themes_names">
         <item>Dark</item>
         <item>Gray</item>
         <item>Amoled</item>
         <item>Flashbang</item>
         <item>System</item>
         <item>Material You</item>
+		<item>Rengarenk</item>
+		<item>CimBom</item>
+        <item>Galatasaray</item>
+		<item>GS</item>
         <item>Dracula</item>
         <item>Lavender Dreams</item>
         <item>Silent Blue</item>
     </string-array>
+    
     <string-array name="themes_names_values">
         <item>AmoledLight</item>
         <item>Black</item>
@@ -321,6 +326,10 @@
         <item>Light</item>
         <item>System</item>
         <item>Monet</item>
+		<item>Rengarenk</item>
+		<item>CimBom</item>
+        <item>Galatasaray</item>
+		<item>GS</item>
         <item>Dracula</item>
         <item>Lavender</item>
         <item>SilentBlue</item>
