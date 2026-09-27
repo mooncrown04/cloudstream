@@ -61,17 +61,51 @@
     <!-- <color name="freeStorageColor">?attr/grayTextColor</color> #676767-->
 
     <!--Light Mode -->
- 	<!-- Galatasaray Theme (Görsel Test Paleti - Revize) -->
-	<color name="lightPrimaryGrayBackground">#FF0000</color> <!-- Kırmızı (Ana Arka Plan) -->
-    <color name="lightBitDarkerGrayBackground">#00FFFF</color> <!-- Turkuaz (En Koyu Arka Plan / Gölge / Alt Bar) -->
-    <color name="lightGrayBackground">#00FF00</color> <!-- Yeşil (Orta Ton / Bölüm Arka Planları) -->
-    <color name="lightItemBackground">#0000FF</color> <!-- Mavi (Kartlar, Butonlar ve Liste Elemanları) -->
-    <color name="lightTextColor">#FFFF00</color> <!-- Sarı (Ana Yazı Rengi ve Başlıklar) -->
-    <color name="lightGrayTextColor">#FF00FF</color> <!-- Fuşya/Pembe (İkincil Yazı Rengi ve Açıklamalar) -->
-    <color name="lightIconColor">#FFFFFF</color> <!-- Beyaz (Simgeler ve İkonlar) -->
-	
+    <color name="lightPrimaryGrayBackground">#f1f1f1</color>
+    <color name="lightBitDarkerGrayBackground">#fff</color>
+    <color name="lightGrayBackground">#eeeeee</color>
+    <color name="lightItemBackground">#eeeeee</color>
+    <color name="lightTextColor">#202125</color>
+    <color name="lightGrayTextColor">#5f6267</color>
+    <color name="lightIconColor">#5f6267</color>
 
-    <!--Dracula Theme-->
+     <!-- Rengarenk Theme (Görsel Test Paleti - Revize) -->
+	<color name="RengarenkPrimaryGrayBackground">#FF0000</color> <!-- Kırmızı (Ana Arka Plan) -->
+    <color name="RengarenkBitDarkerGrayBackground">#0000FF</color> <!-- Mavi (En Koyu Arka Plan / Gölge / Alt Bar) -->
+    <color name="RengarenkGrayBackground">#00FF00</color> <!-- Yeşil (Orta Ton / Bölüm Arka Planları) -->
+    <color name="RengarenkItemBackground">#00FFFF</color> <!-- Turkuaz (Kartlar, Butonlar ve Liste Elemanları) -->
+    <color name="RengarenkTextColor">#FFFF00</color> <!-- Sarı (Ana Yazı Rengi ve Başlıklar) -->
+    <color name="RengarenkGrayTextColor">#FF00FF</color> <!-- Fuşya/Pembe (İkincil Yazı Rengi ve Açıklamalar) -->
+    <color name="RengarenkIconColor">#C89100</color> <!-- Koyu Altın Sarı (Simgeler ve İkonlar) -->
+
+<!-- Galatasaray Blue Theme (Net Geçişli Palet) 2.versiyon - Ters Renkler -->
+    <color name="CimBomPrimaryGrayBackground">#C89100</color> <!-- Ana Arka Plan (Koyu Altın Sarı) -->
+    <color name="CimBomBitDarkerGrayBackground">#FDB912</color> <!-- En Koyu Arka Plan (Resmi GS Sarısı) -->
+    <color name="CimBomGrayBackground">#FDB912</color> <!-- Orta Ton (Resmi GS Sarısı) -->
+    <color name="CimBomItemBackground">#A90432</color> <!-- Kartlar ve Elemanlar (Resmi GS Kırmızısı) -->
+    <color name="CimBomTextColor">#A90432</color> <!-- Ana Yazı Rengi (Resmi GS Kırmızısı) -->
+    <color name="CimBomGrayTextColor">#800325</color> <!-- İkincil Yazı Rengi (Net Bordo) -->
+    <color name="CimBomIconColor">#A90432</color> <!-- İkon Rengi (Resmi GS Kırmızısı) -->
+
+	<!-- Galatasaray Theme (Net Geçişli Palet) -->2.versiyon
+    <color name="GalatasarayPrimaryGrayBackground">#2B040D</color> <!-- Ana Arka Plan (Derin/Koyu Bordo) -->
+    <color name="GalatasarayBitDarkerGrayBackground">#1A0207</color> <!-- En Koyu Arka Plan (Gölge/Alt Bar) -->
+    <color name="GalatasarayGrayBackground">#A90432</color> <!-- Orta Ton (Resmi GS Kırmızısı) -->
+    <color name="GalatasarayItemBackground">#800325</color> <!-- Kartlar ve Elemanlar (Net Bordo) -->
+    <color name="GalatasarayTextColor">#FDB912</color> <!-- Ana Yazı Rengi (Resmi GS Sarısı) -->
+    <color name="GalatasarayGrayTextColor">#D08D9A</color> <!-- İkincil Yazı Rengi (Yumuşak Bordo-Kırmızı) -->
+    <color name="GalatasarayIconColor">#FDB912</color> <!-- İkon Rengi (Resmi GS Sarısı) -->
+
+      <!-- Galatasaray Renk Paleti -->
+    <color name="GSPrimaryGrayBackground">#A90432</color> <!-- Ana Arka Plan: Resmi GS Kırmızısı -->
+    <color name="GSBitDarkerGrayBackground">#800325</color> <!-- Bir tık koyu kırmızı (Gölgeler/Alt barlar için) -->
+    <color name="GSGrayBackground">#C1053A</color> <!-- Bir tık açık kırmızı -->
+    <color name="GSItemBackground">#B50436</color> <!-- Kartlar ve butonların arka planı -->   
+    <color name="GSTextColor">#FDB912</color> <!-- Resmi GS Sarısı (Kırmızı üzerinde harika okunur) -->
+    <color name="GSGrayTextColor">#FFFFFF</color> <!-- Beyaz Yazı Rengi -->
+    <color name="GSIconColor">#FDB912</color> <!-- İkon Sarısı -->
+    
+	<!--Dracula Theme-->
     <color name="DraculaPrimaryGrayBackground">#414450</color>
     <color name="DraculaBitDarkerGrayBackground">#282a36</color>
     <color name="DraculaGrayBackground">#44475A</color>
