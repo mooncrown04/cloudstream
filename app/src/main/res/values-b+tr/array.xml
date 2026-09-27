@@ -240,14 +240,18 @@
         <item>Monet2</item>
     </string-array>
 
-    <string-array name="themes_names">
+     <string-array name="themes_names">
         <item>Koyu</item>
         <item>Gri</item>
         <item>Amoled</item>
         <item>Flaş Bombası</item>
         <item>Sistem</item>
         <item>Material You</item>
-        <item>Dracula</item>
+		<item>Rengarenk</item>
+        <item>CimBom</item>
+		<item>Galatasaray</item>
+		<item>GS</item>
+		<item>Dracula</item>
         <item>Lavanta Rüyası</item>
         <item>Sessiz Mavi</item>
     </string-array>
@@ -258,7 +262,11 @@
         <item>Light</item>
         <item>System</item>
         <item>Monet</item>
-        <item>Dracula</item>
+        <item>Rengarenk</item>
+		<item>CimBom</item>
+		<item>Galatasaray</item>
+		<item>GS</item>
+		<item>Dracula</item>
         <item>Lavender</item>
         <item>SilentBlue</item>
     </string-array>
@@ -266,7 +274,7 @@
     <string-array name="extension_statuses">
         <item>Çöktü</item>
         <!-- "Ok" is usually capitalized as "OK". Ok android studio 🤓-->
-        <item>Ok</item>
+        <item>Tamammış</item>
         <item>Yavaş</item>
         <item>Beta</item>
     </string-array>
