@@ -185,6 +185,55 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
+<style name="RengarenkMode">
+    <item name="primaryGrayBackground">@color/RengarenkPrimaryGrayBackground</item>
+    <item name="primaryBlackBackground">@color/RengarenkBitDarkerGrayBackground</item>
+    <item name="iconGrayBackground">@color/RengarenkGrayBackground</item>
+    <item name="boxItemBackground">@color/RengarenkItemBackground</item>
+    <item name="textColor">@color/RengarenkTextColor</item>
+    <item name="iconColor">@color/RengarenkIconColor</item>
+    <item name="white">@color/RengarenkTextColor</item>
+    <item name="black">@color/RengarenkPrimaryGrayBackground</item>
+    <item name="colorOnPrimary">@color/RengarenkTextColor</item>
+</style>
+
+<style name="CimBomMode">
+    <item name="primaryGrayBackground">@color/CimBomPrimaryGrayBackground</item>
+    <item name="primaryBlackBackground">@color/CimBomBitDarkerGrayBackground</item>
+    <item name="iconGrayBackground">@color/CimBomGrayBackground</item>
+    <item name="boxItemBackground">@color/CimBomItemBackground</item>
+    <item name="textColor">@color/CimBomTextColor</item>
+    <item name="iconColor">@color/CimBomIconColor</item>
+    <item name="white">@color/CimBomTextColor</item>
+    <item name="black">@color/CimBomPrimaryGrayBackground</item>
+    <item name="colorOnPrimary">@color/CimBomTextColor</item>
+</style>
+
+<style name="GalatasarayMode">
+    <item name="primaryGrayBackground">@color/GalatasarayPrimaryGrayBackground</item>
+    <item name="primaryBlackBackground">@color/GalatasarayBitDarkerGrayBackground</item>
+    <item name="iconGrayBackground">@color/GalatasarayGrayBackground</item>
+    <item name="boxItemBackground">@color/GalatasarayItemBackground</item>
+    <item name="textColor">@color/GalatasarayTextColor</item>
+    <item name="iconColor">@color/GalatasarayIconColor</item>
+    <item name="white">@color/GalatasarayTextColor</item>
+    <item name="black">@color/GalatasarayPrimaryGrayBackground</item>
+    <item name="colorOnPrimary">@color/GalatasarayTextColor</item>
+</style>
+
+
+<style name="GSMode">
+    <item name="primaryGrayBackground">@color/GSPrimaryGrayBackground</item>
+    <item name="primaryBlackBackground">@color/GSBitDarkerGrayBackground</item>
+    <item name="iconGrayBackground">@color/GSGrayBackground</item>
+    <item name="boxItemBackground">@color/GSItemBackground</item>
+    <item name="textColor">@color/GSTextColor</item>
+    <item name="iconColor">@color/GSIconColor</item>
+    <item name="white">@color/GSTextColor</item>
+    <item name="black">@color/GSPrimaryGrayBackground</item>
+    <item name="colorOnPrimary">@color/GSTextColor</item>
+</style>
+
     <style name="DraculaMode">
         <item name="primaryGrayBackground">@color/DraculaPrimaryGrayBackground</item>
         <item name="primaryBlackBackground">@color/DraculaBitDarkerGrayBackground</item>
