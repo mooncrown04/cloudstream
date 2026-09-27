@@ -164,17 +164,17 @@
         tools:listitem="@layout/homepage_parent_tv"
         tools:visibility="gone" />
 
-    <TextClock
+<TextClock
             android:id="@+id/home_clock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="600dp"
-            android:textColor="@color/white"
+            android:textColor="?attr/colorAccent"
             android:textSize="20sp"
             android:visibility="visible"
-            android:format12Hour="hh:mm a"
-            android:format24Hour="HH:mm"
-            android:fontFamily="@font/google_sans"
+            android:fontFamily="?android:attr/fontFamily"
+            android:format12Hour="EEEE, dd MMMM - hh:mm a"
+            android:format24Hour="EEEE, dd MMMM - HH:mm"
             android:textStyle="bold"
             android:gravity="start"
             android:layout_gravity="start"
