@@ -210,6 +210,35 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             }
             return@setOnPreferenceClickListener true
         }
+        getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+    val prefNames = resources.getStringArray(R.array.app_font_names).toMutableList()
+    val prefValues = resources.getStringArray(R.array.app_font_values).toMutableList()
+
+    val currentFont = settingsManager.getString(
+        getString(R.string.app_font_key),
+        prefValues.firstOrNull() ?: "Default"
+    )
+
+    activity?.showBottomDialog(
+        prefNames.toList(),
+        prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
+        getString(R.string.app_font_settings),
+        true,
+        {}
+    ) { index ->
+        try {
+            prefValues.getOrNull(index)?.let { selectedFont ->
+                settingsManager.edit {
+                    putString(getString(R.string.app_font_key), selectedFont)
+                }
+                activity?.recreate()
+            }
+        } catch (e: Exception) {
+            logError(e)
+        }
+    }
+    true
+}
 
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
             val names = enumValues<SearchQuality>().sorted().map { it.name }
