@@ -124,48 +124,45 @@ class ActorAdaptor(
                 // Kumandadaki Oynat/Durdur, Bilgi (Info) veya Renkli tuşlara basıldığında
                 // oyuncunun ismiyle hızlı tam ekran aramayı (QuickSearchFragment) veya önizlemeyi açar.
                 // =========================================================================
-                itemView.setOnKeyListener { _, keyCode, event ->
-                    if (event.action == KeyEvent.ACTION_DOWN) {
-                        when (keyCode) {
-                            KeyEvent.KEYCODE_PROG_BLUE -> {                    
-                                // Oyuncunun adı ile genel aramayı tetikler
-                                val targetActor = item.voiceActor ?: item.actor
-                                QuickSearchFragment.pushSearch(
-                                    autoSearch = targetActor.name
-                                )
-                                true // Tuş eyleminin başarıyla işlendiğini bildirir
-                            }
-                            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
-                            KeyEvent.KEYCODE_MEDIA_PLAY,
-                            KeyEvent.KEYCODE_MEDIA_PAUSE,
-                            KeyEvent.KEYCODE_PROG_YELLOW,
-                            KeyEvent.KEYCODE_INFO -> {
-                                val targetActor = item.voiceActor ?: item.actor
-                                val activity = (itemView.context.getActivity() as? FragmentActivity)
-                                val currentFragment = activity?.supportFragmentManager?.fragments?.lastOrNull()
+               itemView.setOnKeyListener { _, keyCode, event ->
+    if (event.action == KeyEvent.ACTION_DOWN) {
+        when (keyCode) {
+            KeyEvent.KEYCODE_PROG_BLUE -> {                    
+                val targetActor = item.voiceActor ?: item.actor
+                QuickSearchFragment.pushSearch(
+                    autoSearch = targetActor.name
+                )
+                true
+            }
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+            KeyEvent.KEYCODE_MEDIA_PLAY,
+            KeyEvent.KEYCODE_MEDIA_PAUSE,
+            KeyEvent.KEYCODE_PROG_YELLOW,
+            KeyEvent.KEYCODE_INFO -> {
+                val targetActor = item.voiceActor ?: item.actor
+                val activity = (itemView.context.getActivity() as? FragmentActivity)
+                val currentFragment = activity?.supportFragmentManager?.fragments?.lastOrNull()
 
-                                if (currentFragment != null) {
-                                    // Oyuncu verisinden DiscoverPreview'ın (2. Resim) kullanacağı kart objesi oluşturulur
-                                    val actorPreviewCard = newMovieSearchResponse(
-                                        name = targetActor.name,
-                                        url = targetActor.image ?: "",
-                                        type = TvType.Movie,
-                                        fix = false
-                                    ) {
-                                        this.posterUrl = targetActor.image
-                                    }
+                if (currentFragment != null) {
+                    // MovieSearchResponse nesnesi doğrudan oluşturuldu
+                    val actorPreviewCard = com.lagradost.cloudstream3.MovieSearchResponse(
+                        name = targetActor.name,
+                        url = targetActor.image ?: "",
+                        apiName = "Actor",
+                        type = TvType.Movie,
+                        posterUrl = targetActor.image
+                    )
 
-                                    // 2. resimdeki pop-up pencereyi (DiscoverPreview) açar
-                                    DiscoverPreview.show(currentFragment, actorPreviewCard)
-                                }
-                                true
-                            }
-                            else -> false
-                        }
-                    } else {
-                        false
-                    }
+                    DiscoverPreview.show(currentFragment, actorPreviewCard)
                 }
+                true
+            }
+            else -> false
+        }
+    } else {
+        false
+    }
+}
 
                 // Arayüz bileşenlerine veri ve görsellerin bağlanması (Binding)
                 binding.apply {
