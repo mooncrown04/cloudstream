@@ -71,6 +71,9 @@ class UIPreferences(preferences: PreferenceStore) {
     val bottomTitle = preferences.getBoolean(
         "bottom_title_key", true
     )
+      val isWidePoster = preferences.getBoolean(
+        "wide_poster_key", false
+    )
     val advancedSearch = preferences.getBoolean(
         "advanced_search", true
     )
