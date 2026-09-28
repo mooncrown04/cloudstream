@@ -8,6 +8,69 @@
 <string name="app_font_key">app_font_key</string>
 <string name="app_font_settings">Uygulama Yazı Tipi</string>
 <string name="app_font_default">Varsayılan</string>
+	<!-- Oyuncu Filmografisi (TMDB) -->
+    <string name="actor_filmography_hint">TMDB üzerindeki film ve diziler. Sağlayıcılarınızda aramak için bir başlık seçin.</string>
+    <string name="actor_filmography_empty">Bu oyuncu için hiçbir film veya dizi bulunamadı.</string>
+    <string name="actor_filmography_error">Filmografi yüklenemedi. Lütfen tekrar deneyin.</string>
+    <string name="actor_filmography_retry">Tekrar dene</string>
+	
+	<!-- Oyuncu / Aktör Bilgileri -->
+    <string name="actor_info_loading">Oyuncu bilgileri yükleniyor…</string>
+    <string name="actor_info_missing">TMDB\'de eşleşen kişi bulunamadı.</string>
+    <string name="actor_info_error">Oyuncu bilgileri yüklenemedi. Geri dönüp tekrar deneyin.</string>
+    <string name="actor_info_no_biography">Biyografi bulunmuyor.</string>
+    <string name="actor_info_born">Doğum Tarihi: %1$s</string>
+    <string name="actor_info_died">Ölüm Tarihi: %1$s</string>
+    <string name="actor_info_age">Yaş: %1$d</string>
+    <string name="actor_info_age_at_death">Öldüğündeki Yaşı: %1$d</string>
+    <string name="actor_info_birthplace">Doğum Yeri: %1$s</string>
+	<!-- Keşfet / Discover Ekranı -->
+    <string name="title_discover">Keşfet</string>
+    <string name="discover_movies">Filmler</string>
+    <string name="discover_series">Diziler</string>
+    <string name="discover_all_types">Tümü</string>
+    <string name="discover_rating_label">TMDB Puanı</string>
+    <string name="discover_rating_all">Tüm Puanlar</string>
+    <string name="discover_rating_six">6+</string>
+    <string name="discover_rating_seven">7+</string>
+    <string name="discover_all">Tümü</string>
+    <string name="discover_filter_type">Tür</string>
+    <string name="discover_filter_language">Dil</string>
+    <string name="discover_lang_all">Tüm Diller</string>
+    <string name="discover_lang_en">İngilizce</string>
+    <string name="discover_lang_ru">Rusça</string>
+    <string name="discover_lang_de">Almanca</string>
+    <string name="discover_lang_tr">Türkçe</string>
+    <string name="discover_lang_az">Azerbaycan Türkçesi</string>
+    <string name="discover_filter_rating">Puan</string>
+    <string name="discover_filter_genres">Kategoriler</string>
+    <string name="discover_genres_selected">Kategoriler (%1$d)</string>
+    <string name="discover_filter_year">Yıl</string>
+    <string name="discover_year_custom">Özel aralık…</string>
+    <string name="discover_year_from">Başlangıç yılı</string>
+    <string name="discover_year_to">Bitiş yılı</string>
+    <string name="discover_filter_sort">Sıralama</string>
+    <string name="discover_sort_popular">Popüler</string>
+    <string name="discover_sort_top_rated">En yüksek puanlı</string>
+    <string name="discover_sort_newest">En yeni</string>
+    <string name="discover_sort_oldest">En eski</string>
+    <string name="discover_sort_title_az">Başlık A–Z</string>
+    <string name="discover_dropdown_value">%1$s ▾</string>
+    <string name="discover_apply">Uygula</string>
+    <string name="discover_clear">Temizle</string>
+    <string name="discover_reset">Sıfırla</string>
+    <string name="discover_empty">İçerik bulunamadı. Filtrelerinizi değiştirmeyi deneyin.</string>
+    <string name="discover_error">TMDB\'den içerikler yüklenemedi. Tekrar denemek için dokunun.</string>
+    <string name="actor_filmography_no_matches">Bu filtrelere uygun içerik bulunamadı.</string>
+    <string name="discover_watchlist">Keşfet İzleme Listesi</string>
+    <string name="discover_watchlist_add">Keşfet İzleme Listesine Ekle</string>
+    <string name="discover_watchlist_remove">Keşfet İzleme Listesinden Çıkar</string>
+    <string name="discover_search_providers">Eklentilerde Ara</string>
+    <string name="discover_preview_loading">Özet yükleniyor…</string>
+    <string name="discover_preview_no_overview">Özet bulunmuyor.</string>
+    <string name="discover_preview_error">Özet yüklenemedi. Yine de bu içeriği kaydedebilir veya eklentilerde arayabilirsiniz.</string>
+    <string name="discover_preview_runtime">%1$d dk</string>
+    <string name="discover_preview_seasons">Sezon Sayısı: %1$d</string>
     <!-- FORMAT MIGHT TRANSLATE, WILL CAUSE CRASH IF APPLIED WRONG -->
     <string name="app_dub_sub_episode_text_format" formatted="true">%1$s B. %2$d</string>
     <string name="cast_format" formatted="true">Oyuncular: %s</string>
