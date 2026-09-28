@@ -1,8 +1,5 @@
 package com.lagradost.cloudstream3.ui.result
 
-import android.app.SearchManager
-import android.content.Intent
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,22 +7,14 @@ import android.view.animation.Animation
 import android.view.animation.OvershootInterpolator
 import android.view.animation.ScaleAnimation
 import androidx.core.view.isVisible
-import androidx.fragment.app.FragmentActivity
 import com.lagradost.cloudstream3.ActorData
 import com.lagradost.cloudstream3.ActorRole
 import com.lagradost.cloudstream3.R
-import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.databinding.CastItemBinding
-import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.ui.BaseDiffCallback
 import com.lagradost.cloudstream3.ui.NoStateAdapter
 import com.lagradost.cloudstream3.ui.ViewHolderState
 import com.lagradost.cloudstream3.ui.newSharedPool
-import com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment
-import com.lagradost.cloudstream3.ui.settings.Globals.PHONE
-import com.lagradost.cloudstream3.ui.settings.Globals.isLayout
-import com.lagradost.cloudstream3.utils.ContextUtils.getActivity
-import com.lagradost.cloudstream3.utils.ImageLoader.clearImage
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
 
 class ActorAdaptor(
@@ -39,7 +28,7 @@ class ActorAdaptor(
             newSharedPool { setMaxRecycledViews(CONTENT, 10) }
     }
 
-    // Seslendirme / Oyuncu resmi değişim durumunu saklar
+    // Easier to store it here than to store it in the ActorData
     val inverted: HashMap<ActorData, Boolean> = hashMapOf()
 
     override fun onCreateContent(parent: ViewGroup): ViewHolderState<Any> {
@@ -86,7 +75,7 @@ class ActorAdaptor(
                     Pair(item.voiceActor?.image, item.actor.image)
                 }
 
-                // Android TV / Odaklanma (Focus) sırasının RecyclerView dışına kaçmasını engeller
+                // Fix tv focus escaping the recyclerview
                 if (position == 0) {
                     itemView.nextFocusLeftId = R.id.result_cast_items
                 } else if ((position - 1) == itemCount) {
@@ -102,69 +91,17 @@ class ActorAdaptor(
                     }
                 }
 
-                // =========================================================================
-                // 1. PENCERE / EYLEM: NORMAL KISA TIKLAMA (OK Tuşu / Ekrana Dokunma)
-                // Oyuncunun tüm film/dizilerini ve biyografisini gösteren alt sayfayı (ActorFilmography) açar.
-                // =========================================================================
                 itemView.setOnClickListener {
+                    // Anime cast entries may describe a character; look up the real performer.
                     ActorFilmography.show(itemView.context, item.voiceActor ?: item.actor)
                 }
 
-                // =========================================================================
-                // 2. PENCERE / EYLEM: UZUN BASMA (OK Tuşuna Basılı Tutma)
-                // Oyuncunun sadece kısa biyografisini gösteren pop-up penceresini (ActorInfoDialog) açar.
-                // =========================================================================
                 itemView.setOnLongClickListener {
+                    // Match single-click identity: real performer, not anime character.
                     ActorInfoDialog.show(itemView.context, item.voiceActor ?: item.actor)
                     true
                 }
 
-                // =========================================================================
-                // 3. PENCERE / EYLEM: TV KUMANDASI ÖZEL TUŞ BASIMI
-                // Kumandadaki Oynat/Durdur, Bilgi (Info) veya Renkli tuşlara basıldığında
-                // oyuncunun ismiyle hızlı tam ekran aramayı (QuickSearchFragment) veya önizlemeyi açar.
-                // =========================================================================
-               itemView.setOnKeyListener { _, keyCode, event ->
-    if (event.action == KeyEvent.ACTION_DOWN) {
-        when (keyCode) {
-            KeyEvent.KEYCODE_PROG_BLUE -> {                    
-                val targetActor = item.voiceActor ?: item.actor
-                QuickSearchFragment.pushSearch(
-                    autoSearch = targetActor.name
-                )
-                true
-            }
-            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
-            KeyEvent.KEYCODE_MEDIA_PLAY,
-            KeyEvent.KEYCODE_MEDIA_PAUSE,
-            KeyEvent.KEYCODE_PROG_YELLOW,
-            KeyEvent.KEYCODE_INFO -> {
-                val targetActor = item.voiceActor ?: item.actor
-                val activity = (itemView.context.getActivity() as? FragmentActivity)
-                val currentFragment = activity?.supportFragmentManager?.fragments?.lastOrNull()
-
-                if (currentFragment != null) {
-                    // MovieSearchResponse nesnesi doğrudan oluşturuldu
-                    val actorPreviewCard = com.lagradost.cloudstream3.MovieSearchResponse(
-                        name = targetActor.name,
-                        url = targetActor.image ?: "",
-                        apiName = "Actor",
-                        type = TvType.Movie,
-                        posterUrl = targetActor.image
-                    )
-
-                    DiscoverPreview.show(currentFragment, actorPreviewCard)
-                }
-                true
-            }
-            else -> false
-        }
-    } else {
-        false
-    }
-}
-
-                // Arayüz bileşenlerine veri ve görsellerin bağlanması (Binding)
                 binding.apply {
                     actorImage.loadImage(mainImg)
 
@@ -172,9 +109,17 @@ class ActorAdaptor(
                     item.role?.let {
                         actorExtra.context?.getString(
                             when (it) {
-                                ActorRole.Main -> R.string.actor_main
-                                ActorRole.Supporting -> R.string.actor_supporting
-                                ActorRole.Background -> R.string.actor_background
+                                ActorRole.Main -> {
+                                    R.string.actor_main
+                                }
+
+                                ActorRole.Supporting -> {
+                                    R.string.actor_supporting
+                                }
+
+                                ActorRole.Background -> {
+                                    R.string.actor_background
+                                }
                             }
                         )?.let { text ->
                             actorExtra.isVisible = true
