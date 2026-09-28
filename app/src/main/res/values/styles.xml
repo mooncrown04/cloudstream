@@ -163,6 +163,11 @@
         <item name="trackColor">@color/color_primary_transparent</item>
     </style>
 
+
+     <style name="YearButton" parent="@style/SearchBox">
+        <item name="android:minWidth">40dp</item>
+    </style>
+
     <style name="ChipFilledSemiTransparent" parent="@style/ChipFilled">
         <item name="chipBackgroundColor">@color/transparent</item>
         <item name="chipSurfaceColor">#33FFFFFF</item>
@@ -568,6 +573,15 @@
         <!--    Needed for leanback fuckery    -->
         <item name="android:colorAccent">@color/colorPrimaryLavender</item>
     </style>
+
+
+ <!-- Same typography as result_description; no extra line-spacing multiplier. -->
+    <style name="PreviewDescriptionText" parent="AppTextViewStyle">
+        <item name="android:textColor">?attr/textColor</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:padding">5dp</item>
+    </style>
+	
 
     <style name="customRatingBar" parent="@style/Widget.AppCompat.RatingBar">
 
