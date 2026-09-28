@@ -1,5 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+	 <!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
+    <string-array name="app_font_names">
+        <item>Default</item>
+       	<item>TimesNewRoman</item>
+        <item>StixGeneral</item>
+		<item>ComicSans</item>
+	    <item>Maybach</item>
+        <item>Perfume</item>
+        <item>Naxmos</item>
+        <item>Consola</item>
+        <item>Futura</item>
+        <item>GoogleSans</item>
+        <item>Gotham</item>
+    </string-array>
+
+    <string-array name="app_font_values">
+       <item>Default</item>
+      	<item>TimesNewRoman</item>
+        <item>StixGeneral</item>
+		<item>ComicSans</item>
+		<item>Maybach</item>
+        <item>Perfume</item>
+        <item>Naxmos</item>
+        <item>Consola</item>
+        <item>Futura</item>
+        <item>GoogleSans</item>
+        <item>Gotham</item>
+    </string-array>
+
     <array name="cast_mini_controller_control_buttons">
         <item>@id/cast_button_type_rewind_30_seconds</item>
         <item>@id/cast_button_type_play_pause_toggle</item>
