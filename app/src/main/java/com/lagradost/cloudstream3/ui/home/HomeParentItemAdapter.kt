@@ -1,5 +1,7 @@
 package com.lagradost.cloudstream3.ui.home
 
+import androidx.preference.PreferenceManager
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -95,6 +97,24 @@ open class ParentItemAdapter(
         val binding = holder.view
         if (binding !is HomepageParentBinding) return
         val info = item.list
+               // ====yeni eklendi =====================================================================
+        val context = binding.root.context
+        val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
+        
+        // 'poster_size_key' (Int slider) yerine yeni oluşturduğumuz 'wide_poster_key' (Boolean switch)
+        val widePosterKey = context.getString(R.string.wide_poster_key)
+
+        val isWideLayout = if (settingsManager.contains(widePosterKey)) {
+            try {
+                settingsManager.getBoolean(widePosterKey, false)
+            } catch (e: ClassCastException) {
+                false
+            }
+        } else {
+            info.isHorizontalImages
+        }
+      // ====yeni eklendi =====================================================================
+
         binding.apply {
             val currentAdapter = homeChildRecyclerview.adapter as? HomeChildItemAdapter
             if (currentAdapter == null) {
