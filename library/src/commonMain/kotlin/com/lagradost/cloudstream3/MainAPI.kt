@@ -1571,7 +1571,7 @@ constructor(
     override var type: TvType? = null,
 
     override var posterUrl: String? = null,
-    var year: Int? = null,
+    override var year: Int? = null,
     var dubStatus: MutableSet<DubStatus>? = null,
 
     var otherName: String? = null,
@@ -1672,7 +1672,7 @@ constructor(
     override var type: TvType? = null,
 
     override var posterUrl: String? = null,
-    var year: Int? = null,
+    override var year: Int? = null,
     override var id: Int? = null,
     override var quality: SearchQuality? = null,
     override var posterHeaders: Map<String, String>? = null,
@@ -1745,7 +1745,7 @@ constructor(
     override var type: TvType? = null,
 
     override var posterUrl: String? = null,
-    var year: Int? = null,
+    override var year: Int? = null,
     var episodes: Int? = null,
     override var id: Int? = null,
     override var quality: SearchQuality? = null,
