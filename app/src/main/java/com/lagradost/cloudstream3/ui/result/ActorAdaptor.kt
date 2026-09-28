@@ -2,6 +2,7 @@ package com.lagradost.cloudstream3.ui.result
 
 import android.app.SearchManager
 import android.content.Intent
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,21 +10,23 @@ import android.view.animation.Animation
 import android.view.animation.OvershootInterpolator
 import android.view.animation.ScaleAnimation
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentActivity
 import com.lagradost.cloudstream3.ActorData
 import com.lagradost.cloudstream3.ActorRole
 import com.lagradost.cloudstream3.R
+import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.databinding.CastItemBinding
+import com.lagradost.cloudstream3.newMovieSearchResponse
 import com.lagradost.cloudstream3.ui.BaseDiffCallback
 import com.lagradost.cloudstream3.ui.NoStateAdapter
 import com.lagradost.cloudstream3.ui.ViewHolderState
 import com.lagradost.cloudstream3.ui.newSharedPool
+import com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment
 import com.lagradost.cloudstream3.ui.settings.Globals.PHONE
 import com.lagradost.cloudstream3.ui.settings.Globals.isLayout
+import com.lagradost.cloudstream3.utils.ContextUtils.getActivity
+import com.lagradost.cloudstream3.utils.ImageLoader.clearImage
 import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
-
-import android.view.KeyEvent
-import com.lagradost.cloudstream3.ui.quicksearch.QuickSearchFragment
-
 
 class ActorAdaptor(
     private var nextFocusUpId: Int? = null,
@@ -119,12 +122,12 @@ class ActorAdaptor(
                 // =========================================================================
                 // 3. PENCERE / EYLEM: TV KUMANDASI ÖZEL TUŞ BASIMI
                 // Kumandadaki Oynat/Durdur, Bilgi (Info) veya Renkli tuşlara basıldığında
-                // oyuncunun ismiyle hızlı tam ekran aramayı (QuickSearchFragment) başlatır.
+                // oyuncunun ismiyle hızlı tam ekran aramayı (QuickSearchFragment) veya önizlemeyi açar.
                 // =========================================================================
                 itemView.setOnKeyListener { _, keyCode, event ->
                     if (event.action == KeyEvent.ACTION_DOWN) {
                         when (keyCode) {
-                            KeyEvent.KEYCODE_PROG_BLUE -> {					
+                            KeyEvent.KEYCODE_PROG_BLUE -> {                    
                                 // Oyuncunun adı ile genel aramayı tetikler
                                 val targetActor = item.voiceActor ?: item.actor
                                 QuickSearchFragment.pushSearch(
@@ -132,13 +135,7 @@ class ActorAdaptor(
                                 )
                                 true // Tuş eyleminin başarıyla işlendiğini bildirir
                             }
-                            else -> false
-                        }
-                    } else {
-                        false
-                    }
-                }
-       		KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+                            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
                             KeyEvent.KEYCODE_MEDIA_PLAY,
                             KeyEvent.KEYCODE_MEDIA_PAUSE,
                             KeyEvent.KEYCODE_PROG_YELLOW,
@@ -163,6 +160,13 @@ class ActorAdaptor(
                                 }
                                 true
                             }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                }
+
                 // Arayüz bileşenlerine veri ve görsellerin bağlanması (Binding)
                 binding.apply {
                     actorImage.loadImage(mainImg)
