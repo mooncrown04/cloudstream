@@ -3,6 +3,11 @@
 	<!-- Yeni Geniş Afiş Switch'i İçin -->
    <string name="wide_poster_settings">Geniş Afiş Düzeni</string>
    <string name="wide_poster_settings_des">Afişleri 16:9 formatına genişletir</string>
+	<!-- Uygulama Font Ayarları Anahtarları ve Başlıkları -->
+<string name="app_font_title">Uygulama Yazı Tipi</string>
+<string name="app_font_key">app_font_key</string>
+<string name="app_font_settings">Uygulama Yazı Tipi</string>
+<string name="app_font_default">Varsayılan</string>
     <!-- FORMAT MIGHT TRANSLATE, WILL CAUSE CRASH IF APPLIED WRONG -->
     <string name="app_dub_sub_episode_text_format" formatted="true">%1$s B. %2$d</string>
     <string name="cast_format" formatted="true">Oyuncular: %s</string>
