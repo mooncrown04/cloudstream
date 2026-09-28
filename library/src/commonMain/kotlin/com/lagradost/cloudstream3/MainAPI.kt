@@ -1413,8 +1413,18 @@ interface SearchResponse {
     var id: Int?
     var quality: SearchQuality?
     var score: Score?
+//yeni eklendi
+    var year: Int?
+        get() = null
+        set(_) {}
+    var genres: List<String>?
+        get() = null
+        set(_) {}
+    var originalLanguage: String?
+        get() = null
+        set(_) {}
+//yeni eklendi
 }
-
 fun MainAPI.newTorrentSearchResponse(
     name: String,
     url: String,
@@ -1561,7 +1571,7 @@ constructor(
     override var type: TvType? = null,
 
     override var posterUrl: String? = null,
-    var year: Int? = null,
+    override var year: Int? = null,
     var dubStatus: MutableSet<DubStatus>? = null,
 
     var otherName: String? = null,
@@ -1571,6 +1581,7 @@ constructor(
     override var quality: SearchQuality? = null,
     override var posterHeaders: Map<String, String>? = null,
     override var score: Score? = null,
+	override var originalLanguage: String? = null,
 ) : SearchResponse
 
 fun AnimeSearchResponse.addDubStatus(status: DubStatus, episodes: Int? = null) {
@@ -1661,11 +1672,12 @@ constructor(
     override var type: TvType? = null,
 
     override var posterUrl: String? = null,
-    var year: Int? = null,
+    override var year: Int? = null,
     override var id: Int? = null,
     override var quality: SearchQuality? = null,
     override var posterHeaders: Map<String, String>? = null,
     override var score: Score? = null,
+	override var originalLanguage: String? = null,
 ) : SearchResponse {
     @Suppress("DEPRECATION_ERROR")
     @Deprecated(
@@ -1733,12 +1745,13 @@ constructor(
     override var type: TvType? = null,
 
     override var posterUrl: String? = null,
-    var year: Int? = null,
+    override var year: Int? = null,
     var episodes: Int? = null,
     override var id: Int? = null,
     override var quality: SearchQuality? = null,
     override var posterHeaders: Map<String, String>? = null,
     override var score: Score? = null,
+	override var originalLanguage: String? = null,
 ) : SearchResponse {
     @Suppress("DEPRECATION_ERROR")
     @Deprecated(
