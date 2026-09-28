@@ -57,6 +57,15 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
+      // Geniş Afiş Düzeni Switch Dinleyicisi
+    getPref(R.string.wide_poster_key)?.setOnPreferenceChangeListener { _, _ ->
+    HomeChildItemAdapter.sharedPool.clear()
+    ParentItemAdapter.sharedPool.clear()
+    SearchAdapter.sharedPool.clear()
+    activity?.recreate()
+    true
+       }
+        
         getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, newValue ->
             HomeChildItemAdapter.sharedPool.clear()
             ParentItemAdapter.sharedPool.clear()
