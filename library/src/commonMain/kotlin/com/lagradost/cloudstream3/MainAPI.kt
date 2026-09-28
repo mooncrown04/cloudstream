@@ -1413,8 +1413,18 @@ interface SearchResponse {
     var id: Int?
     var quality: SearchQuality?
     var score: Score?
+//yeni eklendi
+    var year: Int?
+        get() = null
+        set(_) {}
+    var genres: List<String>?
+        get() = null
+        set(_) {}
+    var originalLanguage: String?
+        get() = null
+        set(_) {}
+//yeni eklendi
 }
-
 fun MainAPI.newTorrentSearchResponse(
     name: String,
     url: String,
@@ -1571,6 +1581,7 @@ constructor(
     override var quality: SearchQuality? = null,
     override var posterHeaders: Map<String, String>? = null,
     override var score: Score? = null,
+	override var originalLanguage: String? = null,
 ) : SearchResponse
 
 fun AnimeSearchResponse.addDubStatus(status: DubStatus, episodes: Int? = null) {
@@ -1666,6 +1677,7 @@ constructor(
     override var quality: SearchQuality? = null,
     override var posterHeaders: Map<String, String>? = null,
     override var score: Score? = null,
+	override var originalLanguage: String? = null,
 ) : SearchResponse {
     @Suppress("DEPRECATION_ERROR")
     @Deprecated(
@@ -1739,6 +1751,7 @@ constructor(
     override var quality: SearchQuality? = null,
     override var posterHeaders: Map<String, String>? = null,
     override var score: Score? = null,
+	override var originalLanguage: String? = null,
 ) : SearchResponse {
     @Suppress("DEPRECATION_ERROR")
     @Deprecated(
