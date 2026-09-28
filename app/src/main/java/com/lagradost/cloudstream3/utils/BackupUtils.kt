@@ -90,12 +90,10 @@ object BackupUtils {
         "simkl_token",
 
         // Downloads can not be restored from backups.
-        // String olarak tanımlanarak derleme hataları önlenmiştir.
         "DOWNLOAD_EPISODE_CACHE_BACKUP",
         "DOWNLOAD_EPISODE_CACHE",
 
         // Download headers are unintuitively used in the resume watching system.
-        // We can therefore not prune download headers in backups.
         // DOWNLOAD_HEADER_CACHE_BACKUP,
         // DOWNLOAD_HEADER_CACHE,
 
@@ -198,14 +196,25 @@ object BackupUtils {
 
     /**
      * Uri üzerinden yedek dosyasını okuyup geri yükleme işlemini çalıştırır.
+     * X-plore ve benzeri dosya yöneticilerinin URI izin problemlerini çözer.
      */
     fun restoreFromUri(activity: Activity, uri: Uri) {
         ioSafe {
             try {
-                val input = activity.contentResolver.openInputStream(uri)
-                    ?: return@ioSafe
+                // X-plore gibi uygulamalardan gelen URI okuma iznini kalıcı/güvenli hale getirme
+                try {
+                    activity.contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (_: Exception) {
+                    // Bazı URI sağlayıcıları persistable izni desteklemez, sessizce geçilir
+                }
 
-                val text = input.bufferedReader().readText()
+                val text = activity.contentResolver.openInputStream(uri)?.use { stream ->
+                    stream.bufferedReader().readText()
+                } ?: return@ioSafe
+
                 val restoredValue = parseJson<BackupFile>(text)
 
                 restore(
@@ -283,7 +292,7 @@ object BackupUtils {
                     if (uri != null) restoreFromUri(this, uri)
                 }
 
-            // 2. Android TV / Modlu cihazlar için yedek GetContent yöntemi
+            // 2. Android TV / Modlu cihazlar / X-plore için yedek GetContent yöntemi
             restoreFileSelectorGetContent =
                 registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                     if (uri != null) restoreFromUri(this, uri)
@@ -295,23 +304,12 @@ object BackupUtils {
 
     fun Activity.restorePrompt() {
         runOnUiThread {
-            val mimeTypes = arrayOf(
-                "text/plain",
-                "text/str",
-                "text/x-unknown",
-                "application/json",
-                "unknown/unknown",
-                "content/unknown",
-                "application/octet-stream",
-                "*/*"
-            )
-
             try {
-                // Öncelikli olarak standart OpenDocument launcher çağrılır
-                restoreFileSelectorOpenDoc?.launch(mimeTypes)
+                // X-plore ve diğer dosya yöneticilerinde MIME takılmasını önlemek için genel filtre kullanımı
+                restoreFileSelectorOpenDoc?.launch(arrayOf("*/*"))
             } catch (e: ActivityNotFoundException) {
                 try {
-                    // SAF desteği olmayan cihazlarda yedek GetContent launcher çağrılır
+                    // OpenDocument desteklenmiyorsa veya çökerse GetContent devreye girer
                     restoreFileSelectorGetContent?.launch("*/*")
                 } catch (e2: ActivityNotFoundException) {
                     showToast("Cihazda dosya seçebilecek bir dosya yöneticisi bulunamadı.")
