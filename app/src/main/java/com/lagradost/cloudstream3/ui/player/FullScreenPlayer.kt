@@ -1,5 +1,6 @@
 package com.lagradost.cloudstream3.ui.player
 
+import com.lagradost.cloudstream3.CommonActivity.showToast
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -1020,6 +1021,7 @@ open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
         return true
     }
 
+   @SuppressLint("GestureBackNavigation")
     private fun handleKeyEvent(event: KeyEvent, hasNavigated: Boolean): Boolean {
         if (hasNavigated) {
             autoHide()
@@ -1028,40 +1030,128 @@ open class FullScreenPlayer : AbstractPlayerFragment<FragmentPlayerBinding>(
         val keyCode = event.keyCode
 
         if (event.action == KeyEvent.ACTION_DOWN) {
-            val value = handleKeyDownEvent(keyCode)
-            if (value != null) {
-                return value
+            when (keyCode) {           
+        // --- OK / ORTA TUŞ ---
+                KeyEvent.KEYCODE_DPAD_CENTER -> {
+                    // 1. Durum: Menü kapalıyken (isShowing == false)
+                    if (!isShowing) {
+                        if (timestampShowState) {
+                            player.handleEvent(CSPlayerEvent.SkipCurrentChapter)
+                        } else if (!isLocked) {
+                            player.handleEvent(CSPlayerEvent.PlayPauseToggle)
+                        }
+                        // Menüyü aç
+                        onClickChange()
+                        return true
+                    } else {
+                        return false 
+                    }
+                }
+
+// --- OPTIONS / MENU TUŞU İLE BÖLÜM LİSTESİNİ AÇMA ---
+KeyEvent.KEYCODE_MENU, 
+KeyEvent.KEYCODE_SETTINGS -> {
+    if (isLocked != true) { 
+        // Senin kodunda dizi listesini açan gerçek fonksiyon budur:
+        toggleEpisodesOverlay(true)
+        return true
+    }
+}
+
+   
+// --- DPAD YUKARI/AŞAĞI ---
+KeyEvent.KEYCODE_DPAD_UP,
+KeyEvent.KEYCODE_DPAD_DOWN -> {
+    // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
+    if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
+        return false // null yerine false döndürülmeli
+    }
+    
+    // Her şey kapalıysa işlemleri gerçekleştir
+    if (!isLocked) {
+        val isLongPress = event.isLongPress || event.repeatCount > 5
+        
+        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+            if (isLongPress) {
+                // YUKARI - Uzun Basma: Önceki Bölüm
+        
+
+			 player.handleEvent(CSPlayerEvent.PrevEpisode)
+                
+            playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    showToast("Önceki: $newTitle")
+                }, 300)
+            } else {
+                // YUKARI - Kısa Basma: Sonraki Bölüm
+                player.handleEvent(CSPlayerEvent.NextEpisode)
+                
+                playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    showToast("Sonraki: $newTitle")
+                }, 300)
+            }
+        } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+            if (isLongPress) {
+                // AŞAĞI - Uzun Basma: arama
+               val context = context
+            if (subsProvidersIsActive && context != null) {
+                openOnlineSubPicker(context, null) {}
+               
+			   }
+            } else {
+                // AŞAĞI - Kısa Basma: kaynaklar
+                showMirrorsDialogue()
+            }
+        }
+        
+        return true
+    }
+    return false
+}
+
+
+                // --- DPAD SOL: GERİ SARMA ---
+                KeyEvent.KEYCODE_DPAD_LEFT -> {
+                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                        player.seekTime(-androidTVInterfaceOffSeekTime)
+                        return true
+                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                        player.seekTime(-androidTVInterfaceOnSeekTime)
+                        return true
+                    }
+                }
+
+                // --- DPAD SAĞ: İLERİ SARMA ---
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    if (!isShowing && !isLocked && !isShowingEpisodeOverlay) {
+                        player.seekTime(androidTVInterfaceOnSeekTime)
+                        return true
+                    } else if (playerBinding?.playerPausePlay?.isFocused == true) {
+                        player.seekTime(androidTVInterfaceOnSeekTime)
+                        return true
+                    }
+                }
             }
         }
 
+        // DPAD yön tuşlarının sistem tarafından tüketilmesini (focus kaymasını) engelleme
         when (keyCode) {
-            // don't allow dpad move when hidden
-
             KeyEvent.KEYCODE_DPAD_DOWN,
             KeyEvent.KEYCODE_DPAD_UP,
-            KeyEvent.KEYCODE_DPAD_DOWN_LEFT,
-            KeyEvent.KEYCODE_DPAD_DOWN_RIGHT,
-            KeyEvent.KEYCODE_DPAD_UP_LEFT,
-            KeyEvent.KEYCODE_DPAD_UP_RIGHT -> {
-                if (!isShowing) {
-                    return true
-                } else {
-                    autoHide()
+            KeyEvent.KEYCODE_DPAD_LEFT,
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                // Eğer hiçbir menü açık değilse, sistemin bu tuşlarla başka yere odaklanmasını engelle
+                if (!isShowing && !isShowingEpisodeOverlay) {
+                    return true 
                 }
             }
-
-            // netflix capture back and hide ~monke
-            // This is removed due to inconsistent behavior on A36 vs A22, see https://github.com/recloudstream/cloudstream/issues/1804
-            /*KeyEvent.KEYCODE_BACK -> {
-                if (isShowing && isLayout(TV or EMULATOR)) {
-                    onClickChange()
-                    return true
-                }
-            }*/
         }
 
         return false
     }
+
+//yeni eklendi
 
     protected fun uiReset() {
         metadataVisibilityToken++
