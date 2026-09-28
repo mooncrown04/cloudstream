@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- KEYS -->
+    <!-- Ayar Anahtarı (Key) -->
+    <string name="wide_poster_key" translatable="false">wide_poster_key</string>
     <string name="search_providers_list_key">search_providers_list</string>
     <string name="locale_key">app_locale</string>
     <string name="search_types_list_key">search_type_list</string>
