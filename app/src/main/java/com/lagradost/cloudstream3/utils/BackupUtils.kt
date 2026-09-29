@@ -1,9 +1,7 @@
 package com.lagradost.cloudstream3.utils
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -52,25 +50,33 @@ import java.util.Locale
 
 object BackupUtils {
 
+    /**
+     * No sensitive or breaking data in the backup
+     */
     private val nonTransferableKeys = listOf(
         ANILIST_CACHED_LIST,
         MAL_CACHED_LIST,
         KITSU_CACHED_LIST,
 
+        // The plugins themselves are not backed up
         PLUGINS_KEY,
         PLUGINS_KEY_LOCAL,
 
         AccountManager.ACCOUNT_TOKEN,
         AccountManager.ACCOUNT_IDS,
 
-        "biometric_key",
-        "nginx_user",
+        // TODO proper getter for string res keys to ensure that they are updated
+        "biometric_key", // can lock down users if backup is shared on a incompatible device
+        "nginx_user", // Nginx user key
 
+        // No access rights after restore data from backup
         "download_path_key",
         "download_path_key_visual",
         "backup_path_key",
         "backup_dir_path_key",
 
+        // When sharing backup we do not want to transfer what is essentially the password
+        // Note that this is deprecated, and can be removed after all tokens have expired
         "anilist_token",
         "anilist_user",
         "mal_user",
@@ -81,29 +87,40 @@ object BackupUtils {
         "subdl_user",
         "simkl_token",
 
+
+        // Downloads can not be restored from backups.
+        // The download path URI can not be transferred.
+        // In the future we may potentially write metadata to files in the download directory
+        // and make it possible to restore download folders using that metadata.
         DOWNLOAD_EPISODE_CACHE_BACKUP,
         DOWNLOAD_EPISODE_CACHE,
+        
+        // Download headers are unintuitively used in the resume watching system.
+        // We can therefore not prune download headers in backups.
+        // DOWNLOAD_HEADER_CACHE_BACKUP,
+        // DOWNLOAD_HEADER_CACHE,
+        
 
+        // This may overwrite valid local data with invalid data
         KEY_DOWNLOAD_INFO,
 
+        // Prevent backups from automatically starting downloads
         KEY_RESUME_IN_QUEUE,
         KEY_RESUME_PACKAGES,
         QUEUE_KEY,
 
+        // Prevent automatic plugin download after restoring backup
         "auto_download_plugins_key2"
     )
 
+    /** false if key should not be contained in backup */
     private fun String.isTransferable(): Boolean {
         return !nonTransferableKeys.any { this.contains(it) }
     }
 
-    // Dosya okuma (Restore) için launcher'lar
-    private var restoreFileSelectorOpenDoc: ActivityResultLauncher<Array<String>>? = null
-    private var restoreFileSelectorGetContent: ActivityResultLauncher<String>? = null
+    private var restoreFileSelector: ActivityResultLauncher<Array<String>>? = null
 
-    // Klasör seçme (Yol Değiştirme) için launcher
-    private var backupPathSelectorTree: ActivityResultLauncher<Uri?>? = null
-
+    // Kinda hack, but I couldn't think of a better way
     @Serializable
     data class BackupVars(
         @JsonProperty("_Bool") @SerialName("_Bool") val bool: Map<String, Boolean>?,
@@ -175,42 +192,9 @@ object BackupUtils {
             context.restoreMap(backupFile.datastore.stringSet)
         }
 
-        for (api in AccountManager.syncApis) {
+        // Make sure the library is fresh
+        for(api in AccountManager.syncApis) {
             api.requireLibraryRefresh = true
-        }
-    }
-
-    fun restoreFromUri(activity: Activity, uri: Uri) {
-        ioSafe {
-            try {
-                try {
-                    activity.contentResolver.takePersistableUriPermission(
-                        uri,
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    )
-                } catch (_: Exception) {}
-
-                val text = activity.contentResolver.openInputStream(uri)?.use { stream ->
-                    stream.bufferedReader().readText()
-                } ?: return@ioSafe
-
-                val restoredValue = parseJson<BackupFile>(text)
-
-                restore(
-                    activity,
-                    restoredValue,
-                    restoreSettings = true,
-                    restoreDataStore = true,
-                )
-                activity.runOnUiThread { activity.recreate() }
-            } catch (e: Exception) {
-                logError(e)
-                main {
-                    showToast(
-                        activity.getString(R.string.restore_failed_format).format(e.toString())
-                    )
-                }
-            }
         }
     }
 
@@ -263,34 +247,35 @@ object BackupUtils {
         )
     }
 
-    fun FragmentActivity.setUpBackup() {
+  fun FragmentActivity.setUpBackup() {
         try {
-            // 1. Restore dosya seçicileri
-            restoreFileSelectorOpenDoc =
+            restoreFileSelector =
                 registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-                    if (uri != null) restoreFromUri(this, uri)
-                }
-
-            restoreFileSelectorGetContent =
-                registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-                    if (uri != null) restoreFromUri(this, uri)
-                }
-
-            // 2. Klasör Yolu Değiştirici (OpenDocumentTree)
-            backupPathSelectorTree =
-                registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri: Uri? ->
                     if (uri == null) return@registerForActivityResult
-                    try {
-                        contentResolver.takePersistableUriPermission(
-                            uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        )
-                        val settingsManager = PreferenceManager.getDefaultSharedPreferences(this)
-                        settingsManager.edit().putString(getString(R.string.backup_path_key), uri.toString()).apply()
-                        showToast("Yedekleme klasörü başarıyla değiştirildi.")
-                    } catch (e: Exception) {
-                        logError(e)
-                        showToast("Klasör izni kaydedilemedi: ${e.message}")
+                    val activity = this
+                    ioSafe {
+                        try {
+                            val input = activity.contentResolver.openInputStream(uri)
+                                ?: return@ioSafe
+
+                            val text = input.bufferedReader().readText()
+                            val restoredValue = parseJson<BackupFile>(text)
+
+                            restore(
+                                activity,
+                                restoredValue,
+                                restoreSettings = true,
+                                restoreDataStore = true,
+                            )
+                            activity.runOnUiThread { activity.recreate() }
+                        } catch (e: Exception) {
+                            logError(e)
+                            main { // smth can fail in .format
+                                showToast(
+                                    getString(R.string.restore_failed_format).format(e.toString())
+                                )
+                            }
+                        }
                     }
                 }
         } catch (e: Exception) {
@@ -300,13 +285,32 @@ object BackupUtils {
 
     fun Activity.restorePrompt() {
         runOnUiThread {
+            val mimeTypes = arrayOf(
+                "text/plain",
+                "text/str",
+                "text/x-unknown",
+                "application/json",
+                "unknown/unknown",
+                "content/unknown",
+                "application/octet-stream",
+                "*/*"
+            )
+
             try {
-                restoreFileSelectorOpenDoc?.launch(arrayOf("*/*"))
+                // 1. Yöntem: Standart SAF OpenDocument çağrısı
+                restoreFileSelector?.launch(mimeTypes)
             } catch (e: ActivityNotFoundException) {
+                // 2. Yöntem: SAF bulunmayan TV / Modlu cihazlar için yedek GET_CONTENT Intent'i
                 try {
-                    restoreFileSelectorGetContent?.launch("*/*")
+                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "*/*"
+                        putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+                    }
+                    startActivityForResult(intent, 20001)
                 } catch (e2: ActivityNotFoundException) {
-                    showToast("Cihazda dosya seçebilecek bir dosya yöneticisi bulunamadı.")
+                    // 3. Yöntem: Cihazda hiçbir dosya yöneticisi yoksa kullanıcıyı bilgilendir
+                    showToast("Cihazınızda uyumlu bir dosya seçici uygulama bulunamadı.")
                     logError(e2)
                 }
             } catch (e: Exception) {
@@ -315,22 +319,6 @@ object BackupUtils {
             }
         }
     }
-
-    // Klasör Değiştirme Butonuna Tıklandığında Çalışacak Güvenli Çağrı
-    fun Activity.changeBackupDirPrompt() {
-        runOnUiThread {
-            try {
-                backupPathSelectorTree?.launch(null)
-            } catch (e: ActivityNotFoundException) {
-                showToast("Bu cihazda sistem klasör seçicisi (SAF) desteklenmiyor.")
-                logError(e)
-            } catch (e: Exception) {
-                showToast(e.message)
-                logError(e)
-            }
-        }
-    }
-
     private fun <T> Context.restoreMap(
         map: Map<String, T>?,
         isEditingAppSettings: Boolean = false,
@@ -344,26 +332,33 @@ object BackupUtils {
         editor.apply()
     }
 
+    /**
+     * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.getDefaultDir],
+     * modified for backup-specific paths.
+     */
     fun getDefaultBackupDir(context: Context): SafeFile? {
         return SafeFile.fromMedia(context, MediaFileContentType.Downloads)
     }
 
+    /**
+     * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.getBasePath],
+     * modified for backup-specific paths.
+     */
     fun getCurrentBackupDir(context: Context): Pair<SafeFile?, String?> {
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
         val basePathSetting = settingsManager.getString(context.getString(R.string.backup_path_key), null)
         return baseBackupPathToFile(context, basePathSetting) to basePathSetting
     }
 
+    /**
+     * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.basePathToFile],
+     * modified for backup-specific paths.
+     */
     private fun baseBackupPathToFile(context: Context, path: String?): SafeFile? {
-        return try {
-            when {
-                path.isNullOrBlank() -> getDefaultBackupDir(context)
-                path.startsWith("content://") -> SafeFile.fromUri(context, path.toUri())
-                else -> SafeFile.fromFilePath(context, path)
-            }
-        } catch (e: Exception) {
-            logError(e)
-            getDefaultBackupDir(context)
+        return when {
+            path.isNullOrBlank() -> getDefaultBackupDir(context)
+            path.startsWith("content://") -> SafeFile.fromUri(context, path.toUri())
+            else -> SafeFile.fromFilePath(context, path)
         }
     }
 }
