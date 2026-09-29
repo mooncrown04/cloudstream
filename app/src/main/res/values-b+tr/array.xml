@@ -271,6 +271,36 @@
         <item>SilentBlue</item>
     </string-array>
 
+ <!-- Font İsimleri (Türkçe Arayüzde Görünecek Metinler) -->
+    <string-array name="app_font_names">
+        <item>Varsayılan</item>
+		<item>TimesNewRoman</item>
+        <item>StixGeneral</item>
+		<item>ComicSans</item>
+		<item>Maybach</item>
+        <item>Perfume</item>
+        <item>Naxmos</item>
+        <item>Consola</item>
+        <item>Futura</item>
+        <item>GoogleSans</item>
+        <item>Gotham</item>
+    </string-array>
+
+    <!-- Font Değerleri (Kod Tarafında Okunacak Değerler - İngilizce ile BİREBİR AYNI OL MALI) -->
+    <string-array name="app_font_values">
+        <item>Default</item>
+        <item>TimesNewRoman</item>
+        <item>StixGeneral</item>
+		<item>ComicSans</item>
+		<item>Maybach</item>
+        <item>Perfume</item>
+        <item>Naxmos</item>
+        <item>Consola</item>
+        <item>Futura</item>
+        <item>GoogleSans</item>
+        <item>Gotham</item>
+    </string-array>
+
     <string-array name="extension_statuses">
         <item>Çöktü</item>
         <!-- "Ok" is usually capitalized as "OK". Ok android studio 🤓-->
