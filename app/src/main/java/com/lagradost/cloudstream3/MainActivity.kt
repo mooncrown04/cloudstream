@@ -671,9 +671,15 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
     override fun dispatchKeyEvent(event: KeyEvent): Boolean =
         CommonActivity.dispatchKeyEvent(this, event) ?: super.dispatchKeyEvent(event)
 
-//yeni eklendi 
-override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+// yeni eklendi 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         // showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
+
+        // Ortak NavController erişimi
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+        val navController = navHostFragment?.navController
+        val isNotPlayingVideo = navController?.currentDestination?.id != R.id.navigation_player
+
         when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {              
@@ -682,9 +688,7 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
             }            
             
             KeyEvent.KEYCODE_MEDIA_REWIND -> {
-                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-                val navController = navHostFragment?.navController                
-                if (navController?.currentDestination?.id != R.id.navigation_player) {
+                if (isNotPlayingVideo) {
                     showToast("Depo Ekleme menüsü açılıyor", Toast.LENGTH_SHORT)
                     navController?.navigate(R.id.navigation_settings_extensions)
                     return true
@@ -692,68 +696,44 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
             }
 
             KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> { 
-                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-                val navController = navHostFragment?.navController
-                val isPlayingVideo = navController?.currentDestination?.id == R.id.navigation_player
-                if (!isPlayingVideo) {
+                if (isNotPlayingVideo) {
                     showToast("Ayarlar Açılıyor", Toast.LENGTH_SHORT)
                     navController?.navigate(R.id.navigation_settings)
                     return true
                 }
             }
-		  KeyEvent.KEYCODE_PROG_RED -> {	
-		   val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-                val navController = navHostFragment?.navController                
-                if (navController?.currentDestination?.id != R.id.navigation_player) {
-                    showToast("Arama Kaynakları  menüsü açılıyor", Toast.LENGTH_SHORT)
-                    navController?.navigate(R.id.navigation_settings_providers)
+
+            KeyEvent.KEYCODE_PROG_RED -> {   
+                if (isNotPlayingVideo) {
+                    showToast("Arama menüsü açılıyor", Toast.LENGTH_SHORT)
+                    navController?.navigate(R.id.navigation_search)
                     return true
                 }
-              }
-  KeyEvent.KEYCODE_PROG_BLUE -> {
-                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-                val navController = navHostFragment?.navController                
-                if (navController?.currentDestination?.id != R.id.navigation_player) {
-                    showToast("Eklenti  menüsü açılıyor", Toast.LENGTH_SHORT)
+            }
+
+            KeyEvent.KEYCODE_PROG_BLUE -> {
+                if (isNotPlayingVideo) {
+                    showToast("Eklenti menüsü açılıyor", Toast.LENGTH_SHORT)
                     navController?.navigate(R.id.navigation_setup_extensions)
                     return true
                 }
             }
+
             KeyEvent.KEYCODE_MEDIA_PLAY,
             KeyEvent.KEYCODE_MEDIA_PAUSE,
             KeyEvent.KEYCODE_BUTTON_START -> {
-                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-                val navController = navHostFragment?.navController
-                
-                if (navController?.currentDestination?.id != R.id.navigation_player) {
-                    val currentFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull()
-                    
-                    if (currentFragment is com.lagradost.cloudstream3.ui.home.HomeFragment) {
-                        showToast("Eklenti Seçimi Açılıyor", Toast.LENGTH_SHORT)
-                        
-                        // Reflection yerine doğrudan arayüzdeki 'home_change_api' butonuna tıklama simülasyonu yapılır
-                        val changeApiButton = currentFragment.view?.findViewById<android.view.View>(R.id.home_change_api)
-                        if (changeApiButton != null) {
-                            changeApiButton.performClick()
-                        } else {
-                            // Alternatif olarak reflection ile metot çağrımı yedek tutulur
-                            runCatching {
-                                val method = currentFragment::class.java.getDeclaredMethod("actionSelectProvider")
-                                method.isAccessible = true
-                                method.invoke(currentFragment)
-                            }.onFailure { e ->
-                                e.printStackTrace()
-                            }
-                        }
-                        
-                        return true
-                    }
+               if (isNotPlayingVideo) {
+                    showToast("Arama Kaynakları menüsü açılıyor", Toast.LENGTH_SHORT)
+                    navController?.navigate(R.id.navigation_settings_providers)
+                    return true
                 }
             }
         }        
+
         return CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
     }
-  //yeni eklendi
+    // yeni eklendi
+  
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
