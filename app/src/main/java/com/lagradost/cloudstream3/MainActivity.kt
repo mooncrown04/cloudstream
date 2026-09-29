@@ -671,7 +671,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
     override fun dispatchKeyEvent(event: KeyEvent): Boolean =
         CommonActivity.dispatchKeyEvent(this, event) ?: super.dispatchKeyEvent(event)
 
-  		    //yeni eklendi 
+  		 		    //yeni eklendi 
 override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         // showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
         when (keyCode) {
@@ -702,41 +702,40 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
                 }
             }
 
-            KeyEvent.KEYCODE_MEDIA_PLAY,
-            KeyEvent.KEYCODE_MEDIA_PAUSE,
-            KeyEvent.KEYCODE_PROG_BLUE,
-            KeyEvent.KEYCODE_BUTTON_START -> {
-                val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-                val navController = navHostFragment?.navController
-                
-                if (navController?.currentDestination?.id != R.id.navigation_player) {
-                    val currentFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull()
-                    
-                    if (currentFragment is com.lagradost.cloudstream3.ui.home.HomeFragment) {
-                        showToast("Eklenti Seçimi Açılıyor", Toast.LENGTH_SHORT)
-                        
-                        // Reflection yerine doğrudan arayüzdeki 'home_change_api' butonuna tıklama simülasyonu yapılır
-                        val changeApiButton = currentFragment.view?.findViewById<android.view.View>(R.id.home_change_api)
-                        if (changeApiButton != null) {
-                            changeApiButton.performClick()
-                        } else {
-                            // Alternatif olarak reflection ile metot çağrımı yedek tutulur
-                            runCatching {
-                                val method = currentFragment::class.java.getDeclaredMethod("actionSelectProvider")
-                                method.isAccessible = true
-                                method.invoke(currentFragment)
-                            }.onFailure { e ->
-                                e.printStackTrace()
-                            }
-                        }
-                        
-                        return true
-                    }
+        KeyEvent.KEYCODE_MEDIA_PLAY,
+KeyEvent.KEYCODE_MEDIA_PAUSE,
+KeyEvent.KEYCODE_PROG_BLUE,
+KeyEvent.KEYCODE_BUTTON_START -> {
+    val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+    val navController = navHostFragment?.navController
+
+    if (navController?.currentDestination?.id != R.id.navigation_player) {
+        val currentFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull()
+
+        if (currentFragment is com.lagradost.cloudstream3.ui.home.HomeFragment) {
+            // Eklenti seçimi diyaloğunu (BottomSheet) doğrudan açmak için arayüzdeki butona tıklama simülasyonu yapılır
+            val providerButton = currentFragment.view?.findViewById<android.view.View>(R.id.home_change_provider)
+            
+            if (providerButton != null) {
+                providerButton.performClick()
+                return true
+            } else {
+                // Alternatif olarak metot çağırmak yerine BottomSheetDialogFragment nesnesi doğrudan başlatılabilir
+                runCatching {
+                    com.lagradost.cloudstream3.ui.home.HomeParentItemAdapter.BottomSheetProviderSelector()
+                        .show(currentFragment.childFragmentManager, "BottomSheetProviderSelector")
+                }.onFailure { e ->
+                    e.printStackTrace()
                 }
+                return true
             }
-        }        
+        }
+    }
+}
+      
         return CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
     }
+	  //yeni eklendi
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
