@@ -1,5 +1,7 @@
 package com.lagradost.cloudstream3.utils
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.app.Activity
 import android.content.Context
 import android.net.Uri
