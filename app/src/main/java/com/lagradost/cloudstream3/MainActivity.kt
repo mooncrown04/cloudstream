@@ -689,7 +689,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
             
             KeyEvent.KEYCODE_MEDIA_REWIND -> {
                 if (isNotPlayingVideo) {
-                    showToast("Depo Ekleme menüsü açılıyor", Toast.LENGTH_SHORT)
+                    showToast("Depo Ekleme Menüsü açılıyor", Toast.LENGTH_SHORT)
                     navController?.navigate(R.id.navigation_settings_extensions)
                     return true
                 }
@@ -702,18 +702,36 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
                     return true
                 }
             }
-
-            KeyEvent.KEYCODE_PROG_RED -> {   
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
+                 if (isNotPlayingVideo) {
+                    showToast("Ana Menüsü Açılıyor", Toast.LENGTH_SHORT)
+                    navController?.navigate(R.id.navigation_home)
+                    return true
+                
+			KeyEvent.KEYCODE_PROG_RED -> {   
                 if (isNotPlayingVideo) {
-                    showToast("Arama menüsü açılıyor", Toast.LENGTH_SHORT)
+                    showToast("Arama Menüsü Açılıyor", Toast.LENGTH_SHORT)
                     navController?.navigate(R.id.navigation_search)
                     return true
                 }
             }
-
+                 KeyEvent.KEYCODE_PROG_GREEN -> {   
+                if (isNotPlayingVideo) {
+                    showToast("Arama Menüsü Açılıyor(ARAMA)", Toast.LENGTH_SHORT)
+                    navController?.navigate(R.id.navigation_quick_search)
+                    return true
+                }
+            }
+                  KeyEvent.KEYCODE_PROG_YELLOW -> {   
+                if (isNotPlayingVideo) {
+                    showToast("Test Menüsü Açılıyor", Toast.LENGTH_SHORT)
+                    navController?.navigate(R.id.navigation_test_providers)
+                    return true
+                }
+            }
             KeyEvent.KEYCODE_PROG_BLUE -> {
                 if (isNotPlayingVideo) {
-                    showToast("Eklenti menüsü açılıyor", Toast.LENGTH_SHORT)
+                    showToast("Depo Ekleme Menüsü açılıyor(FARKLI)", Toast.LENGTH_SHORT)
                     navController?.navigate(R.id.navigation_setup_extensions)
                     return true
                 }
@@ -723,7 +741,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
             KeyEvent.KEYCODE_MEDIA_PAUSE,
             KeyEvent.KEYCODE_BUTTON_START -> {
                if (isNotPlayingVideo) {
-                    showToast("Arama Kaynakları menüsü açılıyor", Toast.LENGTH_SHORT)
+                    showToast("Sağlayıcılar Menüsü Açılıyor", Toast.LENGTH_SHORT)
                     navController?.navigate(R.id.navigation_settings_providers)
                     return true
                 }
