@@ -252,10 +252,7 @@
     <item name="black">@color/RengarenkPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/RengarenkTextColor</item>
     
-    <!-- Radyo butonu ve vurgu renkleri -->
-    <item name="colorAccent">@color/RengarenkIconColor</item>
-    <item name="android:colorAccent">@color/RengarenkIconColor</item>
-    <item name="colorControlActivated">@color/RengarenkIconColor</item>
+	<item name="account_unselected_stroke">@color/RengarenkTextColor</item>
 </style>
 
 <style name="CimBomMode">
@@ -269,10 +266,7 @@
     <item name="black">@color/CimBomPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/CimBomTextColor</item>
     
-    <!-- Radyo butonu ve vurgu renkleri -->
-    <item name="colorAccent">@color/CimBomIconColor</item>
-    <item name="android:colorAccent">@color/CimBomIconColor</item>
-    <item name="colorControlActivated">@color/CimBomIconColor</item>
+   <item name="account_unselected_stroke">@color/CimBomTextColor</item>
 </style>
 
 <style name="GalatasarayMode">
@@ -286,10 +280,7 @@
     <item name="black">@color/GalatasarayPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/GalatasarayTextColor</item>
     
-    <!-- Radyo butonu ve vurgu renkleri -->
-    <item name="colorAccent">@color/GalatasarayIconColor</item>
-    <item name="android:colorAccent">@color/GalatasarayIconColor</item>
-    <item name="colorControlActivated">@color/GalatasarayIconColor</item>
+    <item name="account_unselected_stroke">@color/GalatasarayTextColor</item>
 </style>
 
 <style name="GSMode">
@@ -303,10 +294,7 @@
     <item name="black">@color/GSPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/GSTextColor</item>
     
-    <!-- Radyo butonu ve vurgu renkleri -->
-    <item name="colorAccent">@color/GSIconColor</item>
-    <item name="android:colorAccent">@color/GSIconColor</item>
-    <item name="colorControlActivated">@color/GSIconColor</item>
+    <item name="account_unselected_stroke">@color/GSTextColor</item>
 </style>
 
     <style name="DraculaMode">
