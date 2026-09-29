@@ -679,17 +679,22 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
         val navController = navHostFragment?.navController
         val isNotPlayingVideo = navController?.currentDestination?.id != R.id.navigation_player
 
+ // navController?.navigate(R.id.navigation_settings_player)                              
+                                                                         
+
         when (keyCode) {
             KeyEvent.KEYCODE_SETTINGS,
             KeyEvent.KEYCODE_MENU -> {              
-                showAccountSelectLinear()
+               // showAccountSelectLinear()
+				navController?.navigate(R.id.navigation_settings_updates) 
                 return true
             }            
             
             KeyEvent.KEYCODE_MEDIA_REWIND -> {
                 if (isNotPlayingVideo) {
                     showToast("Depo Ekleme Menüsü açılıyor", Toast.LENGTH_SHORT)
-                    navController?.navigate(R.id.navigation_settings_extensions)
+                  //  navController?.navigate(R.id.navigation_settings_extensions)
+					navController?.navigate(R.id.result_episodes_show_button)
                     return true
                 }
             }
@@ -697,43 +702,49 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
             KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> { 
                 if (isNotPlayingVideo) {
                     showToast("Ayarlar Açılıyor", Toast.LENGTH_SHORT)
-                    navController?.navigate(R.id.navigation_settings)
-                    return true
+                  //  navController?.navigate(R.id.navigation_settings)
+                   navController?.navigate(R.id.home_preview_hidden_prev_focus)
+				   return true
                 }
             }
             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
                  if (isNotPlayingVideo) {
                     showToast("Ana Menüsü Açılıyor", Toast.LENGTH_SHORT)
-                    navController?.navigate(R.id.navigation_home)
+                   // navController?.navigate(R.id.navigation_home)
+					navController?.navigate(R.id.home_preview_hidden_next_focus)
                     return true
-                      }
+                 }
             }
 			KeyEvent.KEYCODE_PROG_RED -> {   
                 if (isNotPlayingVideo) {
                     showToast("Arama Menüsü Açılıyor", Toast.LENGTH_SHORT)
-                    navController?.navigate(R.id.navigation_search)
+                  //  navController?.navigate(R.id.navigation_search)
+					navController?.navigate(R.id.navigation_settings_ui)
                     return true
                 }
             }
                  KeyEvent.KEYCODE_PROG_GREEN -> {   
                 if (isNotPlayingVideo) {
                     showToast("Arama Menüsü Açılıyor(ARAMA)", Toast.LENGTH_SHORT)
-                    navController?.navigate(R.id.navigation_quick_search)
-                    return true
+                   // navController?.navigate(R.id.navigation_quick_search)
+                    navController?.navigate(R.id.navigation_settings_plugins)
+					return true
                 }
             }
                   KeyEvent.KEYCODE_PROG_YELLOW -> {   
                 if (isNotPlayingVideo) {
-                    showToast("Test Menüsü Açılıyor", Toast.LENGTH_SHORT)
-                    navController?.navigate(R.id.navigation_test_providers)
-                    return true
+                    showToast("general Menüsü Açılıyor", Toast.LENGTH_SHORT)
+                    navController?.navigate(R.id.navigation_settings_general)
+                    
+					return true
                 }
             }
             KeyEvent.KEYCODE_PROG_BLUE -> {
                 if (isNotPlayingVideo) {
                     showToast("Depo Ekleme Menüsü açılıyor(FARKLI)", Toast.LENGTH_SHORT)
-                    navController?.navigate(R.id.navigation_setup_extensions)
-                    return true
+                   // navController?.navigate(R.id.navigation_setup_extensions)
+                    navController?.navigate(R.id.result_bookmark_Button)
+					return true
                 }
             }
 
@@ -742,8 +753,9 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
             KeyEvent.KEYCODE_BUTTON_START -> {
                if (isNotPlayingVideo) {
                     showToast("Sağlayıcılar Menüsü Açılıyor", Toast.LENGTH_SHORT)
-                    navController?.navigate(R.id.navigation_settings_providers)
-                    return true
+                   // navController?.navigate(R.id.navigation_settings_providers)
+                    navController?.navigate(R.id.result_resume_series_button)
+					return true
                 }
             }
         }        
