@@ -52,33 +52,25 @@ import java.util.Locale
 
 object BackupUtils {
 
-    /**
-     * No sensitive or breaking data in the backup
-     */
     private val nonTransferableKeys = listOf(
         ANILIST_CACHED_LIST,
         MAL_CACHED_LIST,
         KITSU_CACHED_LIST,
 
-        // The plugins themselves are not backed up
         PLUGINS_KEY,
         PLUGINS_KEY_LOCAL,
 
         AccountManager.ACCOUNT_TOKEN,
         AccountManager.ACCOUNT_IDS,
 
-        // TODO proper getter for string res keys to ensure that they are updated
-        "biometric_key", // can lock down users if backup is shared on a incompatible device
-        "nginx_user", // Nginx user key
+        "biometric_key",
+        "nginx_user",
 
-        // No access rights after restore data from backup
         "download_path_key",
         "download_path_key_visual",
         "backup_path_key",
         "backup_dir_path_key",
 
-        // When sharing backup we do not want to transfer what is essentially the password
-        // Note that this is deprecated, and can be removed after all tokens have expired
         "anilist_token",
         "anilist_user",
         "mal_user",
@@ -89,29 +81,28 @@ object BackupUtils {
         "subdl_user",
         "simkl_token",
 
-        // Downloads can not be restored from backups.
         DOWNLOAD_EPISODE_CACHE_BACKUP,
         DOWNLOAD_EPISODE_CACHE,
 
-        // This may overwrite valid local data with invalid data
         KEY_DOWNLOAD_INFO,
 
-        // Prevent backups from automatically starting downloads
         KEY_RESUME_IN_QUEUE,
         KEY_RESUME_PACKAGES,
         QUEUE_KEY,
 
-        // Prevent automatic plugin download after restoring backup
         "auto_download_plugins_key2"
     )
 
-    /** false if key should not be contained in backup */
     private fun String.isTransferable(): Boolean {
         return !nonTransferableKeys.any { this.contains(it) }
     }
 
+    // Dosya okuma (Restore) için launcher'lar
     private var restoreFileSelectorOpenDoc: ActivityResultLauncher<Array<String>>? = null
     private var restoreFileSelectorGetContent: ActivityResultLauncher<String>? = null
+
+    // Klasör seçme (Yol Değiştirme) için launcher
+    private var backupPathSelectorTree: ActivityResultLauncher<Uri?>? = null
 
     @Serializable
     data class BackupVars(
@@ -184,16 +175,11 @@ object BackupUtils {
             context.restoreMap(backupFile.datastore.stringSet)
         }
 
-        // Make sure the library is fresh
         for (api in AccountManager.syncApis) {
             api.requireLibraryRefresh = true
         }
     }
 
-    /**
-     * Uri üzerinden yedek dosyasını okuyup geri yükleme işlemini çalıştırır.
-     * X-plore ve harici dosya yöneticileri için izin kalıcılığını sağlar.
-     */
     fun restoreFromUri(activity: Activity, uri: Uri) {
         ioSafe {
             try {
@@ -202,9 +188,7 @@ object BackupUtils {
                         uri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
-                } catch (_: Exception) {
-                    // Bazı URI sağlayıcıları persistable izni desteklemez
-                }
+                } catch (_: Exception) {}
 
                 val text = activity.contentResolver.openInputStream(uri)?.use { stream ->
                     stream.bufferedReader().readText()
@@ -281,16 +265,33 @@ object BackupUtils {
 
     fun FragmentActivity.setUpBackup() {
         try {
-            // 1. Standart OpenDocument launcher'ı
+            // 1. Restore dosya seçicileri
             restoreFileSelectorOpenDoc =
                 registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
                     if (uri != null) restoreFromUri(this, uri)
                 }
 
-            // 2. Özel MIME sorunlarına ve SAF desteklemeyen cihazlara karşı GetContent yedek çözümü
             restoreFileSelectorGetContent =
                 registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                     if (uri != null) restoreFromUri(this, uri)
+                }
+
+            // 2. Klasör Yolu Değiştirici (OpenDocumentTree)
+            backupPathSelectorTree =
+                registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri: Uri? ->
+                    if (uri == null) return@registerForActivityResult
+                    try {
+                        contentResolver.takePersistableUriPermission(
+                            uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        )
+                        val settingsManager = PreferenceManager.getDefaultSharedPreferences(this)
+                        settingsManager.edit().putString(getString(R.string.backup_path_key), uri.toString()).apply()
+                        showToast("Yedekleme klasörü başarıyla değiştirildi.")
+                    } catch (e: Exception) {
+                        logError(e)
+                        showToast("Klasör izni kaydedilemedi: ${e.message}")
+                    }
                 }
         } catch (e: Exception) {
             logError(e)
@@ -300,7 +301,6 @@ object BackupUtils {
     fun Activity.restorePrompt() {
         runOnUiThread {
             try {
-                // Özel MIME listeleri çökme yarattığı için en geniş kapsayıcı "*/*" kullanıldı
                 restoreFileSelectorOpenDoc?.launch(arrayOf("*/*"))
             } catch (e: ActivityNotFoundException) {
                 try {
@@ -309,6 +309,21 @@ object BackupUtils {
                     showToast("Cihazda dosya seçebilecek bir dosya yöneticisi bulunamadı.")
                     logError(e2)
                 }
+            } catch (e: Exception) {
+                showToast(e.message)
+                logError(e)
+            }
+        }
+    }
+
+    // Klasör Değiştirme Butonuna Tıklandığında Çalışacak Güvenli Çağrı
+    fun Activity.changeBackupDirPrompt() {
+        runOnUiThread {
+            try {
+                backupPathSelectorTree?.launch(null)
+            } catch (e: ActivityNotFoundException) {
+                showToast("Bu cihazda sistem klasör seçicisi (SAF) desteklenmiyor.")
+                logError(e)
             } catch (e: Exception) {
                 showToast(e.message)
                 logError(e)
