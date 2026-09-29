@@ -251,11 +251,11 @@
     <item name="white">@color/RengarenkTextColor</item>
     <item name="black">@color/RengarenkPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/RengarenkTextColor</item>
-
-    <!-- Yuvarlak İkon / RadioButton Renkleri -->
+    
+    <!-- Radyo butonu ve vurgu renkleri -->
     <item name="colorAccent">@color/RengarenkIconColor</item>
+    <item name="android:colorAccent">@color/RengarenkIconColor</item>
     <item name="colorControlActivated">@color/RengarenkIconColor</item>
-    <item name="colorControlNormal">@color/RengarenkTextColor</item>
 </style>
 
 <style name="CimBomMode">
@@ -268,11 +268,11 @@
     <item name="white">@color/CimBomTextColor</item>
     <item name="black">@color/CimBomPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/CimBomTextColor</item>
-
-    <!-- Yuvarlak İkon / RadioButton Renkleri -->
+    
+    <!-- Radyo butonu ve vurgu renkleri -->
     <item name="colorAccent">@color/CimBomIconColor</item>
+    <item name="android:colorAccent">@color/CimBomIconColor</item>
     <item name="colorControlActivated">@color/CimBomIconColor</item>
-    <item name="colorControlNormal">@color/CimBomTextColor</item>
 </style>
 
 <style name="GalatasarayMode">
@@ -285,11 +285,11 @@
     <item name="white">@color/GalatasarayTextColor</item>
     <item name="black">@color/GalatasarayPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/GalatasarayTextColor</item>
-
-    <!-- Yuvarlak İkon / RadioButton Renkleri -->
-    <item name="colorAccent">@color/GalatasarayTextColor</item>
-    <item name="colorControlActivated">@color/GalatasarayTextColor</item>
-    <item name="colorControlNormal">@color/GalatasarayGrayTextColor</item>
+    
+    <!-- Radyo butonu ve vurgu renkleri -->
+    <item name="colorAccent">@color/GalatasarayIconColor</item>
+    <item name="android:colorAccent">@color/GalatasarayIconColor</item>
+    <item name="colorControlActivated">@color/GalatasarayIconColor</item>
 </style>
 
 <style name="GSMode">
@@ -302,11 +302,11 @@
     <item name="white">@color/GSTextColor</item>
     <item name="black">@color/GSPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/GSTextColor</item>
-
-    <!-- Yuvarlak İkon / RadioButton Renkleri -->
-    <item name="colorAccent">@color/GSTextColor</item>
-    <item name="colorControlActivated">@color/GSTextColor</item>
-    <item name="colorControlNormal">@color/GSGrayTextColor</item>
+    
+    <!-- Radyo butonu ve vurgu renkleri -->
+    <item name="colorAccent">@color/GSIconColor</item>
+    <item name="android:colorAccent">@color/GSIconColor</item>
+    <item name="colorControlActivated">@color/GSIconColor</item>
 </style>
 
     <style name="DraculaMode">
