@@ -179,7 +179,6 @@ import com.lagradost.cloudstream3.utils.downloader.DownloadQueueManager
 import com.lagradost.cloudstream3.utils.setText
 import com.lagradost.cloudstream3.utils.setTextHtml
 import com.lagradost.cloudstream3.utils.txt
-import com.lagradost.cloudstream4.theme.CloudStreamTheme
 import com.lagradost.safefile.SafeFile
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -671,7 +670,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
     override fun dispatchKeyEvent(event: KeyEvent): Boolean =
         CommonActivity.dispatchKeyEvent(this, event) ?: super.dispatchKeyEvent(event)
 
-// yeni eklendi 
+ // yeni eklendi 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         // showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
 
@@ -751,7 +750,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
         return CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
     }
     // yeni eklendi
-  
+	
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
@@ -1376,14 +1375,6 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
                 padRight = false,
                 padTop = false
             )
-
-            composeView.apply {
-                setContent {
-                    CloudStreamTheme {
-                        MainActivityScreen.Content()
-                    }
-                }
-            }
         }
 
         // overscan
@@ -2067,7 +2058,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
         handleAppIntent(intent)
 
         ioSafe {
-            runAutoUpdate() // TODO remove this when we update the updater autosearch
+            runAutoUpdate()
         }
 
         FcastManager().init(this, false)
