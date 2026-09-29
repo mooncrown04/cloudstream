@@ -706,7 +706,8 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
                     showToast("Ana Menüsü Açılıyor", Toast.LENGTH_SHORT)
                     navController?.navigate(R.id.navigation_home)
                     return true
-                
+                      }
+            }
 			KeyEvent.KEYCODE_PROG_RED -> {   
                 if (isNotPlayingVideo) {
                     showToast("Arama Menüsü Açılıyor", Toast.LENGTH_SHORT)
