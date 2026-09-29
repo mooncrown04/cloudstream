@@ -671,7 +671,7 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
     override fun dispatchKeyEvent(event: KeyEvent): Boolean =
         CommonActivity.dispatchKeyEvent(this, event) ?: super.dispatchKeyEvent(event)
 
-  		    //yeni eklendi 
+  			    //yeni eklendi 
 override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         // showToast("Basılan Tuş Kodu: $keyCode", Toast.LENGTH_SHORT)
         when (keyCode) {
@@ -690,7 +690,6 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
                     return true
                 }
             }
-
             KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> { 
                 val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
                 val navController = navHostFragment?.navController
@@ -701,32 +700,28 @@ override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
                     return true
                 }
             }
-
-            KeyEvent.KEYCODE_MEDIA_PLAY,
-            KeyEvent.KEYCODE_MEDIA_PAUSE,
-            KeyEvent.KEYCODE_PROG_BLUE,
-            KeyEvent.KEYCODE_BUTTON_START -> {
+            KeyEvent.KEYCODE_PROG_BLUE -> {
                 val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-                val navController = navHostFragment?.navController
-                
+                val navController = navHostFragment?.navController                
                 if (navController?.currentDestination?.id != R.id.navigation_player) {
-                    val currentFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull()
-                    
-                    if (currentFragment is com.lagradost.cloudstream3.ui.home.HomeFragment) {
-                        showToast("Eklenti Seçimi Açılıyor", Toast.LENGTH_SHORT)
-                        
-                        runCatching {
-                            val method = currentFragment::class.java.getDeclaredMethod("actionSelectProvider")
-                            method.isAccessible = true
-                            method.invoke(currentFragment)
-                        }.onFailure { e ->
-                            e.printStackTrace()
-                        }
-                        
-                        return true
-                    }
+                    showToast("Eklenti  menüsü açılıyor", Toast.LENGTH_SHORT)
+                    navController?.navigate(R.id.navigation_setup_extensions)
+                    return true
                 }
             }
+            KeyEvent.KEYCODE_MEDIA_PLAY,
+            KeyEvent.KEYCODE_MEDIA_PAUSE,           
+            KeyEvent.KEYCODE_BUTTON_START -> {
+   val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+                val navController = navHostFragment?.navController                
+                if (navController?.currentDestination?.id != R.id.navigation_player) {
+                    showToast("Arama Kaynakları  menüsü açılıyor", Toast.LENGTH_SHORT)
+                    navController?.navigate(R.id.navigation_settings_providers)
+                    return true
+                }
+              }
+            
+			}
         }        
         return CommonActivity.onKeyDown(this, keyCode, event) ?: super.onKeyDown(keyCode, event)
     }
