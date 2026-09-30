@@ -250,7 +250,7 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
             // YENİ: Toolbar üzerindeki arama alanının odaklanıp otomatik klavye açmasını engelliyoruz
             view?.findViewById<MaterialToolbar>(R.id.settings_toolbar)?.clearFocus()
 
-            // YENİ: Arama alanından "Sonraki/Ara/Bitti" tuşlarına basıldığında klavyeyi kapatma ve odağı kartlara aktarma
+            // YENİ: R.id referansları kullanılarak SearchView güvenli şekilde yakalanıyor
             val searchView = view?.findViewById<SearchView>(R.id.search_action)
                 ?: view?.findViewById<SearchView>(R.id.settings_search_view)
 
@@ -302,7 +302,7 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
         val commitHash = activity?.currentCommitHash() ?: ""
         val buildTimestamp = SimpleDateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM,
             Locale.getDefault()
-        ).apply { timeZone = TimeZone.getTimeZone("UTC")
+        ).apply { timeZone = TimeZone.TimeZone_UTC if defined else TimeZone.getTimeZone("UTC")
         }.format(Date(BuildConfig.BUILD_DATE)).replace("UTC", "")
 
         binding.appVersion.text = appVersion
@@ -313,7 +313,7 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
             true
         }
 
-        // YENİ: Ekran ilk açıldığında klavyenin otomatik fırlamasını engelliyoruz
+        // YENİ: Ekran ilk açıldığında klavyenin otomatik açılmasını engelliyoruz
         activity?.window?.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
         )
