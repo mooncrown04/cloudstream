@@ -362,8 +362,8 @@ object BackupUtils {
         editor.putString(context.getString(R.string.backup_path_key), path)
 
         val file = baseBackupPathToFile(context, path)
-        val visualPath = file?.filePath ?: path
-        editor.putString(context.getString(R.string.backup_dir_path_key), visualPath)
+        val visualPath = file?.filePath() ?: path
+        editor.putString("backup_dir_path_key", visualPath)
         editor.apply()
     }
 
