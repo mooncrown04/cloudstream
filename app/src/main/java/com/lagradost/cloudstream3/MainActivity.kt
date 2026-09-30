@@ -731,12 +731,12 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
 					return true
                 }
             }
-          KeyEvent.KEYCODE_PROG_BLUE -> {
+KeyEvent.KEYCODE_PROG_BLUE -> {
     if (isNotPlayingVideo) {
         showToast("Bölüm listesi açılıyor", Toast.LENGTH_SHORT)
         
-        // Butonu programatik olarak tıklatıyoruz
-        binding.resultEpisodesShowButton?.performClick()
+        // Ekranda aktif olan view içinden ilgili butonu bulup tıklatıyoruz
+        findViewById<View>(R.id.result_episodes_show_button)?.performClick()
         
         return true
     }
