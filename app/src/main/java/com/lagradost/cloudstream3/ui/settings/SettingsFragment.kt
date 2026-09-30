@@ -1,336 +1,405 @@
-package com.lagradost.cloudstream3.ui.settings
+package com.lagradost.cloudstream3.utils
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
-import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageView
-import androidx.annotation.StringRes
-import androidx.appcompat.widget.SearchView
-import androidx.core.view.children
-import androidx.core.view.updateLayoutParams
-import androidx.fragment.app.Fragment
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.MaterialToolbar
-import com.lagradost.cloudstream3.BuildConfig
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.WorkerThread
+import androidx.core.net.toUri
+import androidx.fragment.app.FragmentActivity
+import androidx.preference.PreferenceManager
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.lagradost.cloudstream3.CloudStreamApp.Companion.getActivity
+import com.lagradost.cloudstream3.CommonActivity.showToast
 import com.lagradost.cloudstream3.R
-import com.lagradost.cloudstream3.databinding.MainSettingsBinding
 import com.lagradost.cloudstream3.mvvm.logError
-import com.lagradost.cloudstream3.mvvm.safe
+import com.lagradost.cloudstream3.plugins.PLUGINS_KEY
+import com.lagradost.cloudstream3.plugins.PLUGINS_KEY_LOCAL
 import com.lagradost.cloudstream3.syncproviders.AccountManager
-import com.lagradost.cloudstream3.syncproviders.AuthRepo
-import com.lagradost.cloudstream3.ui.BaseFragment
-import com.lagradost.cloudstream3.ui.home.HomeFragment.Companion.errorProfilePic
-import com.lagradost.cloudstream3.ui.settings.Globals.EMULATOR
-import com.lagradost.cloudstream3.ui.settings.Globals.PHONE
-import com.lagradost.cloudstream3.ui.settings.Globals.TV
-import com.lagradost.cloudstream3.ui.settings.Globals.isLandscape
-import com.lagradost.cloudstream3.ui.settings.Globals.isLayout
-import com.lagradost.cloudstream3.utils.DataStoreHelper
-import com.lagradost.cloudstream3.utils.GitInfo.currentCommitHash
-import com.lagradost.cloudstream3.utils.ImageLoader.loadImage
-import com.lagradost.cloudstream3.utils.UIHelper.clipboardHelper
-import com.lagradost.cloudstream3.utils.UIHelper.fixSystemBarsPadding
-import com.lagradost.cloudstream3.utils.UIHelper.navigate
-import com.lagradost.cloudstream3.utils.UIHelper.toPx
-import com.lagradost.cloudstream3.utils.getImageFromDrawable
-import com.lagradost.cloudstream3.utils.txt
-import java.io.File
-import java.text.DateFormat
+import com.lagradost.cloudstream3.syncproviders.providers.AniListApi.Companion.ANILIST_CACHED_LIST
+import com.lagradost.cloudstream3.syncproviders.providers.MALApi.Companion.MAL_CACHED_LIST
+import com.lagradost.cloudstream3.syncproviders.providers.KitsuApi.Companion.KITSU_CACHED_LIST
+import com.lagradost.cloudstream3.utils.AppUtils.parseJson
+import com.lagradost.cloudstream3.utils.AppUtils.toJson
+import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
+import com.lagradost.cloudstream3.utils.Coroutines.main
+import com.lagradost.cloudstream3.utils.DataStore.getDefaultSharedPrefs
+import com.lagradost.cloudstream3.utils.DataStore.getSharedPrefs
+import com.lagradost.cloudstream3.utils.UIHelper.checkWrite
+import com.lagradost.cloudstream3.utils.UIHelper.requestRW
+import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.setupStream
+import com.lagradost.cloudstream3.utils.downloader.DownloadObjects
+import com.lagradost.cloudstream3.utils.downloader.DownloadQueueManager.QUEUE_KEY
+import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_DOWNLOAD_INFO
+import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_RESUME_IN_QUEUE
+import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_RESUME_PACKAGES
+import com.lagradost.safefile.MediaFileContentType
+import com.lagradost.safefile.SafeFile
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import okhttp3.internal.closeQuietly
+import java.io.IOException
+import java.io.OutputStream
+import java.io.PrintWriter
+import java.lang.System.currentTimeMillis
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 
-class SettingsFragment : BaseFragment<MainSettingsBinding>(
-    BaseFragment.BindingCreator.Inflate(MainSettingsBinding::inflate)
-) {
-    companion object {
-        fun PreferenceFragmentCompat?.getPref(id: Int): Preference? {
-            if (this == null) return null
-            return try {
-                findPreference(getString(id))
-            } catch (e: Exception) {
-                logError(e)
-                null
-            }
+object BackupUtils {
+
+    /**
+     * No sensitive or breaking data in the backup
+     */
+    private val nonTransferableKeys = listOf(
+        ANILIST_CACHED_LIST,
+        MAL_CACHED_LIST,
+        KITSU_CACHED_LIST,
+
+        // The plugins themselves are not backed up
+        PLUGINS_KEY,
+        PLUGINS_KEY_LOCAL,
+
+        AccountManager.ACCOUNT_TOKEN,
+        AccountManager.ACCOUNT_IDS,
+
+        // TODO proper getter for string res keys to ensure that they are updated
+        "biometric_key", // can lock down users if backup is shared on a incompatible device
+        "nginx_user", // Nginx user key
+
+        // No access rights after restore data from backup
+        "download_path_key",
+        "download_path_key_visual",
+        "backup_path_key",
+        "backup_dir_path_key",
+
+        // When sharing backup we do not want to transfer what is essentially the password
+        // Note that this is deprecated, and can be removed after all tokens have expired
+        "anilist_token",
+        "anilist_user",
+        "mal_user",
+        "mal_token",
+        "mal_refresh_token",
+        "mal_unixtime",
+        "open_subtitles_user",
+        "subdl_user",
+        "simkl_token",
+
+        // Downloads can not be restored from backups.
+        "DOWNLOAD_EPISODE_CACHE_BACKUP",
+        "DOWNLOAD_EPISODE_CACHE",
+
+        // Download headers are unintuitively used in the resume watching system.
+        // DOWNLOAD_HEADER_CACHE_BACKUP,
+        // DOWNLOAD_HEADER_CACHE,
+
+        // This may overwrite valid local data with invalid data
+        KEY_DOWNLOAD_INFO,
+
+        // Prevent backups from automatically starting downloads
+        KEY_RESUME_IN_QUEUE,
+        KEY_RESUME_PACKAGES,
+        QUEUE_KEY,
+
+        // Prevent automatic plugin download after restoring backup
+        "auto_download_plugins_key2"
+    )
+
+    /** false if key should not be contained in backup */
+    private fun String.isTransferable(): Boolean {
+        return !nonTransferableKeys.any { this.contains(it) }
+    }
+
+    private var restoreFileSelectorOpenDoc: ActivityResultLauncher<Array<String>>? = null
+    private var restoreFileSelectorGetContent: ActivityResultLauncher<String>? = null
+
+    @Serializable
+    data class BackupVars(
+        @JsonProperty("_Bool") @SerialName("_Bool") val bool: Map<String, Boolean>?,
+        @JsonProperty("_Int") @SerialName("_Int") val int: Map<String, Int>?,
+        @JsonProperty("_String") @SerialName("_String") val string: Map<String, String>?,
+        @JsonProperty("_Float") @SerialName("_Float") val float: Map<String, Float>?,
+        @JsonProperty("_Long") @SerialName("_Long") val long: Map<String, Long>?,
+        @JsonProperty("_StringSet") @SerialName("_StringSet") val stringSet: Map<String, Set<String>?>?,
+    )
+
+    @Serializable
+    data class BackupFile(
+        @JsonProperty("datastore") @SerialName("datastore") val datastore: BackupVars,
+        @JsonProperty("settings") @SerialName("settings") val settings: BackupVars,
+    )
+
+    @Suppress("UNCHECKED_CAST")
+    private fun getBackup(context: Context): BackupFile {
+        val allData = context.getSharedPrefs().all.filter { it.key.isTransferable() }
+        val allSettings = context.getDefaultSharedPrefs().all.filter { it.key.isTransferable() }
+
+        val allDataSorted = BackupVars(
+            allData.filter { it.value is Boolean } as? Map<String, Boolean>,
+            allData.filter { it.value is Int } as? Map<String, Int>,
+            allData.filter { it.value is String } as? Map<String, String>,
+            allData.filter { it.value is Float } as? Map<String, Float>,
+            allData.filter { it.value is Long } as? Map<String, Long>,
+            allData.filter { it.value as? Set<String> != null } as? Map<String, Set<String>>,
+        )
+
+        val allSettingsSorted = BackupVars(
+            allSettings.filter { it.value is Boolean } as? Map<String, Boolean>,
+            allSettings.filter { it.value is Int } as? Map<String, Int>,
+            allSettings.filter { it.value is String } as? Map<String, String>,
+            allSettings.filter { it.value is Float } as? Map<String, Float>,
+            allSettings.filter { it.value is Long } as? Map<String, Long>,
+            allSettings.filter { it.value as? Set<String> != null } as? Map<String, Set<String>>,
+        )
+
+        return BackupFile(
+            allDataSorted,
+            allSettingsSorted,
+        )
+    }
+
+    @WorkerThread
+    fun restore(
+        context: Context?,
+        backupFile: BackupFile,
+        restoreSettings: Boolean,
+        restoreDataStore: Boolean,
+    ) {
+        if (context == null) return
+        if (restoreSettings) {
+            context.restoreMap(backupFile.settings.bool, true)
+            context.restoreMap(backupFile.settings.int, true)
+            context.restoreMap(backupFile.settings.string, true)
+            context.restoreMap(backupFile.settings.float, true)
+            context.restoreMap(backupFile.settings.long, true)
+            context.restoreMap(backupFile.settings.stringSet, true)
         }
 
-        /**
-         * Hide many Preferences on selected layouts.
-         **/
-        fun PreferenceFragmentCompat?.hidePrefs(ids: List<Int>, layoutFlags: Int) {
-            if (this == null) return
+        if (restoreDataStore) {
+            context.restoreMap(backupFile.datastore.bool)
+            context.restoreMap(backupFile.datastore.int)
+            context.restoreMap(backupFile.datastore.string)
+            context.restoreMap(backupFile.datastore.float)
+            context.restoreMap(backupFile.datastore.long)
+            context.restoreMap(backupFile.datastore.stringSet)
+        }
 
+        // Make sure the library is fresh
+        for (api in AccountManager.syncApis) {
+            api.requireLibraryRefresh = true
+        }
+    }
+
+    /**
+     * Uri üzerinden yedek dosyasını okuyup geri yükleme işlemini çalıştırır.
+     * X-plore ve benzeri dosya yöneticilerinin URI izin problemlerini çözer.
+     */
+    fun restoreFromUri(activity: Activity, uri: Uri) {
+        ioSafe {
             try {
-                ids.forEach {
-                    getPref(it)?.isVisible = !isLayout(layoutFlags)
+                try {
+                    activity.contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (_: Exception) {
+                    // Bazı URI sağlayıcıları persistable izni desteklemez
                 }
+
+                val text = activity.contentResolver.openInputStream(uri)?.use { stream ->
+                    stream.bufferedReader().readText()
+                } ?: return@ioSafe
+
+                val restoredValue = parseJson<BackupFile>(text)
+
+                restore(
+                    activity,
+                    restoredValue,
+                    restoreSettings = true,
+                    restoreDataStore = true,
+                )
+                activity.runOnUiThread { activity.recreate() }
             } catch (e: Exception) {
                 logError(e)
-                null
-            }
-        }
-
-        /**
-         * Hide the [Preference] on selected layouts.
-         * @return [Preference] if visible otherwise null.
-         *
-         * [hideOn] is usually followed by some actions on the preference which are mostly
-         * unnecessary when the preference is disabled for the said layout thus returning null.
-         **/
-        fun Preference?.hideOn(layoutFlags: Int): Preference? {
-            if (this == null) return null
-            this.isVisible = !isLayout(layoutFlags)
-            return if(this.isVisible) this else null
-        }
-
-        /**
-         * On TV you cannot properly scroll to the bottom of settings, this fixes that.
-         * */
-        fun PreferenceFragmentCompat.setPaddingBottom() {
-            if (isLayout(TV or EMULATOR)) {
-                listView?.setPadding(0, 0, 0, 100.toPx)
-            }
-        }
-
-        fun PreferenceFragmentCompat.setToolBarScrollFlags() {
-            if (isLayout(TV or EMULATOR)) {
-                val settingsAppbar = view?.findViewById<MaterialToolbar>(R.id.settings_toolbar)
-
-                settingsAppbar?.updateLayoutParams<AppBarLayout.LayoutParams> {
-                    scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
+                main {
+                    showToast(
+                        activity.getString(R.string.restore_failed_format).format(e.toString())
+                    )
                 }
             }
         }
+    }
 
-        fun Fragment?.setToolBarScrollFlags() {
-            if (isLayout(TV or EMULATOR)) {
-                val settingsAppbar = this?.view?.findViewById<MaterialToolbar>(R.id.settings_toolbar)
+    fun backup(context: Context?) = ioSafe {
+        if (context == null) return@ioSafe
+        var fileStream: OutputStream? = null
+        var printStream: PrintWriter? = null
 
-                settingsAppbar?.updateLayoutParams<AppBarLayout.LayoutParams> {
-                    scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
-                }
+        try {
+            if (!context.checkWrite()) {
+                showToast(R.string.backup_failed, Toast.LENGTH_LONG)
+                context.getActivity()?.requestRW()
+                return@ioSafe
             }
-        }
 
-        fun Fragment?.setUpToolbar(title: String) {
-            if (this == null) return
-            val settingsToolbar = view?.findViewById<MaterialToolbar>(R.id.settings_toolbar) ?: return
+            val date = SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(Date(currentTimeMillis()))
+            val displayName = "CS3_Backup_${date}"
+            val backupFile = getBackup(context)
+            val stream = setupBackupStream(context, displayName)
 
-            settingsToolbar.apply {
-                setTitle(title)
-                if (isLayout(PHONE or EMULATOR)) {
-                    setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
-                    setNavigationOnClickListener {
-                        activity?.onBackPressedDispatcher?.onBackPressed()
-                    }
-                }
-            }
-        }
-
-        fun Fragment?.setUpToolbar(@StringRes title: Int) {
-            if (this == null) return
-            val settingsToolbar = view?.findViewById<MaterialToolbar>(R.id.settings_toolbar) ?: return
-
-            settingsToolbar.apply {
-                setTitle(title)
-                if (isLayout(PHONE or EMULATOR)) {
-                    setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
-                    children.firstOrNull { it is ImageView }?.tag = getString(R.string.tv_no_focus_tag)
-                    setNavigationOnClickListener {
-                        safe { activity?.onBackPressedDispatcher?.onBackPressed() }
-                    }
-                }
-            }
-        }
-
-        fun Fragment.setSystemBarsPadding() {
-            view?.let {
-                fixSystemBarsPadding(
-                    it,
-                    padLeft = isLayout(TV or EMULATOR),
-                    padBottom = isLandscape()
+            fileStream = stream.openNew()
+            printStream = PrintWriter(fileStream)
+            printStream.print(backupFile.toJson())
+            showToast(R.string.backup_success, Toast.LENGTH_LONG)
+        } catch (e: Exception) {
+            logError(e)
+            try {
+                showToast(
+                    txt(R.string.backup_failed_error_format, e.toString()),
+                    Toast.LENGTH_LONG,
                 )
+            } catch (e: Exception) {
+                logError(e)
             }
-        }
-
-        fun getFolderSize(dir: File): Long {
-            var size: Long = 0
-            dir.listFiles()?.let {
-                for (file in it) {
-                    size += if (file.isFile) {
-                        // System.out.println(file.getName() + " " + file.length());
-                        file.length()
-                    } else getFolderSize(file)
-                }
-            }
-
-            return size
-        }
-
-        // YENİ: Arama çubuğunu ID olmadan View hiyerarşisinde arayıp bulan yardımcı fonksiyon
-        private fun findSearchView(viewGroup: ViewGroup?): SearchView? {
-            if (viewGroup == null) return null
-            for (i in 0 until viewGroup.childCount) {
-                val child = viewGroup.getChildAt(i)
-                if (child is SearchView) {
-                    return child
-                } else if (child is ViewGroup) {
-                    val result = findSearchView(child)
-                    if (result != null) return result
-                }
-            }
-            return null
+        } finally {
+            printStream?.closeQuietly()
+            fileStream?.closeQuietly()
         }
     }
 
-    override fun fixLayout(view: View) {
-        fixSystemBarsPadding(
-            view,
-            padBottom = isLandscape(),
-            padLeft = isLayout(TV or EMULATOR)
+    @Throws(IOException::class)
+    private fun setupBackupStream(context: Context, name: String, ext: String = "txt"): DownloadObjects.StreamData {
+        return setupStream(
+            baseFile = getCurrentBackupDir(context).first ?: getDefaultBackupDir(context)
+            ?: throw IOException("Bad config"),
+            name,
+            folder = null,
+            extension = ext,
+            tryResume = false,
         )
     }
 
-    override fun onBindingCreated(binding: MainSettingsBinding) {
-        fun navigate(id: Int) {
-            activity?.navigate(id, Bundle())
-        }
-
-        /** used to debug leaks
-        showToast(activity,"${VideoDownloadManager.downloadStatusEvent.size} :
-        ${VideoDownloadManager.downloadProgressEvent.size}") **/
-
-        fun hasProfilePictureFromAccountManagers(accountManagers: Array<AuthRepo>): Boolean {
-            for (syncApi in accountManagers) {
-                val login = syncApi.authUser()
-                val pic = login?.profilePicture ?: continue
-
-                binding.settingsProfilePic.let { imageView ->
-                    imageView.loadImage(pic) {
-                        // Fallback to random error drawable
-                        error { getImageFromDrawable(context ?: return@error null, errorProfilePic) }
-                    }
+    fun FragmentActivity.setUpBackup() {
+        try {
+            // 1. Standart OpenDocument
+            restoreFileSelectorOpenDoc =
+                registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+                    if (uri != null) restoreFromUri(this, uri)
                 }
-                binding.settingsProfileText.text = login.name
-                return true // sync profile exists
-            }
-            return false // not syncing
-        }
 
-        // display local account information if not syncing
-        if (!hasProfilePictureFromAccountManagers(AccountManager.allApis)) {
-            val activity = activity ?: return
-            val currentAccount = try {
-                DataStoreHelper.accounts.firstOrNull {
-                    it.keyIndex == DataStoreHelper.selectedKeyIndex
-                } ?: activity.let { DataStoreHelper.getDefaultAccount(activity) }
-
-            } catch (t: IllegalStateException) {
-                Log.e("AccountManager", "Activity not found", t)
-                null
-            }
-
-            binding.settingsProfilePic.loadImage(currentAccount?.image)
-            binding.settingsProfileText.text = currentAccount?.name
-        }
-
-        binding.apply {
-            listOf(
-                settingsGeneral to R.id.action_navigation_global_to_navigation_settings_general,
-                settingsPlayer to R.id.action_navigation_global_to_navigation_settings_player,
-                settingsCredits to R.id.action_navigation_global_to_navigation_settings_account,
-                settingsUi to R.id.action_navigation_global_to_navigation_settings_ui,
-                settingsProviders to R.id.action_navigation_global_to_navigation_settings_providers,
-                settingsUpdates to R.id.action_navigation_global_to_navigation_settings_updates,
-                settingsExtensions to R.id.action_navigation_global_to_navigation_settings_extensions,
-            ).forEach { (view, navigationId) ->
-                view.apply {
-                    setOnClickListener {
-                        navigate(navigationId)
-                    }
-                    if (isLayout(TV)) {
-                        isFocusable = true
-                        isFocusableInTouchMode = true
-                    }
+            // 2. Fallback GetContent
+            restoreFileSelectorGetContent =
+                registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                    if (uri != null) restoreFromUri(this, uri)
                 }
+        } catch (e: Exception) {
+            logError(e)
+        }
+    }
+
+    fun Activity.restorePrompt() {
+        runOnUiThread {
+            try {
+                restoreFileSelectorOpenDoc?.launch(arrayOf("*/*"))
+            } catch (e: ActivityNotFoundException) {
+                try {
+                    restoreFileSelectorGetContent?.launch("*/*")
+                } catch (e2: ActivityNotFoundException) {
+                    showToast("Cihazda dosya seçebilecek bir dosya yöneticisi bulunamadı.")
+                    logError(e2)
+                }
+            } catch (e: Exception) {
+                showToast(e.message)
+                logError(e)
             }
+        }
+    }
 
-            // YENİ: Toolbar üzerindeki odağı temizle
-            val toolbar = view?.findViewById<MaterialToolbar>(R.id.settings_toolbar)
-            toolbar?.clearFocus()
+    private fun <T> Context.restoreMap(
+        map: Map<String, T>?,
+        isEditingAppSettings: Boolean = false,
+    ) {
+        val editor = DataStore.editor(this, isEditingAppSettings)
+        map?.forEach {
+            if (it.key.isTransferable()) {
+                editor.setKeyRaw(it.key, it.value)
+            }
+        }
+        editor.apply()
+    }
 
-            // YENİ: SearchView bileşenini güvenli şekilde bulup klavye dinleyicisini bağlıyoruz
-            val searchView = findSearchView(view as? ViewGroup)
-            searchView?.let { sv ->
-                sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                    override fun onQueryTextSubmit(query: String?): Boolean {
-                        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-                        imm?.hideSoftInputFromWindow(sv.windowToken, 0)
-                        sv.clearFocus()
-                        if (isLayout(TV)) {
-                            settingsGeneral.requestFocus()
-                        }
-                        return true
-                    }
+    /**
+     * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.getDefaultDir],
+     * modified for backup-specific paths.
+     */
+    fun getDefaultBackupDir(context: Context): SafeFile? {
+        return SafeFile.fromMedia(context, MediaFileContentType.Downloads)
+    }
 
-                    override fun onQueryTextChange(newText: String?): Boolean {
-                        return false
-                    }
-                })
+    /**
+     * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.getBasePath],
+     * modified for backup-specific paths.
+     */
+    fun getCurrentBackupDir(context: Context): Pair<SafeFile?, String?> {
+        val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
+        val basePathSetting = settingsManager.getString(context.getString(R.string.backup_path_key), null)
+        return baseBackupPathToFile(context, basePathSetting) to basePathSetting
+    }
 
-                val searchEditText = sv.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
-                searchEditText?.setOnEditorActionListener { v, actionId, _ ->
-                    if (actionId == EditorInfo.IME_ACTION_NEXT ||
-                        actionId == EditorInfo.IME_ACTION_SEARCH ||
-                        actionId == EditorInfo.IME_ACTION_DONE) {
+    /**
+     * Yedekleme klasörünün konumunu değiştiren/güncelleyen fonksiyon.
+     * Uygulama içi ayarlardan çağrılan bu fonksiyon güvenli hale getirilmiştir.
+     */
+    fun setBackupPath(context: Context, path: String?) {
+        try {
+            val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
+            val editor = settingsManager.edit()
 
-                        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-                        imm?.hideSoftInputFromWindow(v.windowToken, 0)
-                        v.clearFocus()
-                        sv.clearFocus()
-
-                        if (isLayout(TV)) {
-                            settingsGeneral.requestFocus()
-                        }
-                        true
-                    } else {
-                        false
-                    }
+            if (!path.isNullOrBlank() && path.startsWith("content://")) {
+                try {
+                    val uri = path.toUri()
+                    val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    context.contentResolver.takePersistableUriPermission(uri, takeFlags)
+                } catch (e: Exception) {
+                    logError(e)
                 }
             }
 
-            // Default focus on TV
-            if (isLayout(TV)) {
-                settingsGeneral.requestFocus()
+            val key = try {
+                context.getString(R.string.backup_path_key)
+            } catch (_: Exception) {
+                "backup_path_key"
             }
+
+            editor.putString(key, path)
+
+            val file = baseBackupPathToFile(context, path)
+            val visualPath = file?.filePath() ?: path
+            editor.putString("backup_dir_path_key", visualPath)
+            editor.apply()
+        } catch (e: Exception) {
+            logError(e)
         }
+    }
 
-        val appVersion = BuildConfig.VERSION_NAME
-        val commitHash = activity?.currentCommitHash() ?: ""
-        val buildTimestamp = SimpleDateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM,
-            Locale.getDefault()
-        ).apply { timeZone = TimeZone.getTimeZone("UTC")
-        }.format(Date(BuildConfig.BUILD_DATE)).replace("UTC", "")
-
-        binding.appVersion.text = appVersion
-        binding.buildDate.text = buildTimestamp
-        binding.commitHash.text = commitHash
-        binding.appVersionInfo.setOnLongClickListener {
-            clipboardHelper(txt(R.string.extension_version), "$appVersion $commitHash $buildTimestamp")
-            true
+    /**
+     * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.basePathToFile],
+     * modified for backup-specific paths.
+     */
+    private fun baseBackupPathToFile(context: Context, path: String?): SafeFile? {
+        return try {
+            when {
+                path.isNullOrBlank() -> getDefaultBackupDir(context)
+                path.startsWith("content://") -> SafeFile.fromUri(context, path.toUri()) ?: getDefaultBackupDir(context)
+                else -> SafeFile.fromFilePath(context, path) ?: getDefaultBackupDir(context)
+            }
+        } catch (e: Exception) {
+            logError(e)
+            getDefaultBackupDir(context)
         }
-
-        // YENİ: Ekran ilk açıldığında klavyenin otomatik fırlamasını engelliyoruz
-        activity?.window?.setSoftInputMode(
-            android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
-        )
     }
 }
