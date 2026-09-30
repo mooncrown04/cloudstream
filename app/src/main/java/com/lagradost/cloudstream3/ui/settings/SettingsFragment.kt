@@ -1,10 +1,15 @@
 package com.lagradost.cloudstream3.ui.settings
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.ImageView
 import androidx.annotation.StringRes
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
@@ -245,6 +250,48 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
             // YENİ: Toolbar üzerindeki arama alanının odaklanıp otomatik klavye açmasını engelliyoruz
             view?.findViewById<MaterialToolbar>(R.id.settings_toolbar)?.clearFocus()
 
+            // YENİ: Arama alanından "Sonraki/Ara/Bitti" tuşlarına basıldığında klavyeyi kapatma ve odağı kartlara aktarma
+            val searchView = view?.findViewById<SearchView>(R.id.search_action)
+                ?: view?.findViewById<SearchView>(R.id.settings_search_view)
+
+            searchView?.let { sv ->
+                sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                        imm?.hideSoftInputFromWindow(sv.windowToken, 0)
+                        sv.clearFocus()
+                        if (isLayout(TV)) {
+                            settingsGeneral.requestFocus()
+                        }
+                        return true
+                    }
+
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        return false
+                    }
+                })
+
+                val searchEditText = sv.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+                searchEditText?.setOnEditorActionListener { v, actionId, _ ->
+                    if (actionId == EditorInfo.IME_ACTION_NEXT ||
+                        actionId == EditorInfo.IME_ACTION_SEARCH ||
+                        actionId == EditorInfo.IME_ACTION_DONE) {
+
+                        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                        imm?.hideSoftInputFromWindow(v.windowToken, 0)
+                        v.clearFocus()
+                        sv.clearFocus()
+
+                        if (isLayout(TV)) {
+                            settingsGeneral.requestFocus()
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+
             // Default focus on TV
             if (isLayout(TV)) {
                 settingsGeneral.requestFocus()
@@ -266,7 +313,7 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
             true
         }
 
-        // YENİ: Ayarlar ekranı açıldığında soft klavyenin (otomatik pop-up) fırlamasını engelliyoruz
+        // YENİ: Ekran ilk açıldığında klavyenin otomatik fırlamasını engelliyoruz
         activity?.window?.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
         )
