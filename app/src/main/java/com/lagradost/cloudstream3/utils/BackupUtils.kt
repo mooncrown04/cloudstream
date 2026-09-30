@@ -202,22 +202,19 @@ object BackupUtils {
         }
     }
 
-  /**
+    /**
      * Uri üzerinden yedek dosyasını okuyup geri yükleme işlemini çalıştırır.
      * X-plore ve benzeri dosya yöneticilerinin URI izin problemlerini çözer.
      */
     fun restoreFromUri(activity: Activity, uri: Uri) {
         ioSafe {
             try {
-                // X-plore gibi uygulamalardan gelen URI okuma iznini kalıcı/güvenli hale getirme
                 try {
                     activity.contentResolver.takePersistableUriPermission(
                         uri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
-                } catch (_: Exception) {
-                    // Bazı URI sağlayıcıları persistable izni desteklemez, sessizce geçilir
-                }
+                } catch (_: Exception) {}
 
                 val text = activity.contentResolver.openInputStream(uri)?.use { stream ->
                     stream.bufferedReader().readText()
@@ -242,6 +239,7 @@ object BackupUtils {
             }
         }
     }
+
     fun backup(context: Context?) = ioSafe {
         if (context == null) return@ioSafe
         var fileStream: OutputStream? = null
@@ -291,7 +289,6 @@ object BackupUtils {
         )
     }
 
-   
     fun FragmentActivity.setUpBackup() {
         try {
             // 1. Standart OpenDocument yöntemi
@@ -310,14 +307,12 @@ object BackupUtils {
         }
     }
 
-     fun Activity.restorePrompt() {
+    fun Activity.restorePrompt() {
         runOnUiThread {
             try {
-                // X-plore ve diğer dosya yöneticilerinde MIME takılmasını önlemek için genel filtre kullanımı
                 restoreFileSelectorOpenDoc?.launch(arrayOf("*/*"))
             } catch (e: ActivityNotFoundException) {
                 try {
-                    // OpenDocument desteklenmiyorsa veya çökerse GetContent devreye girer
                     restoreFileSelectorGetContent?.launch("*/*")
                 } catch (e2: ActivityNotFoundException) {
                     showToast("Cihazda dosya seçebilecek bir dosya yöneticisi bulunamadı.")
@@ -344,27 +339,18 @@ object BackupUtils {
     }
 
     /**
-     * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.getDefaultDir],
-     * modified for backup-specific paths.
+     * Orijinal 1. dosyadaki birebir konum çözümleme yapısı.
      */
     fun getDefaultBackupDir(context: Context): SafeFile? {
         return SafeFile.fromMedia(context, MediaFileContentType.Downloads)
     }
 
-    /**
-     * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.getBasePath],
-     * modified for backup-specific paths.
-     */
     fun getCurrentBackupDir(context: Context): Pair<SafeFile?, String?> {
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
         val basePathSetting = settingsManager.getString(context.getString(R.string.backup_path_key), null)
         return baseBackupPathToFile(context, basePathSetting) to basePathSetting
     }
 
-    /**
-     * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.basePathToFile],
-     * modified for backup-specific paths.
-     */
     private fun baseBackupPathToFile(context: Context, path: String?): SafeFile? {
         return when {
             path.isNullOrBlank() -> getDefaultBackupDir(context)
