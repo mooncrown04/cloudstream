@@ -1,9 +1,10 @@
 package com.lagradost.cloudstream3.utils
 
-import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
+
+import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -89,13 +90,19 @@ object BackupUtils {
         "subdl_user",
         "simkl_token",
 
-        // Downloads can not be restored from backups.
-        "DOWNLOAD_EPISODE_CACHE_BACKUP",
-        "DOWNLOAD_EPISODE_CACHE",
 
+        // Downloads can not be restored from backups.
+        // The download path URI can not be transferred.
+        // In the future we may potentially write metadata to files in the download directory
+        // and make it possible to restore download folders using that metadata.
+        DOWNLOAD_EPISODE_CACHE_BACKUP,
+        DOWNLOAD_EPISODE_CACHE,
+        
         // Download headers are unintuitively used in the resume watching system.
+        // We can therefore not prune download headers in backups.
         // DOWNLOAD_HEADER_CACHE_BACKUP,
         // DOWNLOAD_HEADER_CACHE,
+        
 
         // This may overwrite valid local data with invalid data
         KEY_DOWNLOAD_INFO,
@@ -117,6 +124,7 @@ object BackupUtils {
     private var restoreFileSelectorOpenDoc: ActivityResultLauncher<Array<String>>? = null
     private var restoreFileSelectorGetContent: ActivityResultLauncher<String>? = null
 
+    // Kinda hack, but I couldn't think of a better way
     @Serializable
     data class BackupVars(
         @JsonProperty("_Bool") @SerialName("_Bool") val bool: Map<String, Boolean>?,
@@ -189,25 +197,26 @@ object BackupUtils {
         }
 
         // Make sure the library is fresh
-        for (api in AccountManager.syncApis) {
+        for(api in AccountManager.syncApis) {
             api.requireLibraryRefresh = true
         }
     }
 
-    /**
+  /**
      * Uri üzerinden yedek dosyasını okuyup geri yükleme işlemini çalıştırır.
      * X-plore ve benzeri dosya yöneticilerinin URI izin problemlerini çözer.
      */
     fun restoreFromUri(activity: Activity, uri: Uri) {
         ioSafe {
             try {
+                // X-plore gibi uygulamalardan gelen URI okuma iznini kalıcı/güvenli hale getirme
                 try {
                     activity.contentResolver.takePersistableUriPermission(
                         uri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
                 } catch (_: Exception) {
-                    // Bazı URI sağlayıcıları persistable izni desteklemez
+                    // Bazı URI sağlayıcıları persistable izni desteklemez, sessizce geçilir
                 }
 
                 val text = activity.contentResolver.openInputStream(uri)?.use { stream ->
@@ -233,7 +242,6 @@ object BackupUtils {
             }
         }
     }
-
     fun backup(context: Context?) = ioSafe {
         if (context == null) return@ioSafe
         var fileStream: OutputStream? = null
@@ -283,15 +291,16 @@ object BackupUtils {
         )
     }
 
+   
     fun FragmentActivity.setUpBackup() {
         try {
-            // 1. Standart OpenDocument
+            // 1. Standart OpenDocument yöntemi
             restoreFileSelectorOpenDoc =
                 registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
                     if (uri != null) restoreFromUri(this, uri)
                 }
 
-            // 2. Fallback GetContent
+            // 2. Android TV / Modlu cihazlar / X-plore için yedek GetContent yöntemi
             restoreFileSelectorGetContent =
                 registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                     if (uri != null) restoreFromUri(this, uri)
@@ -301,12 +310,14 @@ object BackupUtils {
         }
     }
 
-    fun Activity.restorePrompt() {
+     fun Activity.restorePrompt() {
         runOnUiThread {
             try {
+                // X-plore ve diğer dosya yöneticilerinde MIME takılmasını önlemek için genel filtre kullanımı
                 restoreFileSelectorOpenDoc?.launch(arrayOf("*/*"))
             } catch (e: ActivityNotFoundException) {
                 try {
+                    // OpenDocument desteklenmiyorsa veya çökerse GetContent devreye girer
                     restoreFileSelectorGetContent?.launch("*/*")
                 } catch (e2: ActivityNotFoundException) {
                     showToast("Cihazda dosya seçebilecek bir dosya yöneticisi bulunamadı.")
@@ -351,55 +362,14 @@ object BackupUtils {
     }
 
     /**
-     * Yedekleme klasörünün konumunu değiştiren/güncelleyen fonksiyon.
-     * Uygulama içi ayarlardan çağrılan bu fonksiyon güvenli hale getirilmiştir.
-     */
-    fun setBackupPath(context: Context, path: String?) {
-        try {
-            val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
-            val editor = settingsManager.edit()
-
-            if (!path.isNullOrBlank() && path.startsWith("content://")) {
-                try {
-                    val uri = path.toUri()
-                    val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    context.contentResolver.takePersistableUriPermission(uri, takeFlags)
-                } catch (e: Exception) {
-                    logError(e)
-                }
-            }
-
-            val key = try {
-                context.getString(R.string.backup_path_key)
-            } catch (_: Exception) {
-                "backup_path_key"
-            }
-
-            editor.putString(key, path)
-
-            val file = baseBackupPathToFile(context, path)
-            val visualPath = file?.filePath() ?: path
-            editor.putString("backup_dir_path_key", visualPath)
-            editor.apply()
-        } catch (e: Exception) {
-            logError(e)
-        }
-    }
-
-    /**
      * Copy of [com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.basePathToFile],
      * modified for backup-specific paths.
      */
     private fun baseBackupPathToFile(context: Context, path: String?): SafeFile? {
-        return try {
-            when {
-                path.isNullOrBlank() -> getDefaultBackupDir(context)
-                path.startsWith("content://") -> SafeFile.fromUri(context, path.toUri()) ?: getDefaultBackupDir(context)
-                else -> SafeFile.fromFilePath(context, path) ?: getDefaultBackupDir(context)
-            }
-        } catch (e: Exception) {
-            logError(e)
-            getDefaultBackupDir(context)
+        return when {
+            path.isNullOrBlank() -> getDefaultBackupDir(context)
+            path.startsWith("content://") -> SafeFile.fromUri(context, path.toUri())
+            else -> SafeFile.fromFilePath(context, path)
         }
     }
 }
