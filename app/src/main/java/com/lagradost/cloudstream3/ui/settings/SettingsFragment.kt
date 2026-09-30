@@ -68,6 +68,7 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
                 }
             } catch (e: Exception) {
                 logError(e)
+                null
             }
         }
 
@@ -241,6 +242,9 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
                 }
             }
 
+            // YENİ: Toolbar üzerindeki arama alanının odaklanıp otomatik klavye açmasını engelliyoruz
+            view?.findViewById<MaterialToolbar>(R.id.settings_toolbar)?.clearFocus()
+
             // Default focus on TV
             if (isLayout(TV)) {
                 settingsGeneral.requestFocus()
@@ -261,5 +265,10 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
             clipboardHelper(txt(R.string.extension_version), "$appVersion $commitHash $buildTimestamp")
             true
         }
+
+        // YENİ: Ayarlar ekranı açıldığında soft klavyenin (otomatik pop-up) fırlamasını engelliyoruz
+        activity?.window?.setSoftInputMode(
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+        )
     }
 }
