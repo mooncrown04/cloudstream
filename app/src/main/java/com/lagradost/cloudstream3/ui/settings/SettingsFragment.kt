@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -173,6 +174,21 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
 
             return size
         }
+
+        // YENİ: Arama çubuğunu ID olmadan View hiyerarşisinde arayıp bulan yardımcı fonksiyon
+        private fun findSearchView(viewGroup: ViewGroup?): SearchView? {
+            if (viewGroup == null) return null
+            for (i in 0 until viewGroup.childCount) {
+                val child = viewGroup.getChildAt(i)
+                if (child is SearchView) {
+                    return child
+                } else if (child is ViewGroup) {
+                    val result = findSearchView(child)
+                    if (result != null) return result
+                }
+            }
+            return null
+        }
     }
 
     override fun fixLayout(view: View) {
@@ -247,13 +263,12 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
                 }
             }
 
-            // YENİ: Toolbar üzerindeki arama alanının odaklanıp otomatik klavye açmasını engelliyoruz
-            view?.findViewById<MaterialToolbar>(R.id.settings_toolbar)?.clearFocus()
+            // YENİ: Toolbar üzerindeki odağı temizle
+            val toolbar = view?.findViewById<MaterialToolbar>(R.id.settings_toolbar)
+            toolbar?.clearFocus()
 
-            // YENİ: R.id referansları kullanılarak SearchView güvenli şekilde yakalanıyor
-            val searchView = view?.findViewById<SearchView>(R.id.search_action)
-                ?: view?.findViewById<SearchView>(R.id.settings_search_view)
-
+            // YENİ: SearchView bileşenini güvenli şekilde bulup klavye dinleyicisini bağlıyoruz
+            val searchView = findSearchView(view as? ViewGroup)
             searchView?.let { sv ->
                 sv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                     override fun onQueryTextSubmit(query: String?): Boolean {
@@ -302,7 +317,7 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
         val commitHash = activity?.currentCommitHash() ?: ""
         val buildTimestamp = SimpleDateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.MEDIUM,
             Locale.getDefault()
-        ).apply { timeZone = TimeZone.TimeZone_UTC if defined else TimeZone.getTimeZone("UTC")
+        ).apply { timeZone = TimeZone.getTimeZone("UTC")
         }.format(Date(BuildConfig.BUILD_DATE)).replace("UTC", "")
 
         binding.appVersion.text = appVersion
@@ -313,7 +328,7 @@ class SettingsFragment : BaseFragment<MainSettingsBinding>(
             true
         }
 
-        // YENİ: Ekran ilk açıldığında klavyenin otomatik açılmasını engelliyoruz
+        // YENİ: Ekran ilk açıldığında klavyenin otomatik fırlamasını engelliyoruz
         activity?.window?.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
         )
