@@ -201,14 +201,13 @@ object BackupUtils {
     fun restoreFromUri(activity: Activity, uri: Uri) {
         ioSafe {
             try {
-                // X-plore gibi uygulamalardan gelen URI okuma iznini kalıcı/güvenli hale getirme
                 try {
                     activity.contentResolver.takePersistableUriPermission(
                         uri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
                 } catch (_: Exception) {
-                    // Bazı URI sağlayıcıları persistable izni desteklemez, sessizce geçilir
+                    // Bazı URI sağlayıcıları persistable izni desteklemez
                 }
 
                 val text = activity.contentResolver.openInputStream(uri)?.use { stream ->
@@ -286,13 +285,13 @@ object BackupUtils {
 
     fun FragmentActivity.setUpBackup() {
         try {
-            // 1. Standart OpenDocument yöntemi
+            // 1. Standart OpenDocument
             restoreFileSelectorOpenDoc =
                 registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
                     if (uri != null) restoreFromUri(this, uri)
                 }
 
-            // 2. Android TV / Modlu cihazlar / X-plore için yedek GetContent yöntemi
+            // 2. Fallback GetContent
             restoreFileSelectorGetContent =
                 registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                     if (uri != null) restoreFromUri(this, uri)
@@ -305,11 +304,9 @@ object BackupUtils {
     fun Activity.restorePrompt() {
         runOnUiThread {
             try {
-                // X-plore ve diğer dosya yöneticilerinde MIME takılmasını önlemek için genel filtre kullanımı
                 restoreFileSelectorOpenDoc?.launch(arrayOf("*/*"))
             } catch (e: ActivityNotFoundException) {
                 try {
-                    // OpenDocument desteklenmiyorsa veya çökerse GetContent devreye girer
                     restoreFileSelectorGetContent?.launch("*/*")
                 } catch (e2: ActivityNotFoundException) {
                     showToast("Cihazda dosya seçebilecek bir dosya yöneticisi bulunamadı.")
@@ -355,16 +352,38 @@ object BackupUtils {
 
     /**
      * Yedekleme klasörünün konumunu değiştiren/güncelleyen fonksiyon.
+     * Uygulama içi ayarlardan çağrılan bu fonksiyon güvenli hale getirilmiştir.
      */
     fun setBackupPath(context: Context, path: String?) {
-        val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = settingsManager.edit()
-        editor.putString(context.getString(R.string.backup_path_key), path)
+        try {
+            val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
+            val editor = settingsManager.edit()
 
-        val file = baseBackupPathToFile(context, path)
-        val visualPath = file?.filePath() ?: path
-        editor.putString("backup_dir_path_key", visualPath)
-        editor.apply()
+            if (!path.isNullOrBlank() && path.startsWith("content://")) {
+                try {
+                    val uri = path.toUri()
+                    val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    context.contentResolver.takePersistableUriPermission(uri, takeFlags)
+                } catch (e: Exception) {
+                    logError(e)
+                }
+            }
+
+            val key = try {
+                context.getString(R.string.backup_path_key)
+            } catch (_: Exception) {
+                "backup_path_key"
+            }
+
+            editor.putString(key, path)
+
+            val file = baseBackupPathToFile(context, path)
+            val visualPath = file?.filePath() ?: path
+            editor.putString("backup_dir_path_key", visualPath)
+            editor.apply()
+        } catch (e: Exception) {
+            logError(e)
+        }
     }
 
     /**
@@ -372,10 +391,15 @@ object BackupUtils {
      * modified for backup-specific paths.
      */
     private fun baseBackupPathToFile(context: Context, path: String?): SafeFile? {
-        return when {
-            path.isNullOrBlank() -> getDefaultBackupDir(context)
-            path.startsWith("content://") -> SafeFile.fromUri(context, path.toUri())
-            else -> SafeFile.fromFilePath(context, path)
+        return try {
+            when {
+                path.isNullOrBlank() -> getDefaultBackupDir(context)
+                path.startsWith("content://") -> SafeFile.fromUri(context, path.toUri()) ?: getDefaultBackupDir(context)
+                else -> SafeFile.fromFilePath(context, path) ?: getDefaultBackupDir(context)
+            }
+        } catch (e: Exception) {
+            logError(e)
+            getDefaultBackupDir(context)
         }
     }
 }
