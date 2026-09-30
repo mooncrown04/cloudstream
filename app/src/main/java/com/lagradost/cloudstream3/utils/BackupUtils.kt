@@ -1,9 +1,9 @@
 package com.lagradost.cloudstream3.utils
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -89,19 +89,13 @@ object BackupUtils {
         "subdl_user",
         "simkl_token",
 
-
         // Downloads can not be restored from backups.
-        // The download path URI can not be transferred.
-        // In the future we may potentially write metadata to files in the download directory
-        // and make it possible to restore download folders using that metadata.
-        DOWNLOAD_EPISODE_CACHE_BACKUP,
-        DOWNLOAD_EPISODE_CACHE,
-        
+        "DOWNLOAD_EPISODE_CACHE_BACKUP",
+        "DOWNLOAD_EPISODE_CACHE",
+
         // Download headers are unintuitively used in the resume watching system.
-        // We can therefore not prune download headers in backups.
         // DOWNLOAD_HEADER_CACHE_BACKUP,
         // DOWNLOAD_HEADER_CACHE,
-        
 
         // This may overwrite valid local data with invalid data
         KEY_DOWNLOAD_INFO,
@@ -120,9 +114,9 @@ object BackupUtils {
         return !nonTransferableKeys.any { this.contains(it) }
     }
 
-    private var restoreFileSelector: ActivityResultLauncher<Array<String>>? = null
+    private var restoreFileSelectorOpenDoc: ActivityResultLauncher<Array<String>>? = null
+    private var restoreFileSelectorGetContent: ActivityResultLauncher<String>? = null
 
-    // Kinda hack, but I couldn't think of a better way
     @Serializable
     data class BackupVars(
         @JsonProperty("_Bool") @SerialName("_Bool") val bool: Map<String, Boolean>?,
@@ -195,8 +189,49 @@ object BackupUtils {
         }
 
         // Make sure the library is fresh
-        for(api in AccountManager.syncApis) {
+        for (api in AccountManager.syncApis) {
             api.requireLibraryRefresh = true
+        }
+    }
+
+    /**
+     * Uri üzerinden yedek dosyasını okuyup geri yükleme işlemini çalıştırır.
+     * X-plore ve benzeri dosya yöneticilerinin URI izin problemlerini çözer.
+     */
+    fun restoreFromUri(activity: Activity, uri: Uri) {
+        ioSafe {
+            try {
+                // X-plore gibi uygulamalardan gelen URI okuma iznini kalıcı/güvenli hale getirme
+                try {
+                    activity.contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (_: Exception) {
+                    // Bazı URI sağlayıcıları persistable izni desteklemez, sessizce geçilir
+                }
+
+                val text = activity.contentResolver.openInputStream(uri)?.use { stream ->
+                    stream.bufferedReader().readText()
+                } ?: return@ioSafe
+
+                val restoredValue = parseJson<BackupFile>(text)
+
+                restore(
+                    activity,
+                    restoredValue,
+                    restoreSettings = true,
+                    restoreDataStore = true,
+                )
+                activity.runOnUiThread { activity.recreate() }
+            } catch (e: Exception) {
+                logError(e)
+                main {
+                    showToast(
+                        activity.getString(R.string.restore_failed_format).format(e.toString())
+                    )
+                }
+            }
         }
     }
 
@@ -249,36 +284,18 @@ object BackupUtils {
         )
     }
 
-  fun FragmentActivity.setUpBackup() {
+    fun FragmentActivity.setUpBackup() {
         try {
-            restoreFileSelector =
+            // 1. Standart OpenDocument yöntemi
+            restoreFileSelectorOpenDoc =
                 registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
-                    if (uri == null) return@registerForActivityResult
-                    val activity = this
-                    ioSafe {
-                        try {
-                            val input = activity.contentResolver.openInputStream(uri)
-                                ?: return@ioSafe
+                    if (uri != null) restoreFromUri(this, uri)
+                }
 
-                            val text = input.bufferedReader().readText()
-                            val restoredValue = parseJson<BackupFile>(text)
-
-                            restore(
-                                activity,
-                                restoredValue,
-                                restoreSettings = true,
-                                restoreDataStore = true,
-                            )
-                            activity.runOnUiThread { activity.recreate() }
-                        } catch (e: Exception) {
-                            logError(e)
-                            main { // smth can fail in .format
-                                showToast(
-                                    getString(R.string.restore_failed_format).format(e.toString())
-                                )
-                            }
-                        }
-                    }
+            // 2. Android TV / Modlu cihazlar / X-plore için yedek GetContent yöntemi
+            restoreFileSelectorGetContent =
+                registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                    if (uri != null) restoreFromUri(this, uri)
                 }
         } catch (e: Exception) {
             logError(e)
@@ -287,32 +304,15 @@ object BackupUtils {
 
     fun Activity.restorePrompt() {
         runOnUiThread {
-            val mimeTypes = arrayOf(
-                "text/plain",
-                "text/str",
-                "text/x-unknown",
-                "application/json",
-                "unknown/unknown",
-                "content/unknown",
-                "application/octet-stream",
-                "*/*"
-            )
-
             try {
-                // 1. Yöntem: Standart SAF OpenDocument çağrısı
-                restoreFileSelector?.launch(mimeTypes)
+                // X-plore ve diğer dosya yöneticilerinde MIME takılmasını önlemek için genel filtre kullanımı
+                restoreFileSelectorOpenDoc?.launch(arrayOf("*/*"))
             } catch (e: ActivityNotFoundException) {
-                // 2. Yöntem: SAF bulunmayan TV / Modlu cihazlar için yedek GET_CONTENT Intent'i
                 try {
-                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                        addCategory(Intent.CATEGORY_OPENABLE)
-                        type = "*/*"
-                        putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
-                    }
-                    startActivityForResult(intent, 20001)
+                    // OpenDocument desteklenmiyorsa veya çökerse GetContent devreye girer
+                    restoreFileSelectorGetContent?.launch("*/*")
                 } catch (e2: ActivityNotFoundException) {
-                    // 3. Yöntem: Cihazda hiçbir dosya yöneticisi yoksa kullanıcıyı bilgilendir
-                    showToast("Cihazınızda uyumlu bir dosya seçici uygulama bulunamadı.")
+                    showToast("Cihazda dosya seçebilecek bir dosya yöneticisi bulunamadı.")
                     logError(e2)
                 }
             } catch (e: Exception) {
@@ -321,6 +321,7 @@ object BackupUtils {
             }
         }
     }
+
     private fun <T> Context.restoreMap(
         map: Map<String, T>?,
         isEditingAppSettings: Boolean = false,
@@ -350,6 +351,20 @@ object BackupUtils {
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
         val basePathSetting = settingsManager.getString(context.getString(R.string.backup_path_key), null)
         return baseBackupPathToFile(context, basePathSetting) to basePathSetting
+    }
+
+    /**
+     * Yedekleme klasörünün konumunu değiştiren/güncelleyen fonksiyon.
+     */
+    fun setBackupPath(context: Context, path: String?) {
+        val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = settingsManager.edit()
+        editor.putString(context.getString(R.string.backup_path_key), path)
+
+        val file = baseBackupPathToFile(context, path)
+        val visualPath = file?.filePath ?: path
+        editor.putString(context.getString(R.string.backup_dir_path_key), visualPath)
+        editor.apply()
     }
 
     /**
