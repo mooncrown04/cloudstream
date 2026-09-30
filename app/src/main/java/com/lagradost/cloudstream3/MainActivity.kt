@@ -732,14 +732,14 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
                 }
             }
 KeyEvent.KEYCODE_PROG_BLUE -> {
-    if (isNotPlayingVideo) {
+    //if (isNotPlayingVideo) {
         showToast("Bölüm listesi açılıyor", Toast.LENGTH_SHORT)
         
         // Ekranda aktif olan view içinden ilgili butonu bulup tıklatıyoruz
         findViewById<View>(R.id.result_episodes_show_button)?.performClick()
         
         return true
-    }
+   // }
 }
 
             KeyEvent.KEYCODE_MEDIA_PLAY,
