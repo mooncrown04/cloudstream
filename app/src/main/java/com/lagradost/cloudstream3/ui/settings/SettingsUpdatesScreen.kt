@@ -1,7 +1,9 @@
 package com.lagradost.cloudstream3.ui.settings
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -153,10 +155,19 @@ object SettingsUpdatesScreen : SearchableSettings {
                         icon = painterResource(R.drawable.folder_24px),
                         subtitle = visualBackupPath,
                         onClick = {
-                            // This is not a ListPreference because the old selection system is
-                            // broken af. This needs to be refactored to QuickNovels download path
-                            // system.
-                            selectFileSelector.launch(Uri.EMPTY)
+                            try {
+                                selectFileSelector.launch(Uri.EMPTY)
+                            } catch (e: ActivityNotFoundException) {
+                                activity?.runOnUiThread {
+                                    Toast.makeText(
+                                        activity,
+                                        "Cihazınızda dosya seçici bulunamadı.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } catch (t: Throwable) {
+                                logError(t)
+                            }
                         }
                     ),
                     Preference.PreferenceItem.TextPreference(
