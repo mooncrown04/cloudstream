@@ -731,19 +731,16 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
 					return true
                 }
             }
-            KeyEvent.KEYCODE_PROG_BLUE -> {
-                if (isNotPlayingVideo) {
-                    showToast("Depo Ekleme Menüsü açılıyor(FARKLI)", Toast.LENGTH_SHORT)
-                   // navController?.navigate(R.id.navigation_setup_extensions)                 
-							val showEpisodesButton = findViewById<Button>(R.id.result_episodes_show_button)
-showEpisodesButton.setOnClickListener {
-    // Bölüm listesini görünür yapma / açma kodları
-    episodesRecyclerView.visibility = View.VISIBLE
+          KeyEvent.KEYCODE_PROG_BLUE -> {
+    if (isNotPlayingVideo) {
+        showToast("Bölüm listesi açılıyor", Toast.LENGTH_SHORT)
+        
+        // Butonu programatik olarak tıklatıyoruz
+        binding.resultEpisodesShowButton?.performClick()
+        
+        return true
+    }
 }
-										
-					return true
-                }
-            }
 
             KeyEvent.KEYCODE_MEDIA_PLAY,
             KeyEvent.KEYCODE_MEDIA_PAUSE,
