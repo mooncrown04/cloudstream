@@ -210,7 +210,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             }
             return@setOnPreferenceClickListener true
         }
-        getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+       getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
     val prefNames = resources.getStringArray(R.array.app_font_names).toMutableList()
     val prefValues = resources.getStringArray(R.array.app_font_values).toMutableList()
 
@@ -219,12 +219,32 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         prefValues.firstOrNull() ?: "Default"
     )
 
+    // Her bir font değerini res/font/ altındaki dosya kaynak kimliği (ID) ile eşliyoruz
+    val fontMap = mapOf(
+        "TimesNewRoman" to R.font.times_new_roman,
+        "StixGeneral" to R.font.stix_general,
+        "ComicSans" to R.font.comic_sans,
+        "Maybach" to R.font.maybach,
+        "Perfume" to R.font.perfume,
+        "Naxmos" to R.font.naxmos,
+        "Consola" to R.font.consola,
+        "Futura" to R.font.futura,
+        "GoogleSans" to R.font.google_sans,
+        "Gotham" to R.font.gotham
+    )
+
+    // Listedeki sıraya göre font ID'lerini hazırlıyoruz (Yoksa varsayılan null atar)
+    val fonts = prefValues.map { fontKey ->
+        fontMap[fontKey]
+    }
+
     activity?.showBottomDialog(
         prefNames.toList(),
         prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
         getString(R.string.app_font_settings),
         true,
-        {}
+        {},
+        fonts = fonts // <--- Font önizlemelerini aktaran parametre
     ) { index ->
         try {
             prefValues.getOrNull(index)?.let { selectedFont ->
