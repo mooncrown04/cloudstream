@@ -116,12 +116,6 @@ object SettingsFragmentScreen : Screen {
                 R.string.pref_category_cache
             )
         ),
-        /*SettingsNavigation(
-            title = R.string.category_providers,
-            navigation = R.id.action_navigation_global_to_navigation_settings_providers,
-            screen = SettingsProvidersScreen,
-            icon = R.drawable.build_24px,
-        ),*/
         SettingsNavigation(
             title = R.string.category_ui,
             navigation = R.id.action_navigation_global_to_navigation_settings_ui,
@@ -174,15 +168,12 @@ object SettingsFragmentScreen : Screen {
         val subtitle: PersistentList<Int>,
     )
 
-
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun Content() {
         val textFieldState = rememberTextFieldState()
-//yeni
-val keyboardController = LocalSoftwareKeyboardController.current
-//yeni
+        val keyboardController = LocalSoftwareKeyboardController.current
         val outerListState = rememberScrollState()
 
         val parentFirstScrollConnection = remember {
@@ -258,10 +249,8 @@ val keyboardController = LocalSoftwareKeyboardController.current
                     searchKey = textFieldState.text.toString(),
                     deferredItems = ::generateSearchItems,
                     onItemClick = { item ->
-					//yeni
-					keyboardController?.hide()
-                      //yeni  
-						SearchableSettings.highlightKey = item.highlightKey
+                        keyboardController?.hide()
+                        SearchableSettings.highlightKey = item.highlightKey
                         activity?.navigate(item.navigation)
                     }, empty = {
                         Column(
@@ -297,16 +286,13 @@ val keyboardController = LocalSoftwareKeyboardController.current
         var hasFocus by remember { mutableStateOf(false) }
         val focusProgress by animateFloatAsState(targetValue = if (hasFocus) 1.0f else 0.0f)
         val focusManager = LocalFocusManager.current
-		//yeni
-		val keyboardController = LocalSoftwareKeyboardController.current
-		//yeni
+        val keyboardController = LocalSoftwareKeyboardController.current
         val focusRequester = remember { FocusRequester() }
+
         TextField(
             state = textFieldState,
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Search,
-                // This option is bugged on compose, making it unable to open at all
-                // showKeyboardOnFocus = false
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -314,11 +300,9 @@ val keyboardController = LocalSoftwareKeyboardController.current
                 .focusOutline(enabled = isLayout(TV), CircleShape)
                 .onFocusChanged { newFocus ->
                     hasFocus = newFocus.hasFocus
-					//yeni
-					  if (!newFocus.hasFocus) {
+                    if (!newFocus.hasFocus) {
                         keyboardController?.hide()
                     }
-					//yeni
                 }.focusRequester(focusRequester),
             placeholder = {
                 Text(text = stringResource(R.string.search_hint))
@@ -345,9 +329,7 @@ val keyboardController = LocalSoftwareKeyboardController.current
                     if (value) {
                         IconButton(onClick = {
                             textFieldState.edit { replace(0, length, "") }
-							//yeni
-							keyboardController?.hide()
-							//yeni
+                            keyboardController?.hide()
                             focusManager.clearFocus()
                         }) {
                             Icon(
@@ -375,10 +357,8 @@ val keyboardController = LocalSoftwareKeyboardController.current
                     if (value) {
                         IconButton(onClick = {
                             textFieldState.edit { replace(0, length, "") }
-							//yeni
-							keyboardController?.hide()
-							focusManager.clearFocus()
-							//yeni
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.close_24px),
@@ -390,7 +370,6 @@ val keyboardController = LocalSoftwareKeyboardController.current
             },
         )
 
-        val keyboardController = LocalSoftwareKeyboardController.current
         DisposableEffect(Unit) {
             onDispose {
                 keyboardController?.hide()
@@ -400,21 +379,15 @@ val keyboardController = LocalSoftwareKeyboardController.current
 
     @Composable
     fun SettingsTab(settingsTab: SettingsNavigation) {
-        //yeni
-		 val keyboardController = LocalSoftwareKeyboardController.current
-		//yeni
-		TextPreferenceWidget(
+        val keyboardController = LocalSoftwareKeyboardController.current
+        TextPreferenceWidget(
             title = stringResource(settingsTab.title),
             icon = painterResource(settingsTab.icon),
-            // This can not be converted to joinToString due to stringResource being composable
             subtitle =
                 @Suppress("SimplifiableCallChain")
                 settingsTab.subtitle.map { stringResource(it) }.joinToString(),
-            // Clear it if we have already set it but navigated back instantly
             onPreferenceClick = {
-			//yeni
-			keyboardController?.hide()
-			//yeni
+                keyboardController?.hide()
                 SearchableSettings.highlightKey = null
                 activity?.navigate(settingsTab.navigation)
             })
@@ -459,7 +432,6 @@ val keyboardController = LocalSoftwareKeyboardController.current
         }
     }
 }
-
 
 @PreviewLightDark
 @Composable
