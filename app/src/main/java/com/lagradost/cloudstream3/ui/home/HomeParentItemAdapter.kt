@@ -126,14 +126,16 @@ open class ParentItemAdapter(
                     nextFocusDown = homeChildRecyclerview.nextFocusDownId,
                 ).apply {
                   //yeni    isHorizontal = info.isHorizontalImages
-                    isHorizontal = isWideLayout
+                   // isHorizontal = isWideLayout
+					isHorizontal = isWideLayout || info.isHorizontalImages
 					hasNext = item.hasNext
                     submitList(item.list.list)
                 }
             } else {
                 currentAdapter.apply {                  
 				  //yeni    isHorizontal = info.isHorizontalImages
-                    isHorizontal = isWideLayout
+                   // isHorizontal = isWideLayout
+					isHorizontal = isWideLayout || info.isHorizontalImages
 					hasNext = item.hasNext
                     this.clickCallback = this@ParentItemAdapter.clickCallback
                     nextFocusUp = homeChildRecyclerview.nextFocusUpId
