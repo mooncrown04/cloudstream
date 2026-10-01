@@ -268,27 +268,24 @@ object SettingsUIScreen : SearchableSettings {
                         subtitle = stringResource(R.string.bottom_title_settings_des),
                         icon = painterResource(R.drawable.title_24px)
                     ),
-			// =========================================================================
-// GENİŞ AFİŞ DÜZENİ (DİNAMİK SUBTITLE İLE)
+	// =========================================================================
+// GENİŞ AFİŞ DÜZENİ (ÇAKIŞMASIZ HIZLI TANIMLAMA)
 // =========================================================================
-val widePosterEntries = remember {
-    mapOf(
-        "0" to "Varsayılan (Eklenti Kararı)",
-        "1" to "Zorunlu Geniş Format (16:9)",
-        "2" to "Zorunlu Normal Format (Dikey)"
-    )
-}
-
 Preference.PreferenceItem.ListPreference(
     preference = settings.ui.isWidePoster,
     title = stringResource(R.string.wide_poster_settings),
-    // Seçili değere göre dinamik metin gösterimi (Bulamazsa varsayılan metni gösterir):
-    subtitle = widePosterEntries[settings.ui.isWidePoster.get()] 
-        ?: stringResource(R.string.wide_poster_settings_des),
+    subtitle = persistentMapOf(
+        "0" to "Varsayılan (Eklenti Kararı)",
+        "1" to "Zorunlu Geniş Format (16:9)",
+        "2" to "Zorunlu Normal Format (Dikey)"
+    )[settings.ui.isWidePoster.get()] ?: stringResource(R.string.wide_poster_settings_des),
     icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
-    entries = widePosterEntries.toPersistentMap(),
-    onValueChanged = { newValue ->
-        settings.ui.isWidePoster.set(newValue)
+    entries = persistentMapOf(
+        "0" to "Varsayılan (Eklenti Kararı)",
+        "1" to "Zorunlu Geniş Format (16:9)",
+        "2" to "Zorunlu Normal Format (Dikey)"
+    ),
+    onValueChanged = {
         HomeChildItemAdapter.sharedPool.clear()
         ParentItemAdapter.sharedPool.clear()
         SearchAdapter.sharedPool.clear()
@@ -298,6 +295,7 @@ Preference.PreferenceItem.ListPreference(
         true
     }
 ),
+					
                     Preference.PreferenceItem.SliderPreference(
                         preference = settings.ui.posterSize,
                         title = stringResource(R.string.poster_size_settings),
