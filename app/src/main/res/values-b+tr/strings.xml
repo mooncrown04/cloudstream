@@ -9,9 +9,8 @@
 \n\nCloudStream, uygulama üzerinde hiçbir içeriğe ev sahipliği yapmaz ve hangi medyanın yüklendiği veya kaldırıldığı üzerinde hiçbir kontrole sahip değildir. CloudStream, Google gibi diğer arama motorlarıyla aynı mantıkla çalışır. CloudStream; herhangi bir video, film veya içeriği barındırmaz, yüklemez veya yönetmez. Yalnızca bağlantıları tarar, bir araya getirir ve pratik, kullanıcı dostu bir arayüzde görüntüler.
 
 \n\nYalnızca sıradan bir web tarayıcısı üzerinden kamuya açık olan 3. taraf web sitelerini tarar (scrape eder). Bulunduğu bölgenin yasalarını ihlal edebilecek eylemlerden kaçınmak kullanıcının kendi sorumluluğundadır. CloudStream\'i kullanırken riski kendiniz üstlenirsiniz.</string>	
-	<!-- Yeni Geniş Afiş Switch'i İçin -->
-   <string name="wide_poster_settings">Geniş Afiş Düzeni</string>
-   <string name="wide_poster_settings_des">Afişleri 16:9 formatına genişletir</string>
+<string name="wide_poster_settings">Afiş Formatı Düzeni</string>
+<string name="wide_poster_settings_des">Afiş boyut modunu değiştirin (Varsayılan, Geniş, Normal)</string>
 	<!-- Uygulama Font Ayarları Anahtarları ve Başlıkları -->
 <string name="app_font_title">Uygulama Yazı Tipi</string>
 <string name="app_font_key">app_font_key</string>
