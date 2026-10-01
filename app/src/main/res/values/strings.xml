@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--https://newbedev.com/concatenate-multiple-strings-in-xml--><resources>
+	<!-- SettingsGeneral.kt İçin Eksik Tanımlamalar -->
+    <string name="backup">Yedekle</string>
+    <string name="backup_location_updated">Yedekleme konumu güncellendi</string>
+    <string name="backup_path_pref">backup_path_pref</string>
 	<string name="wide_poster_settings">Wide Poster Layout</string>
     <string name="wide_poster_settings_des">Expands posters to 16:9 aspect ratio</string>
 	     <!-- App Font Settings Keys & Titles -->
