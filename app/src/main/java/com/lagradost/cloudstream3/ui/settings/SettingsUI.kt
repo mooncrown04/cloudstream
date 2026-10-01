@@ -212,7 +212,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         }
        
         
-       getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+      getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
     val prefNames = resources.getStringArray(R.array.app_font_names).toList()
     val prefValues = resources.getStringArray(R.array.app_font_values).toList()
 
@@ -221,7 +221,6 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         prefValues.firstOrNull() ?: "Default"
     )
 
-    // Font isimleri ile res/font/ ID'lerini eşliyoruz
     val fontMap = mapOf(
         "TimesNewRoman" to R.font.times_new_roman,
         "StixGeneral" to R.font.stix_general,
@@ -235,8 +234,8 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         "Gotham" to R.font.gotham
     )
 
-    // Metinlere kendi Typeface font stilini Spannable/CustomTypefaceSpan ile giydiriyoruz
-    val formattedNames = prefNames.mapIndexed { index, name ->
+    // CharSequence listesi oluşturarak Spannable stillerini koruyoruz
+    val formattedNames: List<CharSequence> = prefNames.mapIndexed { index, name ->
         val fontKey = prefValues.getOrNull(index)
         val fontResId = fontMap[fontKey]
 
@@ -245,10 +244,19 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                 val typeface = androidx.core.content.res.ResourcesCompat.getFont(requireContext(), fontResId)
                 if (typeface != null) {
                     val spannable = android.text.SpannableString(name)
-                    // CustomTypefaceSpan veya TypefaceSpan ile metne fontu uyguluyoruz
+                    
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        // Android 9.0 (API 28) ve üzeri
                         spannable.setSpan(
                             android.text.style.TypefaceSpan(typeface),
+                            0,
+                            name.length,
+                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    } else {
+                        // Android 9.0 altı cihazlar için CustomTypefaceSpan
+                        spannable.setSpan(
+                            com.lagradost.cloudstream3.utils.CustomTypefaceSpan("", typeface),
                             0,
                             name.length,
                             android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -263,6 +271,28 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             name
         }
     }
+
+    // LISTE DOĞRUDAN CHARSEQUENCE OLARAK GÖNDERİLİYOR (.map { it.toString() } KULLANILMAMALI)
+    activity?.showBottomDialog(
+        formattedNames, 
+        prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
+        getString(R.string.app_font_settings),
+        true,
+        {}
+    ) { index ->
+        try {
+            prefValues.getOrNull(index)?.let { selectedFont ->
+                settingsManager.edit {
+                    putString(getString(R.string.app_font_key), selectedFont)
+                }
+                activity?.recreate()
+            }
+        } catch (e: Exception) {
+            logError(e)
+        }
+    }
+    true
+}
 
     // showBottomDialog orijinal parametre yapısıyla çağrılıyor (fonts = parametresi kaldırıldı)
     activity?.showBottomDialog(
