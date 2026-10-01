@@ -1,6 +1,5 @@
 package com.lagradost.cloudstream3.ui.settings
 
-import com.lagradost.cloudstream3.utils.BackupUtils
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -40,6 +39,7 @@ import com.lagradost.cloudstream3.ui.settings.SettingsFragment.Companion.setPadd
 import com.lagradost.cloudstream3.ui.settings.SettingsFragment.Companion.setToolBarScrollFlags
 import com.lagradost.cloudstream3.ui.settings.SettingsFragment.Companion.setUpToolbar
 import com.lagradost.cloudstream3.ui.settings.utils.getChooseFolderLauncher
+import com.lagradost.cloudstream3.utils.BackupUtils
 import com.lagradost.cloudstream3.utils.BatteryOptimizationChecker.isAppRestricted
 import com.lagradost.cloudstream3.utils.BatteryOptimizationChecker.showBatteryOptimizationDialog
 import com.lagradost.cloudstream3.utils.SingleSelectionHelper.showBottomDialog
@@ -50,7 +50,6 @@ import com.lagradost.cloudstream3.utils.UIHelper.dismissSafe
 import com.lagradost.cloudstream3.utils.UIHelper.hideKeyboard
 import com.lagradost.cloudstream3.utils.UIHelper.navigate
 import com.lagradost.cloudstream3.utils.USER_PROVIDER_API
-import com.lagradost.cloudstream3.utils.backup.BackupUtils
 import com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement
 import com.lagradost.cloudstream3.utils.downloader.DownloadFileManagement.getBasePath
 import com.lagradost.cloudstream3.utils.downloader.DownloadQueueManager
@@ -60,7 +59,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 import java.util.Locale
 
-// Change local language settings in the app.
+// Uygulama dili ayarları
 fun getCurrentLocale(context: Context): String {
     val conf = context.resources.configuration
     return ConfigurationCompat.getLocales(conf).get(0)?.toLanguageTag() ?: "en"
@@ -257,7 +256,7 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
         }
     }
 
-    // İndirme Yolu Seçicisi
+    // İndirme Yolu Seçicisi (SAF)
     private val pathPicker = getChooseFolderLauncher { uri, path ->
         if (uri != null) {
             val ctx = context ?: CloudStreamApp.context ?: return@getChooseFolderLauncher
@@ -266,7 +265,9 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 )
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                logError(e)
+            }
 
             val visual = path ?: uri.toString()
             PreferenceManager.getDefaultSharedPreferences(ctx).edit {
@@ -277,7 +278,7 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
         }
     }
 
-    // Yedekleme Yolu Seçicisi
+    // Yedekleme Yolu Seçicisi (SAF)
     private val backupPathPicker = getChooseFolderLauncher { uri, path ->
         if (uri != null) {
             val ctx = context ?: CloudStreamApp.context ?: return@getChooseFolderLauncher
@@ -286,7 +287,9 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 )
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                logError(e)
+            }
 
             val visual = path ?: uri.toString()
             PreferenceManager.getDefaultSharedPreferences(ctx).edit {
@@ -306,6 +309,23 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
                     file?.absolutePath?.let { list.add(it) }
                 }
                 list.distinct()
+            }
+        } ?: emptyList()
+    }
+
+    private fun getDownloadDirs(): List<String> {
+        return safe {
+            context?.let { ctx ->
+                val defaultDir = DownloadFileManagement.getDefaultDir(ctx)?.filePath()
+                val first = listOf(defaultDir)
+                (try {
+                    val currentDir = ctx.getBasePath().let { it.first?.filePath() ?: it.second }
+                    (first +
+                            ctx.getExternalFilesDirs("").mapNotNull { it.path } +
+                            currentDir)
+                } catch (_: Exception) {
+                    first
+                }).filterNotNull().distinct()
             }
         } ?: emptyList()
     }
@@ -397,23 +417,6 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
                 (context ?: CloudStreamApp.context)?.let { ctx -> app.initClient(ctx) }
             }
             return@setOnPreferenceClickListener true
-        }
-
-        fun getDownloadDirs(): List<String> {
-            return safe {
-                context?.let { ctx ->
-                    val defaultDir = DownloadFileManagement.getDefaultDir(ctx)?.filePath()
-                    val first = listOf(defaultDir)
-                    (try {
-                        val currentDir = ctx.getBasePath().let { it.first?.filePath() ?: it.second }
-                        (first +
-                                ctx.getExternalFilesDirs("").mapNotNull { it.path } +
-                                currentDir)
-                    } catch (_: Exception) {
-                        first
-                    }).filterNotNull().distinct()
-                }
-            } ?: emptyList()
         }
 
         settingsManager.edit { putBoolean(getString(R.string.jsdelivr_proxy_key), getKey<Boolean>(getString(R.string.jsdelivr_proxy_key), false) ?: false) }
