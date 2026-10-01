@@ -275,12 +275,12 @@ object SettingsUIScreen : SearchableSettings {
 Preference.PreferenceItem.ListPreference(
     preference = settings.ui.isWidePoster,
     title = stringResource(R.string.wide_poster_settings),
-    summary = stringResource(R.string.wide_poster_settings_des),
+    subtitle = stringResource(R.string.wide_poster_settings_des),
     icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
-    entries = pairListOf(
-        "0" to stringResource(R.string.wide_poster_default), // Varsayılan (Eklenti)
-        "1" to stringResource(R.string.wide_poster_wide),    // Zorunlu Geniş
-        "2" to stringResource(R.string.wide_poster_normal)   // Zorunlu Normal
+    entries = listOf(
+        "0" to "Varsayılan (Eklenti Kararı)",
+        "1" to "Zorunlu Geniş Format (16:9)",
+        "2" to "Zorunlu Normal Format (Dikey)"
     ),
     onValueChanged = {
         HomeChildItemAdapter.sharedPool.clear()
@@ -292,7 +292,6 @@ Preference.PreferenceItem.ListPreference(
         true
     }
 )
-),
 
                     Preference.PreferenceItem.SliderPreference(
                         preference = settings.ui.posterSize,
