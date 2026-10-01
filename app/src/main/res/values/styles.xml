@@ -252,7 +252,13 @@
     <item name="black">@color/RengarenkPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/RengarenkTextColor</item>
     
-	<item name="account_unselected_stroke">@color/RengarenkTextColor</item>
+    <item name="account_unselected_stroke">@color/RengarenkTextColor</item>
+
+    <!-- Radio Button Renk Ayarları -->
+    <item name="colorAccent">@color/RengarenkIconColor</item> <!-- Seçili (aktif) buton içi ve halka rengi -->
+    <item name="android:colorAccent">@color/RengarenkIconColor</item>
+    <item name="colorControlActivated">@color/RengarenkIconColor</item> <!-- Aktif seçim rengi -->
+    <item name="colorControlNormal">@color/RengarenkTextColor</item> <!-- Seçilmemiş (pasif) halkanın rengi (varsayılan siyahı engeller) -->
 </style>
 
 <style name="CimBomMode">
@@ -266,7 +272,13 @@
     <item name="black">@color/CimBomPrimaryGrayBackground</item>
     <item name="colorOnPrimary">@color/CimBomTextColor</item>
     
-   <item name="account_unselected_stroke">@color/CimBomTextColor</item>
+    <item name="account_unselected_stroke">@color/CimBomTextColor</item>
+
+    <!-- Radio Button Renk Ayarları -->
+    <item name="colorAccent">@color/CimBomIconColor</item>
+    <item name="android:colorAccent">@color/CimBomIconColor</item>
+    <item name="colorControlActivated">@color/CimBomIconColor</item>
+    <item name="colorControlNormal">@color/CimBomTextColor</item>
 </style>
 
 <style name="GalatasarayMode">
@@ -281,6 +293,12 @@
     <item name="colorOnPrimary">@color/GalatasarayTextColor</item>
     
     <item name="account_unselected_stroke">@color/GalatasarayTextColor</item>
+
+    <!-- Radio Button Renk Ayarları -->
+    <item name="colorAccent">@color/GalatasarayIconColor</item>
+    <item name="android:colorAccent">@color/GalatasarayIconColor</item>
+    <item name="colorControlActivated">@color/GalatasarayIconColor</item>
+    <item name="colorControlNormal">@color/GalatasarayTextColor</item>
 </style>
 
 <style name="GSMode">
@@ -295,6 +313,12 @@
     <item name="colorOnPrimary">@color/GSTextColor</item>
     
     <item name="account_unselected_stroke">@color/GSTextColor</item>
+
+    <!-- Radio Button Renk Ayarları -->
+    <item name="colorAccent">@color/GSIconColor</item>
+    <item name="android:colorAccent">@color/GSIconColor</item>
+    <item name="colorControlActivated">@color/GSIconColor</item>
+    <item name="colorControlNormal">@color/GSTextColor</item>
 </style>
 
     <style name="DraculaMode">
