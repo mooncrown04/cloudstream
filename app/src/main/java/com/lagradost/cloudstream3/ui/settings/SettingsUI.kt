@@ -212,7 +212,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         }
        
         
-      getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+ getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
     val prefNames = resources.getStringArray(R.array.app_font_names).toList()
     val prefValues = resources.getStringArray(R.array.app_font_values).toList()
 
@@ -275,28 +275,6 @@ class SettingsUI : BasePreferenceFragmentCompat() {
     // LISTE DOĞRUDAN CHARSEQUENCE OLARAK GÖNDERİLİYOR (.map { it.toString() } KULLANILMAMALI)
     activity?.showBottomDialog(
         formattedNames, 
-        prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
-        getString(R.string.app_font_settings),
-        true,
-        {}
-    ) { index ->
-        try {
-            prefValues.getOrNull(index)?.let { selectedFont ->
-                settingsManager.edit {
-                    putString(getString(R.string.app_font_key), selectedFont)
-                }
-                activity?.recreate()
-            }
-        } catch (e: Exception) {
-            logError(e)
-        }
-    }
-    true
-}
-
-    // showBottomDialog orijinal parametre yapısıyla çağrılıyor (fonts = parametresi kaldırıldı)
-    activity?.showBottomDialog(
-        formattedNames.map { it.toString() }, // CharSequence/Spannable desteği için
         prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
         getString(R.string.app_font_settings),
         true,
