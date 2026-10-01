@@ -277,7 +277,7 @@ Preference.PreferenceItem.ListPreference(
     title = stringResource(R.string.wide_poster_settings),
     subtitle = stringResource(R.string.wide_poster_settings_des),
     icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
-    entries = persistentMapOf(
+    entries = mapOf(
         "0" to "Varsayılan (Eklenti Kararı)",
         "1" to "Zorunlu Geniş Format (16:9)",
         "2" to "Zorunlu Normal Format (Dikey)"
