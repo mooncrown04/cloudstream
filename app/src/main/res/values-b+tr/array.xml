@@ -13,7 +13,18 @@
         <!-- Actually fake to make the skip op button the same style -->
         <item>@id/cast_button_type_forward_30_seconds</item>
     </array>
+<!-- 3 Aşamalı Seçenek Listesi -->
+<string-array name="wide_poster_entries">
+    <item>Varsayılan (Eklenti Kararı)</item>
+    <item>Zorunlu Geniş Format (16:9)</item>
+    <item>Zorunlu Normal Format (Dikey)</item>
+</string-array>
 
+<string-array name="wide_poster_values">
+    <item>0</item>
+    <item>1</item>
+    <item>2</item>
+</string-array>
     <array name="dns_pref">
         <item>@string/none</item>
         <item>Google</item>
