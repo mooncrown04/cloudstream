@@ -1,7 +1,7 @@
 package com.lagradost.cloudstream3.ui.home
 
 import androidx.preference.PreferenceManager
-import android.content.Context
+
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
@@ -125,14 +125,16 @@ open class ParentItemAdapter(
                     nextFocusUp = homeChildRecyclerview.nextFocusUpId,
                     nextFocusDown = homeChildRecyclerview.nextFocusDownId,
                 ).apply {
-                    isHorizontal = info.isHorizontalImages
-                    hasNext = item.hasNext
+                  //yeni    isHorizontal = info.isHorizontalImages
+                    isHorizontal = isWideLayout
+					hasNext = item.hasNext
                     submitList(item.list.list)
                 }
             } else {
-                currentAdapter.apply {
-                    isHorizontal = info.isHorizontalImages
-                    hasNext = item.hasNext
+                currentAdapter.apply {                  
+				  //yeni    isHorizontal = info.isHorizontalImages
+                    isHorizontal = isWideLayout
+					hasNext = item.hasNext
                     this.clickCallback = this@ParentItemAdapter.clickCallback
                     nextFocusUp = homeChildRecyclerview.nextFocusUpId
                     nextFocusDown = homeChildRecyclerview.nextFocusDownId
