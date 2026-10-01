@@ -212,7 +212,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         }
        
         
- getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
     val prefNames = resources.getStringArray(R.array.app_font_names).toList()
     val prefValues = resources.getStringArray(R.array.app_font_values).toList()
 
@@ -234,8 +234,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         "Gotham" to R.font.gotham
     )
 
-    // CharSequence listesi oluşturarak Spannable stillerini koruyoruz
-    val formattedNames: List<CharSequence> = prefNames.mapIndexed { index, name ->
+    val formattedNames = prefNames.mapIndexed { index, name ->
         val fontKey = prefValues.getOrNull(index)
         val fontResId = fontMap[fontKey]
 
@@ -245,23 +244,25 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                 if (typeface != null) {
                     val spannable = android.text.SpannableString(name)
                     
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                        // Android 9.0 (API 28) ve üzeri
-                        spannable.setSpan(
-                            android.text.style.TypefaceSpan(typeface),
-                            0,
-                            name.length,
-                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
+                    val span = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        android.text.style.TypefaceSpan(typeface)
                     } else {
-                        // Android 9.0 altı cihazlar için CustomTypefaceSpan
-                        spannable.setSpan(
-                            com.lagradost.cloudstream3.utils.CustomTypefaceSpan("", typeface),
-                            0,
-                            name.length,
-                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
+                        object : android.text.style.MetricAffectingSpan() {
+                            override fun updateDrawState(ds: android.text.TextPaint) {
+                                ds.typeface = typeface
+                            }
+                            override fun updateMeasureState(paint: android.text.TextPaint) {
+                                paint.typeface = typeface
+                            }
+                        }
                     }
+
+                    spannable.setSpan(
+                        span,
+                        0,
+                        name.length,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
                     spannable
                 } else name
             } catch (e: Exception) {
@@ -272,9 +273,12 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         }
     }
 
-    // LISTE DOĞRUDAN CHARSEQUENCE OLARAK GÖNDERİLİYOR (.map { it.toString() } KULLANILMAMALI)
+    // showBottomDialog metodu List<String> beklediği için cast/transform işlemi yapılıyor
+    @Suppress("UNCHECKED_CAST")
+    val items = formattedNames as List<String>
+
     activity?.showBottomDialog(
-        formattedNames, 
+        items,
         prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
         getString(R.string.app_font_settings),
         true,
