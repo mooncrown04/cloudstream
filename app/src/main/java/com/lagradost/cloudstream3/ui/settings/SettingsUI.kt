@@ -210,16 +210,18 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             }
             return@setOnPreferenceClickListener true
         }
+       
+        
        getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
-    val prefNames = resources.getStringArray(R.array.app_font_names).toMutableList()
-    val prefValues = resources.getStringArray(R.array.app_font_values).toMutableList()
+    val prefNames = resources.getStringArray(R.array.app_font_names).toList()
+    val prefValues = resources.getStringArray(R.array.app_font_values).toList()
 
     val currentFont = settingsManager.getString(
         getString(R.string.app_font_key),
         prefValues.firstOrNull() ?: "Default"
     )
 
-    // Her bir font değerini res/font/ altındaki dosya kaynak kimliği (ID) ile eşliyoruz
+    // Font isimleri ile res/font/ ID'lerini eşliyoruz
     val fontMap = mapOf(
         "TimesNewRoman" to R.font.times_new_roman,
         "StixGeneral" to R.font.stix_general,
@@ -233,18 +235,42 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         "Gotham" to R.font.gotham
     )
 
-    // Listedeki sıraya göre font ID'lerini hazırlıyoruz (Yoksa varsayılan null atar)
-    val fonts = prefValues.map { fontKey ->
-        fontMap[fontKey]
+    // Metinlere kendi Typeface font stilini Spannable/CustomTypefaceSpan ile giydiriyoruz
+    val formattedNames = prefNames.mapIndexed { index, name ->
+        val fontKey = prefValues.getOrNull(index)
+        val fontResId = fontMap[fontKey]
+
+        if (fontResId != null && context != null) {
+            try {
+                val typeface = androidx.core.content.res.ResourcesCompat.getFont(requireContext(), fontResId)
+                if (typeface != null) {
+                    val spannable = android.text.SpannableString(name)
+                    // CustomTypefaceSpan veya TypefaceSpan ile metne fontu uyguluyoruz
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        spannable.setSpan(
+                            android.text.style.TypefaceSpan(typeface),
+                            0,
+                            name.length,
+                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+                    spannable
+                } else name
+            } catch (e: Exception) {
+                name
+            }
+        } else {
+            name
+        }
     }
 
+    // showBottomDialog orijinal parametre yapısıyla çağrılıyor (fonts = parametresi kaldırıldı)
     activity?.showBottomDialog(
-        prefNames.toList(),
+        formattedNames.map { it.toString() }, // CharSequence/Spannable desteği için
         prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
         getString(R.string.app_font_settings),
         true,
-        {},
-        fonts = fonts // <--- Font önizlemelerini aktaran parametre
+        {}
     ) { index ->
         try {
             prefValues.getOrNull(index)?.let { selectedFont ->
