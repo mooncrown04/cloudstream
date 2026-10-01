@@ -272,28 +272,24 @@ object SettingsUIScreen : SearchableSettings {
 // =========================================================================
         // YENİ EKLENEN KISIM: GENİŞ AFİŞ DÜZENİ SWITCH'İ
         // =========================================================================
-Preference.PreferenceItem.TextPreference(
+Preference.PreferenceItem.ListPreference(
+    preference = settings.ui.isWidePoster,
     title = stringResource(R.string.wide_poster_settings),
-    summary = when (settings.ui.isWidePoster) {
-        "1" -> "Zorunlu Geniş Format (16:9)"
-        "2" -> "Zorunlu Normal Format (Dikey)"
-        else -> "Varsayılan (Eklenti Kararı)"
-    },
+    summary = stringResource(R.string.wide_poster_settings_des),
     icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
-    onClick = {
-        val current = settings.ui.isWidePoster ?: "0"
-        val nextMode = when (current) {
-            "0" -> "1"
-            "1" -> "2"
-            else -> "0"
-        }
-        // Ayarı kaydet (DevicePreferenceStore üzerinden update)
-        settings.ui.isWidePoster = nextMode
-        
+    entries = pairListOf(
+        "0" to stringResource(R.string.wide_poster_default), // Varsayılan (Eklenti)
+        "1" to stringResource(R.string.wide_poster_wide),    // Zorunlu Geniş
+        "2" to stringResource(R.string.wide_poster_normal)   // Zorunlu Normal
+    ),
+    onValueChanged = {
         HomeChildItemAdapter.sharedPool.clear()
         ParentItemAdapter.sharedPool.clear()
         SearchAdapter.sharedPool.clear()
-        safe { activity?.recreate() }
+        safe {
+            activity?.recreate()
+        }
+        true
     }
 )
 ),
