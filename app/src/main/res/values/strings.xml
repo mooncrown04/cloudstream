@@ -4,8 +4,8 @@
     <string name="backup">Yedekle</string>
     <string name="backup_location_updated">Yedekleme konumu güncellendi</string>
     <string name="backup_path_pref">backup_path_pref</string>
-	<string name="wide_poster_settings">Wide Poster Layout</string>
-    <string name="wide_poster_settings_des">Expands posters to 16:9 aspect ratio</string>
+<string name="wide_poster_settings">Poster Layout Format</string>
+<string name="wide_poster_settings_des">Change poster size mode (Default, Wide, Normal)</string>
 	     <!-- App Font Settings Keys & Titles -->
 	<string name="app_font_title">App Font</string>
     <string name="app_font_settings">App Font</string>
