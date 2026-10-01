@@ -268,19 +268,19 @@ object SettingsUIScreen : SearchableSettings {
                         subtitle = stringResource(R.string.bottom_title_settings_des),
                         icon = painterResource(R.drawable.title_24px)
                     ),
-	// =========================================================================
-// GENİŞ AFİŞ DÜZENİ (ÇAKIŞMASIZ HIZLI TANIMLAMA)
+// =========================================================================
+// GENİŞ AFİŞ DÜZENİ
 // =========================================================================
 Preference.PreferenceItem.ListPreference(
     preference = settings.ui.isWidePoster,
     title = stringResource(R.string.wide_poster_settings),
-    subtitle = persistentMapOf(
+    subtitle = mapOf(
         "0" to "Varsayılan (Eklenti Kararı)",
         "1" to "Zorunlu Geniş Format (16:9)",
         "2" to "Zorunlu Normal Format (Dikey)"
     )[settings.ui.isWidePoster.get()] ?: stringResource(R.string.wide_poster_settings_des),
     icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
-    entries = persistentMapOf(
+    entries = mapOf(
         "0" to "Varsayılan (Eklenti Kararı)",
         "1" to "Zorunlu Geniş Format (16:9)",
         "2" to "Zorunlu Normal Format (Dikey)"
