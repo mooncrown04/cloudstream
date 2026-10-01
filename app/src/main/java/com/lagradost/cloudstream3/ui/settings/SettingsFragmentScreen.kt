@@ -180,7 +180,9 @@ object SettingsFragmentScreen : Screen {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun Content() {
         val textFieldState = rememberTextFieldState()
-
+//yeni
+val keyboardController = LocalSoftwareKeyboardController.current
+//yeni
         val outerListState = rememberScrollState()
 
         val parentFirstScrollConnection = remember {
@@ -256,7 +258,10 @@ object SettingsFragmentScreen : Screen {
                     searchKey = textFieldState.text.toString(),
                     deferredItems = ::generateSearchItems,
                     onItemClick = { item ->
-                        SearchableSettings.highlightKey = item.highlightKey
+					//yeni
+					keyboardController?.hide()
+                      //yeni  
+						SearchableSettings.highlightKey = item.highlightKey
                         activity?.navigate(item.navigation)
                     }, empty = {
                         Column(
@@ -292,6 +297,9 @@ object SettingsFragmentScreen : Screen {
         var hasFocus by remember { mutableStateOf(false) }
         val focusProgress by animateFloatAsState(targetValue = if (hasFocus) 1.0f else 0.0f)
         val focusManager = LocalFocusManager.current
+		//yeni
+		val keyboardController = LocalSoftwareKeyboardController.current
+		//yeni
         val focusRequester = remember { FocusRequester() }
         TextField(
             state = textFieldState,
@@ -306,6 +314,11 @@ object SettingsFragmentScreen : Screen {
                 .focusOutline(enabled = isLayout(TV), CircleShape)
                 .onFocusChanged { newFocus ->
                     hasFocus = newFocus.hasFocus
+					//yeni
+					  if (!newFocus.hasFocus) {
+                        keyboardController?.hide()
+                    }
+					//yeni
                 }.focusRequester(focusRequester),
             placeholder = {
                 Text(text = stringResource(R.string.search_hint))
@@ -332,6 +345,9 @@ object SettingsFragmentScreen : Screen {
                     if (value) {
                         IconButton(onClick = {
                             textFieldState.edit { replace(0, length, "") }
+							//yeni
+							keyboardController?.hide()
+							//yeni
                             focusManager.clearFocus()
                         }) {
                             Icon(
@@ -359,6 +375,10 @@ object SettingsFragmentScreen : Screen {
                     if (value) {
                         IconButton(onClick = {
                             textFieldState.edit { replace(0, length, "") }
+							//yeni
+							keyboardController?.hide()
+							focusManager.clearFocus()
+							//yeni
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.close_24px),
@@ -380,7 +400,10 @@ object SettingsFragmentScreen : Screen {
 
     @Composable
     fun SettingsTab(settingsTab: SettingsNavigation) {
-        TextPreferenceWidget(
+        //yeni
+		 val keyboardController = LocalSoftwareKeyboardController.current
+		//yeni
+		TextPreferenceWidget(
             title = stringResource(settingsTab.title),
             icon = painterResource(settingsTab.icon),
             // This can not be converted to joinToString due to stringResource being composable
@@ -389,6 +412,9 @@ object SettingsFragmentScreen : Screen {
                 settingsTab.subtitle.map { stringResource(it) }.joinToString(),
             // Clear it if we have already set it but navigated back instantly
             onPreferenceClick = {
+			//yeni
+			keyboardController?.hide()
+			//yeni
                 SearchableSettings.highlightKey = null
                 activity?.navigate(settingsTab.navigation)
             })
