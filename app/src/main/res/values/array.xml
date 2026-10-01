@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+	<!-- 3-Stage Option List -->
+<string-array name="wide_poster_entries">
+    <item>Default (Provider Decision)</item>
+    <item>Force Wide Format (16:9)</item>
+    <item>Force Normal Format (Vertical)</item>
+</string-array>
+
+<string-array name="wide_poster_values">
+    <item>0</item>
+    <item>1</item>
+    <item>2</item>
+</string-array>
 	 <!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
     <string-array name="app_font_names">
         <item>Default</item>
