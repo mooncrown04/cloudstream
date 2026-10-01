@@ -98,21 +98,23 @@ open class ParentItemAdapter(
         if (binding !is HomepageParentBinding) return
         val info = item.list
                // ====yeni eklendi =====================================================================
-        val context = binding.root.context
-        val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
-        
-        // 'poster_size_key' (Int slider) yerine yeni oluşturduğumuz 'wide_poster_key' (Boolean switch)
-        val widePosterKey = context.getString(R.string.wide_poster_key)
+  val context = binding.root.context
+val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
+val widePosterKey = context.getString(R.string.wide_poster_key)
 
-        val isWideLayout = if (settingsManager.contains(widePosterKey)) {
-            try {
-                settingsManager.getBoolean(widePosterKey, false)
-            } catch (e: ClassCastException) {
-                false
-            }
-        } else {
-            info.isHorizontalImages
-        }
+// SharedPreferences'tan string veya int değerini okuyoruz (Varsayılan "0")
+val wideMode = try {
+    settingsManager.getString(widePosterKey, "0") ?: "0"
+} catch (e: Exception) {
+    "0"
+}
+
+// 3 Aşamalı Mantık Denetimi:
+val isWideLayout = when (wideMode) {
+    "1" -> true                       // 1 = Her zaman GENİŞ
+    "2" -> false                      // 2 = Her zaman NORMAL
+    else -> info.isHorizontalImages   // 0 = Varsayılan (Eklenti ne dediyse o)
+}
       // ====yeni eklendi =====================================================================
 
         binding.apply {
@@ -125,17 +127,15 @@ open class ParentItemAdapter(
                     nextFocusUp = homeChildRecyclerview.nextFocusUpId,
                     nextFocusDown = homeChildRecyclerview.nextFocusDownId,
                 ).apply {
-                  //yeni    isHorizontal = info.isHorizontalImages
-                   // isHorizontal = isWideLayout
-					isHorizontal = isWideLayout || info.isHorizontalImages
+                 
+                   isHorizontal = isWideLayout
+					
 					hasNext = item.hasNext
                     submitList(item.list.list)
                 }
             } else {
                 currentAdapter.apply {                  
-				  //yeni    isHorizontal = info.isHorizontalImages
-                   // isHorizontal = isWideLayout
-					isHorizontal = isWideLayout || info.isHorizontalImages
+				  isHorizontal = isWideLayout
 					hasNext = item.hasNext
                     this.clickCallback = this@ParentItemAdapter.clickCallback
                     nextFocusUp = homeChildRecyclerview.nextFocusUpId
