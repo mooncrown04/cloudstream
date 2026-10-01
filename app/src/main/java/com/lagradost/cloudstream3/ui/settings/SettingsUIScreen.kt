@@ -269,23 +269,35 @@ object SettingsUIScreen : SearchableSettings {
                         icon = painterResource(R.drawable.title_24px)
                     ),
 					// =========================================================================
+// =========================================================================
         // YENİ EKLENEN KISIM: GENİŞ AFİŞ DÜZENİ SWITCH'İ
         // =========================================================================
-Preference.PreferenceItem.SwitchPreference(
-    preference = settings.ui.isWidePoster,
-    title = stringResource(R.string.wide_poster_settings), // <-- Yeni title referansı
-    subtitle = stringResource(R.string.wide_poster_settings_des),
-	icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
-    onValueChanged = { newValue ->
+Preference.PreferenceItem.TextPreference(
+    title = stringResource(R.string.wide_poster_settings),
+    summary = when (settings.ui.isWidePoster) {
+        "1" -> "Zorunlu Geniş Format (16:9)"
+        "2" -> "Zorunlu Normal Format (Dikey)"
+        else -> "Varsayılan (Eklenti Kararı)"
+    },
+    icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
+    onClick = {
+        val current = settings.ui.isWidePoster ?: "0"
+        val nextMode = when (current) {
+            "0" -> "1"
+            "1" -> "2"
+            else -> "0"
+        }
+        // Ayarı kaydet (DevicePreferenceStore üzerinden update)
+        settings.ui.isWidePoster = nextMode
+        
         HomeChildItemAdapter.sharedPool.clear()
         ParentItemAdapter.sharedPool.clear()
         SearchAdapter.sharedPool.clear()
-        safe {
-            activity?.recreate()
-        }
-        true
+        safe { activity?.recreate() }
     }
+)
 ),
+
                     Preference.PreferenceItem.SliderPreference(
                         preference = settings.ui.posterSize,
                         title = stringResource(R.string.poster_size_settings),
