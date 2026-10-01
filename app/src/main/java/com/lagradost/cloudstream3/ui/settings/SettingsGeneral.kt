@@ -336,7 +336,25 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
             true
         }
 
+// YEDEK KONUMU DEĞİŞTİRME TIKLAMASI
+getPref(R.string.backup_path_key)?.apply {
+    // Mevcut kayıtlı konumu summary olarak göster
+    val currentPath = PreferenceManager.getDefaultSharedPreferences(context)
+        .getString(getString(R.string.backup_path_key), null)
+    if (!currentPath.isNull_or_empty()) {
+        summary = currentPath
+    }
 
+    setOnPreferenceClickListener {
+        try {
+            backupPathPicker.launch(Uri.EMPTY)
+        } catch (e: Exception) {
+            logError(e)
+            showToast("Klasör seçici açılamadı")
+        }
+        true
+    }
+}
 
         getPref(R.string.override_site_key)?.setOnPreferenceClickListener { _ ->
 
