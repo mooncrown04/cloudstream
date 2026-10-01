@@ -68,9 +68,8 @@ object BackupUtils {
         AccountManager.ACCOUNT_TOKEN,
         AccountManager.ACCOUNT_IDS,
 
-        // TODO proper getter for string res keys to ensure that they are updated
-        "biometric_key", // can lock down users if backup is shared on a incompatible device
-        "nginx_user", // Nginx user key
+        "biometric_key",
+        "nginx_user",
 
         // No access rights after restore data from backup
         "download_path_key",
@@ -78,8 +77,6 @@ object BackupUtils {
         "backup_path_key",
         "backup_dir_path_key",
 
-        // When sharing backup we do not want to transfer what is essentially the password
-        // Note that this is deprecated, and can be removed after all tokens have expired
         "anilist_token",
         "anilist_user",
         "mal_user",
@@ -90,33 +87,17 @@ object BackupUtils {
         "subdl_user",
         "simkl_token",
 
-
-        // Downloads can not be restored from backups.
-        // The download path URI can not be transferred.
-        // In the future we may potentially write metadata to files in the download directory
-        // and make it possible to restore download folders using that metadata.
         DOWNLOAD_EPISODE_CACHE_BACKUP,
         DOWNLOAD_EPISODE_CACHE,
-        
-        // Download headers are unintuitively used in the resume watching system.
-        // We can therefore not prune download headers in backups.
-        // DOWNLOAD_HEADER_CACHE_BACKUP,
-        // DOWNLOAD_HEADER_CACHE,
-        
 
-        // This may overwrite valid local data with invalid data
         KEY_DOWNLOAD_INFO,
-
-        // Prevent backups from automatically starting downloads
         KEY_RESUME_IN_QUEUE,
         KEY_RESUME_PACKAGES,
         QUEUE_KEY,
 
-        // Prevent automatic plugin download after restoring backup
         "auto_download_plugins_key2"
     )
 
-    /** false if key should not be contained in backup */
     private fun String.isTransferable(): Boolean {
         return !nonTransferableKeys.any { this.contains(it) }
     }
@@ -124,7 +105,6 @@ object BackupUtils {
     private var restoreFileSelectorOpenDoc: ActivityResultLauncher<Array<String>>? = null
     private var restoreFileSelectorGetContent: ActivityResultLauncher<String>? = null
 
-    // Kinda hack, but I couldn't think of a better way
     @Serializable
     data class BackupVars(
         @JsonProperty("_Bool") @SerialName("_Bool") val bool: Map<String, Boolean>?,
@@ -196,16 +176,11 @@ object BackupUtils {
             context.restoreMap(backupFile.datastore.stringSet)
         }
 
-        // Make sure the library is fresh
         for(api in AccountManager.syncApis) {
             api.requireLibraryRefresh = true
         }
     }
 
-    /**
-     * Uri üzerinden yedek dosyasını okuyup geri yükleme işlemini çalıştırır.
-     * X-plore ve benzeri dosya yöneticilerinin URI izin problemlerini çözer.
-     */
     fun restoreFromUri(activity: Activity, uri: Uri) {
         ioSafe {
             try {
@@ -255,7 +230,9 @@ object BackupUtils {
             val date = SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(Date(currentTimeMillis()))
             val displayName = "CS3_Backup_${date}"
             val backupFile = getBackup(context)
-            val stream = setupBackupStream(context, displayName)
+            
+            // DÜZELTME: Uzantı varsayılan json olarak gönderiliyor
+            val stream = setupBackupStream(context, displayName, "json")
 
             fileStream = stream.openNew()
             printStream = PrintWriter(fileStream)
@@ -278,7 +255,7 @@ object BackupUtils {
     }
 
     @Throws(IOException::class)
-    private fun setupBackupStream(context: Context, name: String, ext: String = "txt"): DownloadObjects.StreamData {
+    private fun setupBackupStream(context: Context, name: String, ext: String = "json"): DownloadObjects.StreamData {
         return setupStream(
             baseFile = getCurrentBackupDir(context).first ?: getDefaultBackupDir(context)
             ?: throw IOException("Bad config"),
@@ -291,13 +268,11 @@ object BackupUtils {
 
     fun FragmentActivity.setUpBackup() {
         try {
-            // 1. Standart OpenDocument yöntemi
             restoreFileSelectorOpenDoc =
                 registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
                     if (uri != null) restoreFromUri(this, uri)
                 }
 
-            // 2. Android TV / Modlu cihazlar / X-plore için yedek GetContent yöntemi
             restoreFileSelectorGetContent =
                 registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                     if (uri != null) restoreFromUri(this, uri)
@@ -338,9 +313,6 @@ object BackupUtils {
         editor.apply()
     }
 
-    /**
-     * Orijinal 1. dosyadaki birebir konum çözümleme yapısı.
-     */
     fun getDefaultBackupDir(context: Context): SafeFile? {
         return SafeFile.fromMedia(context, MediaFileContentType.Downloads)
     }
