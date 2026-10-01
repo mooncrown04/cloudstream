@@ -28,14 +28,15 @@
             android:summary="@string/bottom_title_settings_des"
             android:title="@string/bottom_title_settings" />
 
-        <!-- UYGULAMA TEMASININ HEMEN ALTINA GELEN YENİ GENİŞ AFİŞ SWITCH'İ -->
-    <SwitchPreference
-        app:defaultValue="false"
-        app:icon="@drawable/ic_baseline_aspect_ratio_24"
-        app:key="@string/wide_poster_key"
-        app:summary="@string/wide_poster_settings_des"
-        app:title="@string/wide_poster_settings" />
-        
+   <!-- SwitchPreference YERİNE ListPreference KULLANILIYOR -->
+<ListPreference
+    app:defaultValue="0"
+    app:entries="@array/wide_poster_entries"
+    app:entryValues="@array/wide_poster_values"
+    app:icon="@drawable/ic_baseline_aspect_ratio_24"
+    app:key="@string/wide_poster_key"
+    app:summary="%s"
+    app:title="@string/wide_poster_settings" />
         <SeekBarPreference
             android:defaultValue="0"
             android:icon="@drawable/arrows_input_24px"
