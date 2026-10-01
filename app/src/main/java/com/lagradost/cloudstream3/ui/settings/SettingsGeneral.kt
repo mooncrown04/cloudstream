@@ -270,9 +270,30 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
         }
     }
 
-    private val pathPicker = getChooseFolderLauncher { uri, path ->
-        pickDownloadPath(uri, path)
+  private val backupPathPicker = getChooseFolderLauncher { uri, path ->
+    if (uri != null) {
+        val ctx = context ?: CloudStreamApp.context ?: return@getChooseFolderLauncher
+        
+        try {
+            // Seçilen yeni klasör için Android SAF kalıcı okuma/yazma izni alınıyor
+            ctx.contentResolver.takePersistableUriPermission(
+                uri,
+                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+        } catch (_: Exception) {}
+
+        // Yeni dizini SharedPreferences içine kaydet
+        PreferenceManager.getDefaultSharedPreferences(ctx).edit {
+            putString(getString(R.string.backup_path_key), uri.toString())
+        }
+        
+        // Ekranda seçilen yeni yolu veya URI'yi göster
+        val pref = getPref(R.string.backup_path_key)
+        pref?.summary = path ?: uri.toString()
+        
+        showToast(R.string.backup_location_updated)
     }
+}
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         hideKeyboard()
