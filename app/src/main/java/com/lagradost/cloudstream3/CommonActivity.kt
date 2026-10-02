@@ -390,9 +390,27 @@ object CommonActivity {
                 else -> R.style.OverlayPrimaryColorNormal
             }
 
+// Font Overlay Uygulaması
+val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.app_font_key), "Default")) {
+    "TimesNewRoman" -> R.style.TimesNewRomanFontOverlay
+    "StixGeneral" -> R.style.StixGeneralFontOverlay
+	"ComicSans" -> R.style.ComicSansFontOverlay
+    "Maybach" -> R.style.MaybachFontOverlay
+    "Perfume" -> R.style.PerfumeFontOverlay
+    "Naxmos" -> R.style.NaxmosFontOverlay	
+	"Consola" -> R.style.ConsolaFontOverlay
+    "Futura" -> R.style.FuturaFontOverlay
+    "GoogleSans" -> R.style.GoogleSansFontOverlay
+    "Gotham" -> R.style.GothamFontOverlay
+    else -> R.style.TimesNewRomanFontOverlay // veya varsayılan font stiliniz
+}
+
+
+        act.theme.applyStyle(currentFontOverlay, true)
         act.theme.applyStyle(currentTheme, true)
         act.theme.applyStyle(currentOverlayTheme, true)
-        appliedTheme = currentTheme
+        appliedFont = currentFontOverlay // Font durumunu kaydet
+		appliedTheme = currentTheme
         appliedColor = currentOverlayTheme
         act.updateTv()
         if (isLayout(TV)) act.theme.applyStyle(R.style.AppThemeTvOverlay, true)
