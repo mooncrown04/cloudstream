@@ -119,7 +119,7 @@ object CommonActivity {
     var keyEventListener: ((Pair<KeyEvent?, Boolean>) -> Boolean)? = null
     var appliedTheme: Int = 0
     var appliedColor: Int = 0
-
+    var appliedFont: Int = 0 // <- Bu satırı ekleyin  yeni eklendi
     private var currentToast: Toast? = null
 
     fun showToast(@StringRes message: Int, duration: Int? = null) {
