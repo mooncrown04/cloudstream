@@ -14,7 +14,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +28,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -54,13 +52,13 @@ import com.lagradost.cloudstream3.utils.UIUtils.isLayout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
+fun SettingsFragmentScreen(
     onNavigate: (Int) -> Unit,
     onBack: () -> Unit,
     searchState: TextFieldState
 ) {
     val context = LocalContext.current
-    val allSettings = remember { getSettings(context) }
+    val allSettings = remember(context) { getSettings(context) }
 
     Scaffold(
         topBar = {
@@ -90,11 +88,11 @@ fun SettingsScreen(
             val filterText = searchState.text.toString().trim()
 
             if (filterText.isEmpty()) {
-                // Varsayılan Kategori Listesi
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(allSettings) { group ->
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(
+                        items = allSettings,
+                        key = { group -> group.titleRes }
+                    ) { group ->
                         SettingGroup(title = stringResource(group.titleRes)) {
                             group.items.forEach { item ->
                                 SettingRow(
@@ -108,8 +106,7 @@ fun SettingsScreen(
                     }
                 }
             } else {
-                // Arama Sonuçları Listesi
-                val filteredItems = remember(filterText) {
+                val filteredItems = remember(filterText, allSettings) {
                     allSettings.flatMap { group ->
                         group.items.filter { item ->
                             val title = context.getString(item.titleRes)
@@ -119,10 +116,11 @@ fun SettingsScreen(
                     }
                 }
 
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(filteredItems) { item ->
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(
+                        items = filteredItems,
+                        key = { item -> item.destinationId }
+                    ) { item ->
                         SettingRow(
                             title = stringResource(item.titleRes),
                             description = item.descriptionRes?.let { stringResource(it) },
@@ -136,11 +134,11 @@ fun SettingsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsSearch(textFieldState: TextFieldState) {
     var hasFocus by remember { mutableStateOf(false) }
-    val focusProgress by animateFloatAsState(targetValue = if (hasFocus) 1.0f else 0.0f)
+    val focusProgress by animateFloatAsState(targetValue = if (hasFocus) 1.0f else 0.0f, label = "focusProgress")
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
