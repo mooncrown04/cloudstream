@@ -269,19 +269,20 @@ object SettingsUIScreen : SearchableSettings {
                         icon = painterResource(R.drawable.title_24px)
                     ),
 // =========================================================================
-// GENİŞ AFİŞ DÜZENİ
-///===========================================================================
-	Preference.PreferenceItem.ListPreference(
+// GENİŞ AFİŞ DÜZENİ (appFont İLE BİREBİR AYNI VE SADE YAPI)
+// =========================================================================
+Preference.PreferenceItem.ListPreference(
     preference = settings.ui.isWidePoster,
-    title = stringResource(R.string.wide_poster_settings),
-    subtitle = stringResource(R.string.wide_poster_settings_des),
     icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
-    entries = run {
-        val keys = stringArrayResource(R.array.wide_poster_values)
-        val values = stringArrayResource(R.array.wide_poster_entries)
-        keys.zip(values).toMap()
-    },
-    onValueChanged = {
+    title = stringResource(R.string.wide_poster_settings),
+    subtitle = stringArrayResource(R.array.wide_poster_values).zip(
+        stringArrayResource(R.array.wide_poster_entries)
+    ).toMap()[settings.ui.isWidePoster.get()] ?: stringResource(R.string.wide_poster_settings_des),
+    entries = stringArrayResource(R.array.wide_poster_values).zip(
+        stringArrayResource(R.array.wide_poster_entries)
+    ).toMap().toPersistentMap(),
+    onValueChanged = { newValue ->
+        settings.ui.isWidePoster.set(newValue)
         HomeChildItemAdapter.sharedPool.clear()
         ParentItemAdapter.sharedPool.clear()
         SearchAdapter.sharedPool.clear()
