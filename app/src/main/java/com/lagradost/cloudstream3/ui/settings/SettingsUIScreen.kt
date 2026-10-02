@@ -41,6 +41,12 @@ import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentMap
 
+
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+
 object SettingsUIScreen : SearchableSettings {
     @Composable
     override fun getTitleRes(): String = stringResource(R.string.category_ui)
@@ -149,20 +155,47 @@ object SettingsUIScreen : SearchableSettings {
                 )
             ),
 
-            	  Preference.PreferenceItem.ListPreference(
-                        preference = settings.ui.appFont,
-                        icon = painterResource(R.drawable.ic_baseline_text_fields_24),
-                        title = stringResource(R.string.app_font_settings),
-                        entries = stringArrayResource(R.array.app_font_values).zip(
-                            stringArrayResource(R.array.app_font_names)
-                        ).toMap().toPersistentMap(),
-                        onValueChanged = { newValue ->
-                            settings.ui.appFont.set(newValue)
-                            safe {
-                                activity?.recreate()
-                            }
-                            return@ListPreference false
-                        }),
+ //yeni          
+
+// Font değerlerini res/font klasörünüzdeki font dosyaları ile eşleştirin
+val fontFamilies = mapOf(
+    "Default" to FontFamily.Default,
+    "TimesNewRoman" to FontFamily(Font(R.font.times_new_roman)),
+    "StixGeneral" to FontFamily(Font(R.font.stix_general)),
+    "ComicSans" to FontFamily(Font(R.font.comic_sans)),
+    "Maybach" to FontFamily(Font(R.font.maybach)),
+    "Perfume" to FontFamily(Font(R.font.perfume)),
+    "Naxmos" to FontFamily(Font(R.font.naxmos)),
+    "Consola" to FontFamily(Font(R.font.consola)),
+    "Futura" to FontFamily(Font(R.font.futura)),
+    "GoogleSans" to FontFamily(Font(R.font.google_sans)),
+    "Gotham" to FontFamily(Font(R.font.gotham))
+)
+Preference.PreferenceItem.ListPreference(
+    preference = settings.ui.appFont,
+    icon = painterResource(R.drawable.ic_baseline_text_fields_24),
+    title = stringResource(R.string.app_font_settings),
+    entries = stringArrayResource(R.array.app_font_values)
+        .zip(stringArrayResource(R.array.app_font_names))
+        .associate { (value, name) ->
+            value to AnnotatedString(
+                text = name,
+                spanStyle = SpanStyle(
+                    fontFamily = fontFamilies[value] ?: FontFamily.Default
+                )
+            )
+        }.toPersistentMap(),
+    onValueChanged = { newValue ->
+        settings.ui.appFont.set(newValue)
+        safe {
+            activity?.recreate()
+        }
+        return@ListPreference false
+    }
+),
+
+
+		//yeni
             
             Preference.PreferenceGroup(
                 title = stringResource(R.string.pref_category_ui_features),
