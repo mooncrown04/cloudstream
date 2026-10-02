@@ -8,10 +8,11 @@
 </string-array>
 
 <string-array name="wide_poster_values">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
+    <item>Default</item>
+    <item>Wide</item>
+    <item>Normal</item>
 </string-array>
+
 	 <!-- Font İsimleri (Ayarlar Menüsünde Görünecek Metinler) -->
     <string-array name="app_font_names">
         <item>Default</item>
