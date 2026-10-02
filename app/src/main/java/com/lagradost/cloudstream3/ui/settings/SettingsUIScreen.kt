@@ -47,7 +47,6 @@ import kotlinx.collections.immutable.toPersistentMap
 
 object SettingsUIScreen : SearchableSettings {
 
-    // Font değerlerini res/font klasöründeki font dosyaları ile eşleştiren map
     private val fontFamilies = mapOf(
         "Default" to FontFamily.Default,
         "TimesNewRoman" to FontFamily(Font(R.font.times_new_roman)),
@@ -110,7 +109,7 @@ object SettingsUIScreen : SearchableSettings {
                         entries = stringArrayResource(R.array.themes_overlay_names_values).zip(
                             stringArrayResource(R.array.themes_overlay_names)
                         ).toMap().toPersistentMap().mutate { map ->
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { // remove monet on android 11 and less
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                                 map.remove("Monet")
                                 map.remove("Monet2")
                             }
@@ -120,7 +119,7 @@ object SettingsUIScreen : SearchableSettings {
                             RoundColor(color.color)
                         },
                         onValueChanged = { newValue ->
-                            settings.ui.primaryColor.set(newValue) // We need to set before we recreate
+                            settings.ui.primaryColor.set(newValue)
                             safe {
                                 activity?.recreate()
                             }
@@ -133,10 +132,10 @@ object SettingsUIScreen : SearchableSettings {
                         entries = stringArrayResource(R.array.themes_names_values).zip(
                             stringArrayResource(R.array.themes_names)
                         ).toMap().toPersistentMap().mutate { map ->
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { // remove monet on android 11 and less
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                                 map.remove("Monet")
                             }
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { // Remove system on android 9 and less
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                                 map.remove("System")
                             }
                         },
@@ -145,7 +144,7 @@ object SettingsUIScreen : SearchableSettings {
                             RoundColor(theme.background)
                         },
                         onValueChanged = { newValue ->
-                            settings.ui.theme.set(newValue) // We need to set before we recreate
+                            settings.ui.theme.set(newValue)
                             safe {
                                 activity?.recreate()
                             }
@@ -159,7 +158,7 @@ object SettingsUIScreen : SearchableSettings {
                             stringArrayResource(R.array.app_layout)
                         ).toMap().toPersistentMap(),
                         onValueChanged = { newValue ->
-                            settings.ui.layout.set(newValue) // We need to set before we recreate
+                            settings.ui.layout.set(newValue)
                             safe {
                                 activity?.updateTv()
                                 activity?.recreate()
@@ -172,14 +171,16 @@ object SettingsUIScreen : SearchableSettings {
                         title = stringResource(R.string.app_font_settings),
                         entries = stringArrayResource(R.array.app_font_values)
                             .zip(stringArrayResource(R.array.app_font_names))
-                            .associate { (value, name) ->
-                                value to AnnotatedString(
-                                    text = name,
-                                    spanStyle = SpanStyle(
-                                        fontFamily = fontFamilies[value] ?: FontFamily.Default
-                                    )
+                            .toMap()
+                            .toPersistentMap(),
+                        entryLabelTransform = { key, label ->
+                            AnnotatedString(
+                                text = label,
+                                spanStyle = SpanStyle(
+                                    fontFamily = fontFamilies[key] ?: FontFamily.Default
                                 )
-                            }.toPersistentMap(),
+                            )
+                        },
                         onValueChanged = { newValue ->
                             settings.ui.appFont.set(newValue)
                             safe {
