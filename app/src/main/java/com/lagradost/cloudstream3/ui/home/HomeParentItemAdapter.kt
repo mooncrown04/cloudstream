@@ -111,9 +111,9 @@ val wideMode = try {
 
 // 3 Aşamalı Mantık Denetimi:
 val isWideLayout = when (wideMode) {
-    "1" -> true                       // 1 = Her zaman GENİŞ
-    "2" -> false                      // 2 = Her zaman NORMAL
-    else -> info.isHorizontalImages   // 0 = Varsayılan (Eklenti ne dediyse o)
+    "Wide" -> true          // Geniş
+    "Normal" -> false       // Normal / Dikey
+    else -> info.isHorizontalImages // "Default" ise eklenti kararı
 }
       // ====yeni eklendi =====================================================================
 
