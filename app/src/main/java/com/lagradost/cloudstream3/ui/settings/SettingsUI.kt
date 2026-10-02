@@ -31,6 +31,36 @@ import com.lagradost.cloudstream3.utils.SingleSelectionHelper.showMultiDialog
 import com.lagradost.cloudstream3.utils.UIHelper.hideKeyboard
 import com.lagradost.cloudstream3.utils.UIHelper.toPx
 
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.text.TextPaint
+import android.text.style.MetricAffectingSpan
+
+class CustomTypefaceSpan(private val typeface: Typeface) : MetricAffectingSpan() {
+    override fun updateDrawState(ds: TextPaint) {
+        applyCustomTypeFace(ds, typeface)
+    }
+
+    override fun updateMeasureState(paint: TextPaint) {
+        applyCustomTypeFace(paint, typeface)
+    }
+
+    private fun applyCustomTypeFace(paint: Paint, tf: Typeface) {
+        val oldStyle = paint.typeface?.style ?: 0
+        val want = oldStyle and tf.style.inv()
+
+        if (want and Typeface.BOLD != 0) {
+            paint.isFakeBoldText = true
+        }
+        if (want and Typeface.ITALIC != 0) {
+            paint.textSkewX = -0.25f
+        }
+        paint.typeface = tf
+    }
+}
+
+
+
 class SettingsUI : BasePreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -211,7 +241,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             return@setOnPreferenceClickListener true
         }
        
-        
+      //yeni  
 getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
     val prefNames = resources.getStringArray(R.array.app_font_names).toList()
     val prefValues = resources.getStringArray(R.array.app_font_values).toList()
@@ -234,7 +264,8 @@ getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
         "Gotham" to R.font.gotham
     )
 
-    val formattedNames = prefNames.mapIndexed { index, name ->
+    // String yerine CharSequence listesi oluşturuyoruz
+    val formattedNames: List<CharSequence> = prefNames.mapIndexed { index, name ->
         val fontKey = prefValues.getOrNull(index)
         val fontResId = fontMap[fontKey]
 
@@ -244,25 +275,22 @@ getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
                 if (typeface != null) {
                     val spannable = android.text.SpannableString(name)
                     
-                    val span = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                        android.text.style.TypefaceSpan(typeface)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        spannable.setSpan(
+                            android.text.style.TypefaceSpan(typeface),
+                            0,
+                            name.length,
+                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
                     } else {
-                        object : android.text.style.MetricAffectingSpan() {
-                            override fun updateDrawState(ds: android.text.TextPaint) {
-                                ds.typeface = typeface
-                            }
-                            override fun updateMeasureState(paint: android.text.TextPaint) {
-                                paint.typeface = typeface
-                            }
-                        }
+                        // API 28 altı cihazlar için custom span
+                        spannable.setSpan(
+                            CustomTypefaceSpan(typeface),
+                            0,
+                            name.length,
+                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
                     }
-
-                    spannable.setSpan(
-                        span,
-                        0,
-                        name.length,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
                     spannable
                 } else name
             } catch (e: Exception) {
@@ -273,12 +301,9 @@ getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
         }
     }
 
-    // showBottomDialog metodu List<String> beklediği için cast/transform işlemi yapılıyor
-    @Suppress("UNCHECKED_CAST")
-    val items = formattedNames as List<String>
-
+    // formattedNames doğrudan CharSequence listesi olarak iletiliyor (.map { it.toString() } KULLANILMIYOR)
     activity?.showBottomDialog(
-        items,
+        formattedNames,
         prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
         getString(R.string.app_font_settings),
         true,
@@ -297,7 +322,7 @@ getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
     }
     true
 }
-
+//yeni
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
             val names = enumValues<SearchQuality>().sorted().map { it.name }
             val currentList = settingsManager.getStringSet(
