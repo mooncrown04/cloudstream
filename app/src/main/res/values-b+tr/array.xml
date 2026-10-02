@@ -19,12 +19,13 @@
     <item>Geniş Format (16:9)</item>
     <item>Normal Format (Dikey)</item>
 </string-array>
-
+<!-- Değerler İngilizce ile BİREBİR AYNI olmalı -->
 <string-array name="wide_poster_values">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
+    <item>Default</item>
+    <item>Wide</item>
+    <item>Normal</item>
 </string-array>
+	
     <array name="dns_pref">
         <item>@string/none</item>
         <item>Google</item>
