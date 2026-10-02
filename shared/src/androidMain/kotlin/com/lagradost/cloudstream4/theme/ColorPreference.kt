@@ -13,6 +13,10 @@ fun perfToMode(perf: String?) =
         "Light" -> CloudStreamThemeMode.Light
         "Amoled" -> CloudStreamThemeMode.Amoled
         "AmoledLight" -> CloudStreamThemeMode.AmoledLight
+        "Rengarenk" -> CloudStreamThemeMode.Rengarenk
+		"CimBom" -> CloudStreamThemeMode.CimBom
+		"Galatasaray" -> CloudStreamThemeMode.Galatasaray
+		"GS" -> CloudStreamThemeMode.GS
         "Dracula" -> CloudStreamThemeMode.Dracula
         "Lavender" -> CloudStreamThemeMode.Lavender
         "SilentBlue" -> CloudStreamThemeMode.SilentBlue
