@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-	<!-- 3-Stage Option List -->
+<!-- 3-Stage Option List -->
 <string-array name="wide_poster_entries">
-    <item>Default (Provider Decision)</item>
+    <item>Default</item>
     <item>Force Wide Format (16:9)</item>
     <item>Force Normal Format (Vertical)</item>
 </string-array>
