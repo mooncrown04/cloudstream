@@ -282,39 +282,48 @@ object SettingsFragmentScreen : Screen {
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Composable
-    fun SettingsSearch(textFieldState : TextFieldState) {
+    fun SettingsSearch(textFieldState: TextFieldState) {
         var hasFocus by remember { mutableStateOf(false) }
         val focusProgress by animateFloatAsState(targetValue = if (hasFocus) 1.0f else 0.0f)
         val focusManager = LocalFocusManager.current
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusRequester = remember { FocusRequester() }
 
-        // TV / Kumanda navigasyonu için arama onaylama ve odaktan çıkış mantığı
-        val searchAndClearFocus: () -> Unit = f@{
-            if (textFieldState.text.isBlank()) return@f
+        // Odaktan çıkma ve klavyeyi kapatma işlevi
+        val clearFocusAndHideKeyboard = {
             keyboardController?.hide()
-            focusManager.clearFocus()
-            focusManager.moveFocus(FocusDirection.Down)
+            focusManager.clearFocus(force = true)
+        }
+
+        val searchAndClearFocus: () -> Unit = {
+            clearFocusAndHideKeyboard()
+            if (textFieldState.text.isNotBlank()) {
+                focusManager.moveFocus(FocusDirection.Down)
+            }
         }
 
         TextField(
             state = textFieldState,
             keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Search,
+                imeAction = ImeAction.Search
             ),
             onKeyboardAction = {
                 searchAndClearFocus()
             },
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp - 12.dp * focusProgress)
                 .focusOutline(enabled = isLayout(TV), CircleShape)
+                .focusRequester(focusRequester)
                 .onFocusChanged { newFocus ->
                     hasFocus = newFocus.hasFocus
                     if (newFocus.hasFocus) {
                         keyboardController?.show()
+                    } else {
+                        keyboardController?.hide()
                     }
-                }.focusRequester(focusRequester),
+                },
             placeholder = {
                 Text(text = stringResource(R.string.search_hint))
             },
@@ -340,8 +349,7 @@ object SettingsFragmentScreen : Screen {
                     if (value) {
                         IconButton(onClick = {
                             textFieldState.edit { replace(0, length, "") }
-                            keyboardController?.hide()
-                            focusManager.clearFocus()
+                            clearFocusAndHideKeyboard()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.keyboard_arrow_left_24px),
@@ -383,6 +391,7 @@ object SettingsFragmentScreen : Screen {
         DisposableEffect(Unit) {
             onDispose {
                 keyboardController?.hide()
+                focusManager.clearFocus()
             }
         }
     }
