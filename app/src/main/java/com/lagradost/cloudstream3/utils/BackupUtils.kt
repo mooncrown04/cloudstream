@@ -2,7 +2,6 @@ package com.lagradost.cloudstream3.utils
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-
 import android.app.Activity
 import android.content.Context
 import android.net.Uri
@@ -176,7 +175,7 @@ object BackupUtils {
             context.restoreMap(backupFile.datastore.stringSet)
         }
 
-        for(api in AccountManager.syncApis) {
+        for (api in AccountManager.syncApis) {
             api.requireLibraryRefresh = true
         }
     }
@@ -230,8 +229,7 @@ object BackupUtils {
             val date = SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(Date(currentTimeMillis()))
             val displayName = "CS3_Backup_${date}"
             val backupFile = getBackup(context)
-            
-            // DÜZELTME: Uzantı varsayılan json olarak gönderiliyor
+
             val stream = setupBackupStream(context, displayName, "json")
 
             fileStream = stream.openNew()
@@ -328,6 +326,37 @@ object BackupUtils {
             path.isNullOrBlank() -> getDefaultBackupDir(context)
             path.startsWith("content://") -> SafeFile.fromUri(context, path.toUri())
             else -> SafeFile.fromFilePath(context, path)
+        }
+    }
+
+    // --- EKLENEN YARDIMCI METOTLAR ---
+
+    /**
+     * Diyalog/Seçim listesinde gösterilecek varsayılan dizinler
+     */
+    fun Context.getBackupDirsForDisplay(): List<String> {
+        val list = mutableListOf<String>()
+        getDefaultBackupDir(this)?.filePath()?.let { list.add(it) }
+        return list.distinct()
+    }
+
+    /**
+     * Compose veya Dialog üzerinden seçilen dizin/URI bilgisini kaydeden metot
+     */
+    fun setBackupDir(context: Context, pathOrUri: String) {
+        if (pathOrUri.startsWith("content://")) {
+            try {
+                val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                context.contentResolver.takePersistableUriPermission(pathOrUri.toUri(), flags)
+            } catch (e: Exception) {
+                logError(e)
+            }
+        }
+        val settingsManager = PreferenceManager.getDefaultSharedPreferences(context)
+        settingsManager.edit().apply {
+            putString(context.getString(R.string.backup_path_key), pathOrUri)
+            putString(context.getString(R.string.backup_dir_key), pathOrUri)
+            apply()
         }
     }
 }
