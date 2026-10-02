@@ -1,9 +1,6 @@
 package com.lagradost.cloudstream3.ui.settings
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -11,13 +8,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import com.lagradost.cloudstream3.AutoDownloadMode
 import com.lagradost.cloudstream3.BuildConfig
-import com.lagradost.cloudstream3.CloudStreamApp
 import com.lagradost.cloudstream3.CommonActivity.activity
 import com.lagradost.cloudstream3.MainActivityScreen
 import com.lagradost.cloudstream3.R
@@ -28,9 +25,7 @@ import com.lagradost.cloudstream3.utils.BackupUtils.restorePrompt
 import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.InAppUpdater.installPreReleaseIfNeeded
 import com.lagradost.cloudstream3.utils.UIHelper.navigate
-import com.lagradost.cloudstream4.AppSettings
 import com.lagradost.cloudstream4.rememberAppSettings
-import com.lagradost.safefile.SafeFile
 import com.mihon.presentation.settings.Preference
 import com.mihon.presentation.settings.SearchableSettings
 import com.mihon.presentation.settings.collectAsState
@@ -43,36 +38,26 @@ object SettingsUpdatesScreen : SearchableSettings {
     @Composable
     override fun getPreferences(): List<Preference> {
         val settings = rememberAppSettings()
+        val context = LocalContext.current
 
-        // TODO Refactor entirely to use a different file path selector ect like QuickNovel
-        val selectFileSelector =
-            rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-                // It lies, it can be null if file manager quits.
-                if (uri == null) return@rememberLauncherForActivityResult
-                val context = CloudStreamApp.context ?: return@rememberLauncherForActivityResult
-
+        val pathPicker = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocumentTree()
+        ) { uri ->
+            uri?.let {
                 try {
-                    val settings = AppSettings(context)
-                    // RW perms for the path
-                    val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    // SAF erişim iznini kalıcı yapma
+                    val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    context.contentResolver.takePersistableUriPermission(it, takeFlags)
 
-                    context.contentResolver.takePersistableUriPermission(uri, flags)
-
-                    val filePath = SafeFile.fromUri(context, uri)?.filePath()
-                    println("Selected URI path: $uri - Full path: $filePath")
-
-                    // store the actual URI instead of the path due to permissions.
-                    // filePath should only be used for cosmetic purposes.
-                    val visual = filePath ?: uri.toString()
-                    settings.backup.path.set(uri.toString())
-                    settings.backup.visualPath.set(visual)
+                    // Ayara kaydetme (Uri string formatında)
+                    settings.backup.path.set(it.toString())
                 } catch (t: Throwable) {
                     logError(t)
                 }
             }
+        }
 
-        val visualBackupPath by settings.backup.visualPath.collectAsState()
+        val currentBackupPath by settings.backup.path.collectAsState()
         var showDialog by remember { mutableStateOf(false) }
 
         if (showDialog) {
@@ -93,16 +78,6 @@ object SettingsUpdatesScreen : SearchableSettings {
                         icon = painterResource(R.drawable.mobile_arrow_down_24px),
                         onClick = {
                             githubViewModel?.onAction(GithubAction.SearchForUpdate)
-                            /*ioSafe {
-                                if (activity?.runAutoUpdate(false) == false) {
-                                    activity?.runOnUiThread {
-                                        showToast(
-                                            R.string.no_update_found,
-                                            Toast.LENGTH_SHORT
-                                        )
-                                    }
-                                }
-                            }*/
                         }
                     ),
                     Preference.PreferenceItem.TextPreference(
@@ -113,7 +88,6 @@ object SettingsUpdatesScreen : SearchableSettings {
                             activity?.installPreReleaseIfNeeded()
                         }
                     ),
-
                     Preference.PreferenceItem.ListPreference(
                         title = stringResource(R.string.apk_installer_settings),
                         subtitle = stringResource(R.string.apk_installer_settings_des),
@@ -123,7 +97,6 @@ object SettingsUpdatesScreen : SearchableSettings {
                         ).toMap(),
                         preference = settings.updates.apkInstaller
                     ),
-
                     Preference.PreferenceItem.SwitchPreference(
                         title = stringResource(R.string.updates_settings),
                         subtitle = stringResource(R.string.updates_settings_des),
@@ -152,21 +125,13 @@ object SettingsUpdatesScreen : SearchableSettings {
                     ),
                     Preference.PreferenceItem.TextPreference(
                         title = stringResource(R.string.backup_path_title),
+                        subtitle = currentBackupPath.ifEmpty { null } ?: stringResource(R.string.custom),
                         icon = painterResource(R.drawable.folder_24px),
-                        subtitle = visualBackupPath,
                         onClick = {
                             try {
-                                selectFileSelector.launch(Uri.EMPTY)
-                            } catch (e: ActivityNotFoundException) {
-                                activity?.runOnUiThread {
-                                    Toast.makeText(
-                                        activity,
-                                        "Cihazınızda dosya seçici bulunamadı.",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            } catch (t: Throwable) {
-                                logError(t)
+                                pathPicker.launch(null)
+                            } catch (e: Exception) {
+                                logError(e)
                             }
                         }
                     ),
@@ -187,7 +152,6 @@ object SettingsUpdatesScreen : SearchableSettings {
                         icon = painterResource(R.drawable.extension_24px),
                         preference = settings.plugins.autoUpdate,
                     ),
-
                     Preference.PreferenceItem.ListPreference(
                         title = stringResource(R.string.automatic_plugin_download),
                         subtitle = "%s\n" + stringResource(R.string.automatic_plugin_download_summary),
