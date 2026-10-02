@@ -75,7 +75,7 @@ val appFont = preferences.getString(
     val bottomTitle = preferences.getBoolean(
         "bottom_title_key", true
     )
-val isWidePoster = preferences.getString("wide_poster_key", "0")
+val isWidePoster = preferences.getString("wide_poster_key", "Default")
     val advancedSearch = preferences.getBoolean(
         "advanced_search", true
     )
