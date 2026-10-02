@@ -34,6 +34,12 @@ enum class CloudStreamThemeMode {
 
     /** "SilentBlue" */
     SilentBlue,
+   
+   /** Galatasaray Temaları */
+    Galatasaray,
+    CimBom,
+    GS,
+    Rengarenk,
 
     /** "System" resolved on each platform via [isSystemInDarkTheme] */
     FollowSystem,
@@ -57,6 +63,11 @@ fun modeToTheme(mode : CloudStreamThemeMode, primaryColor: CloudStreamPrimaryCol
             CloudStreamThemeMode.Amoled -> amoledScheme()
             CloudStreamThemeMode.AmoledLight -> amoledLightScheme()
             CloudStreamThemeMode.Light -> lightScheme()
+			// Yeni eklenen şemalar:
+            CloudStreamThemeMode.Galatasaray -> galatasarayScheme()
+            CloudStreamThemeMode.CimBom -> cimBomScheme()
+            CloudStreamThemeMode.GS -> gsScheme()
+            CloudStreamThemeMode.Rengarenk -> rengarenkScheme()
             CloudStreamThemeMode.Dracula -> draculaScheme()
             CloudStreamThemeMode.Lavender -> lavenderScheme()
             CloudStreamThemeMode.SilentBlue -> silentBlueScheme()
