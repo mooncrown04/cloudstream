@@ -1,9 +1,17 @@
 package com.lagradost.cloudstream3.ui.settings
 
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.TextPaint
+import android.text.style.MetricAffectingSpan
+import android.text.style.TypefaceSpan
 import android.view.View
 import androidx.core.content.edit
+import androidx.core.content.res.ResourcesCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.SeekBarPreference
 import com.lagradost.cloudstream3.CloudStreamApp.Companion.getActivity
@@ -31,11 +39,6 @@ import com.lagradost.cloudstream3.utils.SingleSelectionHelper.showMultiDialog
 import com.lagradost.cloudstream3.utils.UIHelper.hideKeyboard
 import com.lagradost.cloudstream3.utils.UIHelper.toPx
 
-import android.graphics.Paint
-import android.graphics.Typeface
-import android.text.TextPaint
-import android.text.style.MetricAffectingSpan
-
 class CustomTypefaceSpan(private val typeface: Typeface) : MetricAffectingSpan() {
     override fun updateDrawState(ds: TextPaint) {
         applyCustomTypeFace(ds, typeface)
@@ -58,8 +61,6 @@ class CustomTypefaceSpan(private val typeface: Typeface) : MetricAffectingSpan()
         paint.typeface = tf
     }
 }
-
-
 
 class SettingsUI : BasePreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -87,15 +88,15 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
-      // Geniş Afiş Düzeni Switch Dinleyicisi
-    getPref(R.string.wide_poster_key)?.setOnPreferenceChangeListener { _, _ ->
-    HomeChildItemAdapter.sharedPool.clear()
-    ParentItemAdapter.sharedPool.clear()
-    SearchAdapter.sharedPool.clear()
-    activity?.recreate()
-    true
-       }
-        
+        // Geniş Afiş Düzeni Switch Dinleyicisi
+        getPref(R.string.wide_poster_key)?.setOnPreferenceChangeListener { _, _ ->
+            HomeChildItemAdapter.sharedPool.clear()
+            ParentItemAdapter.sharedPool.clear()
+            SearchAdapter.sharedPool.clear()
+            activity?.recreate()
+            true
+        }
+
         getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, newValue ->
             HomeChildItemAdapter.sharedPool.clear()
             ParentItemAdapter.sharedPool.clear()
@@ -202,6 +203,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             }
             return@setOnPreferenceClickListener true
         }
+
         getPref(R.string.primary_color_key)?.setOnPreferenceClickListener {
             val prefNames = resources.getStringArray(R.array.themes_overlay_names).toMutableList()
             val prefValues =
@@ -240,89 +242,85 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             }
             return@setOnPreferenceClickListener true
         }
-       
-      //yeni  
-getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
-    val prefNames = resources.getStringArray(R.array.app_font_names).toList()
-    val prefValues = resources.getStringArray(R.array.app_font_values).toList()
 
-    val currentFont = settingsManager.getString(
-        getString(R.string.app_font_key),
-        prefValues.firstOrNull() ?: "Default"
-    )
+        // Uygulama Yazı Tipi (Font) Seçimi
+        getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+            val prefNames = resources.getStringArray(R.array.app_font_names).toList()
+            val prefValues = resources.getStringArray(R.array.app_font_values).toList()
 
-    val fontMap = mapOf(
-        "TimesNewRoman" to R.font.times_new_roman,
-        "StixGeneral" to R.font.stix_general,
-        "ComicSans" to R.font.comic_sans,
-        "Maybach" to R.font.maybach,
-        "Perfume" to R.font.perfume,
-        "Naxmos" to R.font.naxmos,
-        "Consola" to R.font.consola,
-        "Futura" to R.font.futura,
-        "GoogleSans" to R.font.google_sans,
-        "Gotham" to R.font.gotham
-    )
+            val currentFont = settingsManager.getString(
+                getString(R.string.app_font_key),
+                prefValues.firstOrNull() ?: "Default"
+            )
 
-    // String yerine CharSequence listesi oluşturuyoruz
-    val formattedNames: List<CharSequence> = prefNames.mapIndexed { index, name ->
-        val fontKey = prefValues.getOrNull(index)
-        val fontResId = fontMap[fontKey]
+            val fontMap = mapOf(
+                "TimesNewRoman" to R.font.times_new_roman,
+                "StixGeneral" to R.font.stix_general,
+                "ComicSans" to R.font.comic_sans,
+                "Maybach" to R.font.maybach,
+                "Perfume" to R.font.perfume,
+                "Naxmos" to R.font.naxmos,
+                "Consola" to R.font.consola,
+                "Futura" to R.font.futura,
+                "GoogleSans" to R.font.google_sans,
+                "Gotham" to R.font.gotham
+            )
 
-        if (fontResId != null && context != null) {
-            try {
-                val typeface = androidx.core.content.res.ResourcesCompat.getFont(requireContext(), fontResId)
-                if (typeface != null) {
-                    val spannable = android.text.SpannableString(name)
-                    
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                        spannable.setSpan(
-                            android.text.style.TypefaceSpan(typeface),
-                            0,
-                            name.length,
-                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    } else {
-                        // API 28 altı cihazlar için custom span
-                        spannable.setSpan(
-                            CustomTypefaceSpan(typeface),
-                            0,
-                            name.length,
-                            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
+            val formattedNames: List<CharSequence> = prefNames.mapIndexed { index, name ->
+                val fontKey = prefValues.getOrNull(index)
+                val fontResId = fontMap[fontKey]
+
+                if (fontResId != null && context != null) {
+                    try {
+                        val typeface = ResourcesCompat.getFont(requireContext(), fontResId)
+                        if (typeface != null) {
+                            val spannable = SpannableString(name)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                spannable.setSpan(
+                                    TypefaceSpan(typeface),
+                                    0,
+                                    name.length,
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                )
+                            } else {
+                                spannable.setSpan(
+                                    CustomTypefaceSpan(typeface),
+                                    0,
+                                    name.length,
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                                )
+                            }
+                            spannable
+                        } else name
+                    } catch (e: Exception) {
+                        name
                     }
-                    spannable
-                } else name
-            } catch (e: Exception) {
-                name
-            }
-        } else {
-            name
-        }
-    }
-
-    // formattedNames doğrudan CharSequence listesi olarak iletiliyor (.map { it.toString() } KULLANILMIYOR)
-    activity?.showBottomDialog(
-        formattedNames,
-        prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
-        getString(R.string.app_font_settings),
-        true,
-        {}
-    ) { index ->
-        try {
-            prefValues.getOrNull(index)?.let { selectedFont ->
-                settingsManager.edit {
-                    putString(getString(R.string.app_font_key), selectedFont)
+                } else {
+                    name
                 }
-                activity?.recreate()
             }
-        } catch (e: Exception) {
-            logError(e)
+
+            activity?.showBottomDialog(
+                formattedNames,
+                prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
+                getString(R.string.app_font_settings),
+                true,
+                {}
+            ) { index ->
+                try {
+                    prefValues.getOrNull(index)?.let { selectedFont ->
+                        settingsManager.edit {
+                            putString(getString(R.string.app_font_key), selectedFont)
+                        }
+                        activity?.recreate()
+                    }
+                } catch (e: Exception) {
+                    logError(e)
+                }
+            }
+            true
         }
-    }
-    true
-}
-//yeni
+
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
             val names = enumValues<SearchQuality>().sorted().map { it.name }
             val currentList = settingsManager.getStringSet(
