@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -288,33 +289,34 @@ object SettingsFragmentScreen : Screen {
         val focusManager = LocalFocusManager.current
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusRequester = remember { FocusRequester() }
+        val isTv = isLayout(TV)
 
-        // Odaktan çıkma ve klavyeyi kapatma işlevi
         val clearFocusAndHideKeyboard = {
             keyboardController?.hide()
             focusManager.clearFocus(force = true)
         }
 
-        val searchAndClearFocus: () -> Unit = {
-            clearFocusAndHideKeyboard()
-            if (textFieldState.text.isNotBlank()) {
-                focusManager.moveFocus(FocusDirection.Down)
-            }
-        }
-
         TextField(
-            state = textFieldState,
+            value = textFieldState.text.toString(),
+            onValueChange = { newText ->
+                textFieldState.edit { replace(0, length, newText) }
+            },
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Search
             ),
-            onKeyboardAction = {
-                searchAndClearFocus()
-            },
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    clearFocusAndHideKeyboard()
+                    if (textFieldState.text.isNotBlank()) {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }
+                }
+            ),
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp - 12.dp * focusProgress)
-                .focusOutline(enabled = isLayout(TV), CircleShape)
+                .focusOutline(enabled = isTv, CircleShape)
                 .focusRequester(focusRequester)
                 .onFocusChanged { newFocus ->
                     hasFocus = newFocus.hasFocus
