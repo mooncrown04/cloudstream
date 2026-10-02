@@ -270,21 +270,17 @@ object SettingsUIScreen : SearchableSettings {
                     ),
 // =========================================================================
 // GENİŞ AFİŞ DÜZENİ
-// =========================================================================
-Preference.PreferenceItem.ListPreference(
+///===========================================================================
+	Preference.PreferenceItem.ListPreference(
     preference = settings.ui.isWidePoster,
     title = stringResource(R.string.wide_poster_settings),
-    subtitle = mapOf(
-        "0" to "Varsayılan (Eklenti Kararı)",
-        "1" to "Zorunlu Geniş Format (16:9)",
-        "2" to "Zorunlu Normal Format (Dikey)"
-    )[settings.ui.isWidePoster.get()] ?: stringResource(R.string.wide_poster_settings_des),
+    subtitle = stringResource(R.string.wide_poster_settings_des),
     icon = painterResource(R.drawable.ic_baseline_aspect_ratio_24),
-    entries = mapOf(
-        "0" to "Varsayılan (Eklenti Kararı)",
-        "1" to "Zorunlu Geniş Format (16:9)",
-        "2" to "Zorunlu Normal Format (Dikey)"
-    ),
+    entries = run {
+        val keys = stringArrayResource(R.array.wide_poster_values)
+        val values = stringArrayResource(R.array.wide_poster_entries)
+        keys.zip(values).toMap()
+    },
     onValueChanged = {
         HomeChildItemAdapter.sharedPool.clear()
         ParentItemAdapter.sharedPool.clear()
