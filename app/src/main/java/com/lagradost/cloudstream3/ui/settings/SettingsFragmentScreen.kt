@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -42,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -289,10 +291,23 @@ object SettingsFragmentScreen : Screen {
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusRequester = remember { FocusRequester() }
 
+        // TV / Kumanda navigasyonu için arama onaylama ve odaktan çıkış mantığı
+        val searchAndClearFocus: () -> Unit = f@{
+            if (textFieldState.text.isBlank()) return@f
+            keyboardController?.hide()
+            focusManager.clearFocus()
+            focusManager.moveFocus(FocusDirection.Down)
+        }
+
         TextField(
             state = textFieldState,
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Search,
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    searchAndClearFocus()
+                }
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -300,8 +315,8 @@ object SettingsFragmentScreen : Screen {
                 .focusOutline(enabled = isLayout(TV), CircleShape)
                 .onFocusChanged { newFocus ->
                     hasFocus = newFocus.hasFocus
-                    if (!newFocus.hasFocus) {
-                        keyboardController?.hide()
+                    if (newFocus.hasFocus) {
+                        keyboardController?.show()
                     }
                 }.focusRequester(focusRequester),
             placeholder = {
@@ -340,6 +355,7 @@ object SettingsFragmentScreen : Screen {
                     } else {
                         IconButton(onClick = {
                             focusRequester.requestFocus()
+                            keyboardController?.show()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.search_icon),
@@ -351,14 +367,12 @@ object SettingsFragmentScreen : Screen {
             },
             trailingIcon = {
                 Crossfade(
-                    targetState = hasFocus,
+                    targetState = hasFocus && textFieldState.text.isNotEmpty(),
                     label = "rightsearch",
                 ) { value ->
                     if (value) {
                         IconButton(onClick = {
                             textFieldState.edit { replace(0, length, "") }
-                            keyboardController?.hide()
-                            focusManager.clearFocus()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.close_24px),
