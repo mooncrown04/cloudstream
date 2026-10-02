@@ -122,6 +122,58 @@ internal fun lightScheme() = CloudStreamColorScheme(
     isLight = true,
 )
 
+internal fun galatasarayScheme() = CloudStreamColorScheme(
+    background = CloudStreamPalette.GalatasarayBlackBg,
+    surfaceVariant = CloudStreamPalette.GalatasarayPrimaryGrayBg,
+    surface = CloudStreamPalette.GalatasarayIconGrayBg,
+    surfaceContainer = CloudStreamPalette.GalatasarayBoxItemBg,
+    onBackground = CloudStreamPalette.GalatasarayText,
+    onSurfaceVariant = CloudStreamPalette.GalatasarayGrayText,
+    icon = CloudStreamPalette.GalatasarayIcon,
+    primary = CloudStreamPalette.GalatasarayText, // Vurgu rengi olarak GS Sarısı
+    ongoing = CloudStreamPalette.Ongoing,
+    isLight = false,
+)
+
+internal fun cimBomScheme() = CloudStreamColorScheme(
+    background = CloudStreamPalette.CimBomBlackBg,
+    surfaceVariant = CloudStreamPalette.CimBomPrimaryGrayBg,
+    surface = CloudStreamPalette.CimBomIconGrayBg,
+    surfaceContainer = CloudStreamPalette.CimBomBoxItemBg,
+    onBackground = CloudStreamPalette.CimBomText,
+    onSurfaceVariant = CloudStreamPalette.CimBomGrayText,
+    icon = CloudStreamPalette.CimBomIcon,
+    primary = CloudStreamPalette.CimBomText,
+    ongoing = CloudStreamPalette.Ongoing,
+    isLight = false,
+)
+
+internal fun gsScheme() = CloudStreamColorScheme(
+    background = CloudStreamPalette.GSBlackBg,
+    surfaceVariant = CloudStreamPalette.GSPrimaryGrayBg,
+    surface = CloudStreamPalette.GSIconGrayBg,
+    surfaceContainer = CloudStreamPalette.GSBoxItemBg,
+    onBackground = CloudStreamPalette.GSText,
+    onSurfaceVariant = CloudStreamPalette.GSGrayText,
+    icon = CloudStreamPalette.GSIcon,
+    primary = CloudStreamPalette.GSText,
+    ongoing = CloudStreamPalette.Ongoing,
+    isLight = false,
+)
+
+internal fun rengarenkScheme() = CloudStreamColorScheme(
+    background = CloudStreamPalette.RengarenkBlackBg,
+    surfaceVariant = CloudStreamPalette.RengarenkPrimaryGrayBg,
+    surface = CloudStreamPalette.RengarenkIconGrayBg,
+    surfaceContainer = CloudStreamPalette.RengarenkBoxItemBg,
+    onBackground = CloudStreamPalette.RengarenkText,
+    onSurfaceVariant = CloudStreamPalette.RengarenkGrayText,
+    icon = CloudStreamPalette.RengarenkIcon,
+    primary = CloudStreamPalette.RengarenkText,
+    ongoing = CloudStreamPalette.Ongoing,
+    isLight = false,
+)
+
 internal fun draculaScheme() = CloudStreamColorScheme(
     background = CloudStreamPalette.DraculaBlackBg,
     surfaceVariant = CloudStreamPalette.DraculaPrimaryGrayBg,
