@@ -3,21 +3,16 @@ package com.lagradost.cloudstream3.ui.settings
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.material3.Crossfade
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -29,16 +24,13 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -52,17 +44,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.lagradost.cloudstream3.CommonActivity.showToast
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.ui.settings.SettingsFragment.Companion.getSettings
 import com.lagradost.cloudstream3.ui.settings.components.SettingGroup
 import com.lagradost.cloudstream3.ui.settings.components.SettingRow
 import com.lagradost.cloudstream3.ui.settings.components.focusOutline
-import com.lagradost.cloudstream3.ui.subtitles.SubtitlesFragment
-import com.lagradost.cloudstream3.utils.UIUtils.isLayout
-import com.lagradost.cloudstream3.utils.UIUtils.isTv
 import com.lagradost.cloudstream3.utils.UIUtils.LayoutList.TV
-import kotlinx.coroutines.launch
+import com.lagradost.cloudstream3.utils.UIUtils.isLayout
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,9 +59,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     searchState: TextFieldState
 ) {
-    val isTv = isLayout(TV)
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     val allSettings = remember { getSettings(context) }
 
     Scaffold(
@@ -108,8 +94,7 @@ fun SettingsScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(allSettings.size) { index ->
-                        val group = allSettings[index]
+                    items(allSettings) { group ->
                         SettingGroup(title = stringResource(group.titleRes)) {
                             group.items.forEach { item ->
                                 SettingRow(
@@ -137,8 +122,7 @@ fun SettingsScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(filteredItems.size) { index ->
-                        val item = filteredItems[index]
+                    items(filteredItems) { item ->
                         SettingRow(
                             title = stringResource(item.titleRes),
                             description = item.descriptionRes?.let { stringResource(it) },
@@ -187,11 +171,10 @@ fun SettingsSearch(textFieldState: TextFieldState) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp - 12.dp * focusProgress)
-            .focusOutline(enabled = isTv, CircleShape)
+            .focusOutline(enabled = isTv, shape = CircleShape)
             .focusRequester(focusRequester)
             .onFocusChanged { newFocus ->
                 hasFocus = newFocus.hasFocus
-                // TV / Fire OS üzerinde otomatik klavye açılışını ve odak kilitlenmesini engelle
                 if (!isTv) {
                     if (newFocus.hasFocus) {
                         keyboardController?.show()
@@ -201,7 +184,6 @@ fun SettingsSearch(textFieldState: TextFieldState) {
                 }
             }
             .clickable(enabled = isTv) {
-                // TV modunda klavye yalnızca kumandadan OK / Seçim tuşuna basılınca açılsın
                 keyboardController?.show()
             },
         placeholder = {
