@@ -12,6 +12,7 @@ import androidx.core.content.edit
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.RecyclerView
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.APIHolder.allProviders
@@ -143,6 +144,24 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
         setUpToolbar(R.string.category_general)
         setPaddingBottom()
         setToolBarScrollFlags()
+
+        // 1. Odağı Arama/Girdi alanından kaldırıp Fragment görünümüne veriyoruz
+        view.isFocusableInTouchMode = true
+        view.requestFocus()
+
+        // 2. Sayfa açılır açılmaz klavyeyi zorla kapatıyoruz
+        hideKeyboard()
+
+        // 3. Liste kaydırıldığında klavyenin tekrar açılmasını ve odağı engelliyoruz
+        listView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    hideKeyboard()
+                    activity?.currentFocus?.clearFocus()
+                }
+            }
+        })
     }
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -331,7 +350,6 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        hideKeyboard()
         setPreferencesFromResource(R.xml.settings_general, rootKey)
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
