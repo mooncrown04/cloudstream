@@ -1686,7 +1686,7 @@ class GeneratorPlayer : FullScreenPlayer() {
 
     override fun prevEpisode() {
         if (viewModel.hasPrevEpisode() == true) {
-            isNextEpisode = true
+            isNextEpisode = false
             releasePlayer()
             viewModel.loadLinksPrev()
         }
