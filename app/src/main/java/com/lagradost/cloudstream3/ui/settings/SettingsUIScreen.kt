@@ -171,16 +171,14 @@ object SettingsUIScreen : SearchableSettings {
                         title = stringResource(R.string.app_font_settings),
                         entries = stringArrayResource(R.array.app_font_values)
                             .zip(stringArrayResource(R.array.app_font_names))
-                            .toMap()
-                            .toPersistentMap(),
-                        entryLabelTransform = { key, label ->
-                            AnnotatedString(
-                                text = label,
-                                spanStyle = SpanStyle(
-                                    fontFamily = fontFamilies[key] ?: FontFamily.Default
+                            .associate<Pair<String, String>, String, CharSequence> { (value, name) ->
+                                value to AnnotatedString(
+                                    text = name,
+                                    spanStyle = SpanStyle(
+                                        fontFamily = fontFamilies[value] ?: FontFamily.Default
+                                    )
                                 )
-                            )
-                        },
+                            }.toPersistentMap(),
                         onValueChanged = { newValue ->
                             settings.ui.appFont.set(newValue)
                             safe {
