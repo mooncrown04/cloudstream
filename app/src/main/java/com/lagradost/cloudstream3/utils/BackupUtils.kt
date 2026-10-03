@@ -1,9 +1,9 @@
 package com.lagradost.cloudstream3.utils
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -41,6 +41,10 @@ import com.lagradost.safefile.MediaFileContentType
 import com.lagradost.safefile.SafeFile
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.closeQuietly
 import java.io.IOException
 import java.io.OutputStream
@@ -52,30 +56,24 @@ import java.util.Locale
 
 object BackupUtils {
 
-    /**
-     * No sensitive or breaking data in the backup
-     */
+    private const val FIREBASE_DB_URL = "https://senkron-35-default-rtdb.europe-west1.firebasedatabase.app"
+    private val httpClient = OkHttpClient()
+    private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
+
     private val nonTransferableKeys = listOf(
         ANILIST_CACHED_LIST,
         MAL_CACHED_LIST,
         KITSU_CACHED_LIST,
-
-        // The plugins themselves are not backed up
         PLUGINS_KEY,
         PLUGINS_KEY_LOCAL,
-
         AccountManager.ACCOUNT_TOKEN,
         AccountManager.ACCOUNT_IDS,
-
         "biometric_key",
         "nginx_user",
-
-        // No access rights after restore data from backup
         "download_path_key",
         "download_path_key_visual",
         "backup_path_key",
         "backup_dir_path_key",
-
         "anilist_token",
         "anilist_user",
         "mal_user",
@@ -85,15 +83,12 @@ object BackupUtils {
         "open_subtitles_user",
         "subdl_user",
         "simkl_token",
-
-        DOWNLOAD_EPISODE_CACHE_BACKUP,
-        DOWNLOAD_EPISODE_CACHE,
-
+        "DOWNLOAD_EPISODE_CACHE_BACKUP",
+        "DOWNLOAD_EPISODE_CACHE",
         KEY_DOWNLOAD_INFO,
         KEY_RESUME_IN_QUEUE,
         KEY_RESUME_PACKAGES,
         QUEUE_KEY,
-
         "auto_download_plugins_key2"
     )
 
@@ -179,6 +174,111 @@ object BackupUtils {
             api.requireLibraryRefresh = true
         }
     }
+
+    // ============================================================================
+    // ONLINE (FIREBASE) YEDEKLEME VE GERİ YÜKLEME METOTLARI
+    // ============================================================================
+
+    /**
+     * Yerel veriyi Firebase Realtime Database'e kaydeder.
+     * PUT kullanılırsa TEK BİR VERİ olarak sürekli güncellenir (Eski verinin üzerine yazar).
+     */
+    fun uploadOnlineBackup(context: Context, userId: String, onResult: (Boolean, String?) -> Unit) {
+        ioSafe {
+            try {
+                val backupFile = getBackup(context)
+                val jsonString = backupFile.toJson()
+
+                // PUT isteği: Belirtilen userId altındaki veriyi siler ve tamamen yenisini yazar (TEK VERİ YAPAR)
+                val url = "$FIREBASE_DB_URL/backups/$userId.json"
+                val body = jsonString.toRequestBody(JSON_MEDIA_TYPE)
+
+                val request = Request.Builder()
+                    .url(url)
+                    .put(body) 
+                    .build()
+
+                httpClient.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        main { onResult(true, "Yedek başarıyla buluta yüklendi.") }
+                    } else {
+                        main { onResult(false, "Yükleme başarısız: HTTP ${response.code}") }
+                    }
+                }
+            } catch (e: Exception) {
+                logError(e)
+                main { onResult(false, e.localizedMessage) }
+            }
+        }
+    }
+
+    /**
+     * Firebase'den yedeği çeker ve uygulamayı güncelleyerek yeniden başlatır.
+     */
+    fun restoreOnlineBackup(activity: Activity, userId: String, onResult: (Boolean, String?) -> Unit) {
+        ioSafe {
+            try {
+                val url = "$FIREBASE_DB_URL/backups/$userId.json"
+                val request = Request.Builder()
+                    .url(url)
+                    .get()
+                    .build()
+
+                httpClient.newCall(request).execute().use { response ->
+                    val responseBody = response.body?.string()
+
+                    if (response.isSuccessful && !responseBody.isNullOrBlank() && responseBody != "null") {
+                        val restoredValue = parseJson<BackupFile>(responseBody)
+
+                        restore(
+                            activity,
+                            restoredValue,
+                            restoreSettings = true,
+                            restoreDataStore = true
+                        )
+
+                        activity.runOnUiThread { activity.recreate() }
+                        main { onResult(true, "Yedek başarıyla geri yüklendi.") }
+                    } else {
+                        main { onResult(false, "Yedek bulunamadı veya veritabanı boş.") }
+                    }
+                }
+            } catch (e: Exception) {
+                logError(e)
+                main { onResult(false, e.localizedMessage) }
+            }
+        }
+    }
+
+    /**
+     * Firebase üzerindeki yedeği siler.
+     */
+    fun deleteOnlineBackup(userId: String, onResult: (Boolean, String?) -> Unit) {
+        ioSafe {
+            try {
+                val url = "$FIREBASE_DB_URL/backups/$userId.json"
+                val request = Request.Builder()
+                    .url(url)
+                    .delete()
+                    .build()
+
+                httpClient.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        main { onResult(true, "Bulut yedeği silindi.") }
+                    } else {
+                        main { onResult(false, "Silme başarısız: HTTP ${response.code}") }
+                    }
+                }
+            } catch (e: Exception) {
+                logError(e)
+                main { onResult(false, e.localizedMessage) }
+            }
+        }
+    }
+
+    // ============================================================================
+    // YEREL (LOCAL) DOSYA YEDEKLEME VE RESTORE METOTLARI
+    // ============================================================================
 
     fun restoreFromUri(activity: Activity, uri: Uri) {
         ioSafe {
@@ -329,20 +429,12 @@ object BackupUtils {
         }
     }
 
-    // --- EKLENEN YARDIMCI METOTLAR ---
-
-    /**
-     * Diyalog/Seçim listesinde gösterilecek varsayılan dizinler
-     */
     fun Context.getBackupDirsForDisplay(): List<String> {
         val list = mutableListOf<String>()
         getDefaultBackupDir(this)?.filePath()?.let { list.add(it) }
         return list.distinct()
     }
 
-    /**
-     * Compose veya Dialog üzerinden seçilen dizin/URI bilgisini kaydeden metot
-     */
     fun setBackupDir(context: Context, pathOrUri: String) {
         if (pathOrUri.startsWith("content://")) {
             try {
