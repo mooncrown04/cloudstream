@@ -51,7 +51,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.keyEvent
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -291,7 +290,7 @@ object SettingsFragmentScreen : Screen {
     @Composable
     fun SettingsSearch(textFieldState: TextFieldState) {
         var hasFocus by remember { mutableStateOf(false) }
-        var isEditing by remember { mutableStateOf(false) } // Klavyenin aktif yazma modunu takip eder
+        var isEditing by remember { mutableStateOf(false) }
         val focusProgress by animateFloatAsState(targetValue = if (hasFocus) 1.0f else 0.0f)
         val focusManager = LocalFocusManager.current
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -304,7 +303,6 @@ object SettingsFragmentScreen : Screen {
             focusManager.clearFocus(force = true)
         }
 
-        // TV'de aktif yazma modundan çıkmak için Back tuşu dinleyicisi
         BackHandler(enabled = isEditing) {
             isEditing = false
             keyboardController?.hide()
@@ -316,7 +314,7 @@ object SettingsFragmentScreen : Screen {
             onValueChange = { newText ->
                 textFieldState.edit { replace(0, length, newText) }
             },
-            readOnly = isTv && !isEditing, // TV modunda OK basılmadıkça salt okunur kalır
+            readOnly = isTv && !isEditing,
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Search
             ),
@@ -335,9 +333,8 @@ object SettingsFragmentScreen : Screen {
                 .focusOutline(enabled = isTv, CircleShape)
                 .focusRequester(focusRequester)
                 .onKeyEvent { event ->
-                    // TV kumandasından OK / Center tuşuna basıldığında yazma modunu aktifleştir ve klavyeyi aç
                     if (isTv && event.type == KeyEventType.KeyUp) {
-                        val keyCode = event.keyEvent.nativeKeyEvent.keyCode
+                        val keyCode = event.nativeKeyEvent.keyCode
                         if (keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER || keyCode == AndroidKeyEvent.KEYCODE_ENTER) {
                             if (!isEditing) {
                                 isEditing = true
@@ -351,11 +348,9 @@ object SettingsFragmentScreen : Screen {
                 .onFocusChanged { newFocus ->
                     hasFocus = newFocus.hasFocus
                     if (!newFocus.hasFocus) {
-                        // Odak kaybolduğunda yazma modunu kapat ve klavyeyi gizle
                         isEditing = false
                         keyboardController?.hide()
                     } else if (!isTv) {
-                        // Dokunmatik (mobil) cihazlarda odak gelince klavyeyi otomatik aç
                         keyboardController?.show()
                     }
                 },
