@@ -2,6 +2,8 @@ package com.lagradost.cloudstream3.ui.settings
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.KeyEvent as AndroidKeyEvent
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -48,6 +50,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.keyEvent
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -285,13 +291,22 @@ object SettingsFragmentScreen : Screen {
     @Composable
     fun SettingsSearch(textFieldState: TextFieldState) {
         var hasFocus by remember { mutableStateOf(false) }
+        var isEditing by remember { mutableStateOf(false) } // Klavyenin aktif yazma modunu takip eder
         val focusProgress by animateFloatAsState(targetValue = if (hasFocus) 1.0f else 0.0f)
         val focusManager = LocalFocusManager.current
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusRequester = remember { FocusRequester() }
         val isTv = isLayout(TV)
 
-        val clearFocusAndHideKeyboard = {
+        val stopEditingAndHideKeyboard = {
+            isEditing = false
+            keyboardController?.hide()
+            focusManager.clearFocus(force = true)
+        }
+
+        // TV'de aktif yazma modundan çıkmak için Back tuşu dinleyicisi
+        BackHandler(enabled = isEditing) {
+            isEditing = false
             keyboardController?.hide()
             focusManager.clearFocus(force = true)
         }
@@ -301,12 +316,13 @@ object SettingsFragmentScreen : Screen {
             onValueChange = { newText ->
                 textFieldState.edit { replace(0, length, newText) }
             },
+            readOnly = isTv && !isEditing, // TV modunda OK basılmadıkça salt okunur kalır
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Search
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    clearFocusAndHideKeyboard()
+                    stopEditingAndHideKeyboard()
                     if (textFieldState.text.isNotBlank()) {
                         focusManager.moveFocus(FocusDirection.Down)
                     }
@@ -318,12 +334,29 @@ object SettingsFragmentScreen : Screen {
                 .padding(horizontal = 24.dp - 12.dp * focusProgress)
                 .focusOutline(enabled = isTv, CircleShape)
                 .focusRequester(focusRequester)
+                .onKeyEvent { event ->
+                    // TV kumandasından OK / Center tuşuna basıldığında yazma modunu aktifleştir ve klavyeyi aç
+                    if (isTv && event.type == KeyEventType.KeyUp) {
+                        val keyCode = event.keyEvent.nativeKeyEvent.keyCode
+                        if (keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER || keyCode == AndroidKeyEvent.KEYCODE_ENTER) {
+                            if (!isEditing) {
+                                isEditing = true
+                                keyboardController?.show()
+                                return@onKeyEvent true
+                            }
+                        }
+                    }
+                    false
+                }
                 .onFocusChanged { newFocus ->
                     hasFocus = newFocus.hasFocus
-                    if (newFocus.hasFocus) {
-                        keyboardController?.show()
-                    } else {
+                    if (!newFocus.hasFocus) {
+                        // Odak kaybolduğunda yazma modunu kapat ve klavyeyi gizle
+                        isEditing = false
                         keyboardController?.hide()
+                    } else if (!isTv) {
+                        // Dokunmatik (mobil) cihazlarda odak gelince klavyeyi otomatik aç
+                        keyboardController?.show()
                     }
                 },
             placeholder = {
@@ -351,7 +384,7 @@ object SettingsFragmentScreen : Screen {
                     if (value) {
                         IconButton(onClick = {
                             textFieldState.edit { replace(0, length, "") }
-                            clearFocusAndHideKeyboard()
+                            stopEditingAndHideKeyboard()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.keyboard_arrow_left_24px),
@@ -361,6 +394,7 @@ object SettingsFragmentScreen : Screen {
                     } else {
                         IconButton(onClick = {
                             focusRequester.requestFocus()
+                            isEditing = true
                             keyboardController?.show()
                         }) {
                             Icon(
