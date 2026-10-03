@@ -1,7 +1,6 @@
 package com.lagradost.cloudstream3.ui.settings
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,7 +11,6 @@ import androidx.core.content.edit
 import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import androidx.recyclerview.widget.RecyclerView
 import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.lagradost.cloudstream3.APIHolder.allProviders
@@ -40,7 +38,6 @@ import com.lagradost.cloudstream3.ui.settings.SettingsFragment.Companion.setPadd
 import com.lagradost.cloudstream3.ui.settings.SettingsFragment.Companion.setToolBarScrollFlags
 import com.lagradost.cloudstream3.ui.settings.SettingsFragment.Companion.setUpToolbar
 import com.lagradost.cloudstream3.ui.settings.utils.getChooseFolderLauncher
-import com.lagradost.cloudstream3.utils.BackupUtils
 import com.lagradost.cloudstream3.utils.BatteryOptimizationChecker.isAppRestricted
 import com.lagradost.cloudstream3.utils.BatteryOptimizationChecker.showBatteryOptimizationDialog
 import com.lagradost.cloudstream3.utils.SingleSelectionHelper.showBottomDialog
@@ -60,13 +57,24 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
 import java.util.Locale
 
-// Uygulama dili ayarları
+// Change local language settings in the app.
 fun getCurrentLocale(context: Context): String {
     val conf = context.resources.configuration
     return ConfigurationCompat.getLocales(conf).get(0)?.toLanguageTag() ?: "en"
 }
 
+/**
+ * List of app supported languages.
+ * Language code shall be a IETF BCP 47 conformant tag
+ *
+ * See locales on:
+ * https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/availableLocales.json
+ * https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+ * https://android.googlesource.com/platform/frameworks/base/+/android-16.0.0_r2/core/res/res/values/locale_config.xml
+ * https://iso639-3.sil.org/code_tables/639/data/all
+*/
 val appLanguages = arrayListOf(
+    /* begin language list */
     Pair("Afrikaans", "af"),
     Pair("Azərbaycan dili", "az"),
     Pair("Bahasa Indonesia", "in"),
@@ -130,46 +138,30 @@ val appLanguages = arrayListOf(
     Pair("日本語 (にほんご)", "ja"),
     Pair("正體中文(臺灣)", "zh-TW"),
     Pair("한국어", "ko"),
-).sortedBy { it.first.lowercase(Locale.ROOT) }
+/* end language list */
+).sortedBy { it.first.lowercase(Locale.ROOT) } // ye, we go alphabetical, so ppl don't put their lang on top
 
 fun Pair<String, String>.nameNextToFlagEmoji(): String {
+    // fallback to [A][A] -> [?] question mak flag
     val flag = SubtitleHelper.getFlagFromIso(this.second) ?: "\ud83c\udde6\ud83c\udde6"
-    return "$flag\u00a0${this.first}"
+
+    return "$flag\u00a0${this.first}" // \u00a0 non-breaking space
 }
 
 class SettingsGeneral : BasePreferenceFragmentCompat() {
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpToolbar(R.string.category_general)
         setPaddingBottom()
         setToolBarScrollFlags()
-
-        // 1. Odağı Arama/Girdi alanından kaldırıp Fragment görünümüne veriyoruz
-        view.isFocusableInTouchMode = true
-        view.requestFocus()
-
-        // 2. Sayfa açılır açılmaz klavyeyi zorla kapatıyoruz
-        hideKeyboard()
-
-        // 3. Liste kaydırıldığında klavyenin tekrar açılmasını ve odağı engelliyoruz
-        listView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    hideKeyboard()
-                    activity?.currentFocus?.clearFocus()
-                }
-            }
-        })
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class) // JsonNames is an experimental annotation for now
     @Serializable
     data class CustomSite(
         @JsonProperty("parentClassName") @JsonAlias("parentJavaClass")
         @SerialName("parentClassName") @JsonNames("parentJavaClass")
-        val parentClassName: String,
+        val parentClassName: String, // ::class.simpleName
         @JsonProperty("name") @SerialName("name") val name: String,
         @JsonProperty("url") @SerialName("url") val url: String,
         @JsonProperty("lang") @SerialName("lang") val lang: String,
@@ -191,7 +183,6 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
             return getKey<Array<CustomSite>>(USER_PROVIDER_API)?.toMutableList()
                 ?: mutableListOf()
         }
-
         fun showAdd() {
             val providers = allProviders.distinctBy { it::class }.sortedBy { it.name }
             val context = activity
@@ -203,12 +194,13 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
                 {}) { selection ->
                 val provider = providers.getOrNull(selection) ?: return@showDialog
 
-                val binding: AddSiteInputBinding = AddSiteInputBinding.inflate(
-                    LayoutInflater.from(context), null, false
-                )
+                val binding : AddSiteInputBinding = AddSiteInputBinding.inflate(LayoutInflater.from(
+                    context
+                ),null,false)
 
-                val builder = AlertDialog.Builder(context, R.style.AlertDialogCustom)
-                    .setView(binding.root)
+                val builder =
+                    AlertDialog.Builder(context, R.style.AlertDialogCustom)
+                        .setView(binding.root)
 
                 val dialog = builder.create()
                 dialog.show()
@@ -229,6 +221,7 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
                     val newSite = CustomSite(simpleName, name, url, realLang)
                     current.add(newSite)
                     setKey(USER_PROVIDER_API, current.toTypedArray())
+                    // reload apis
                     MainActivity.afterPluginsLoadedEvent.invoke(false)
 
                     dialog.dismissSafe(activity)
@@ -255,11 +248,13 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
         fun showAddOrDelete() {
             val context = activity
 
-            val binding: AddRemoveSitesBinding = AddRemoveSitesBinding.inflate(
-                LayoutInflater.from(context), null, false
-            )
-            val builder = AlertDialog.Builder(context ?: return, R.style.AlertDialogCustom)
-                .setView(binding.root)
+            val binding : AddRemoveSitesBinding = AddRemoveSitesBinding.inflate(
+                LayoutInflater.from(
+                    context
+                ),null,false)
+            val builder =
+                AlertDialog.Builder(context ?: return, R.style.AlertDialogCustom)
+                    .setView(binding.root)
 
             val dialog = builder.create()
             dialog.show()
@@ -275,96 +270,15 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
         }
     }
 
-    // İndirme Yolu Seçicisi (SAF)
     private val pathPicker = getChooseFolderLauncher { uri, path ->
-        if (uri != null) {
-            val ctx = context ?: CloudStreamApp.context ?: return@getChooseFolderLauncher
-            try {
-                ctx.contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                )
-            } catch (e: Exception) {
-                logError(e)
-            }
-
-            val visual = path ?: uri.toString()
-            PreferenceManager.getDefaultSharedPreferences(ctx).edit {
-                putString(getString(R.string.download_path_key), uri.toString())
-                putString(getString(R.string.download_path_key_visual), visual)
-            }
-            getPref(R.string.download_path_key)?.summary = visual
-        }
-    }
-
-    // Yedekleme Yolu Seçicisi (SAF)
-    private val backupPathPicker = getChooseFolderLauncher { uri, path ->
-        if (uri != null) {
-            val ctx = context ?: CloudStreamApp.context ?: return@getChooseFolderLauncher
-            try {
-                ctx.contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                )
-            } catch (e: Exception) {
-                logError(e)
-            }
-
-            val visual = path ?: uri.toString()
-            PreferenceManager.getDefaultSharedPreferences(ctx).edit {
-                putString(getString(R.string.backup_path_key), uri.toString())
-            }
-            getPref(R.string.backup_path_key)?.summary = visual
-            showToast(R.string.backup_location_updated)
-        }
-    }
-
-    private fun getBackupDirs(): List<String> {
-        return safe {
-            context?.let { ctx ->
-                val list = mutableListOf<String>()
-                BackupUtils.getDefaultBackupDir(ctx)?.filePath()?.let { list.add(it) }
-                ctx.getExternalFilesDirs(null).forEach { file ->
-                    file?.absolutePath?.let { list.add(it) }
-                }
-                list.distinct()
-            }
-        } ?: emptyList()
-    }
-
-    private fun getDownloadDirs(): List<String> {
-        return safe {
-            context?.let { ctx ->
-                val defaultDir = DownloadFileManagement.getDefaultDir(ctx)?.filePath()
-                val first = listOf(defaultDir)
-                (try {
-                    val currentDir = ctx.getBasePath().let { it.first?.filePath() ?: it.second }
-                    (first +
-                            ctx.getExternalFilesDirs("").mapNotNull { it.path } +
-                            currentDir)
-                } catch (_: Exception) {
-                    first
-                }).filterNotNull().distinct()
-            }
-        } ?: emptyList()
+        pickDownloadPath(uri, path)
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        hideKeyboard()
         setPreferencesFromResource(R.xml.settings_general, rootKey)
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
-        // Mevcut indirme yolunu özete yansıt
-        val currentDownloadPath = settingsManager.getString(getString(R.string.download_path_key_visual), null)
-            ?: settingsManager.getString(getString(R.string.download_path_key), null)
-        if (!currentDownloadPath.isNullOrEmpty()) {
-            getPref(R.string.download_path_key)?.summary = currentDownloadPath
-        }
-
-        // Mevcut yedekleme yolunu özete yansıt
-        val currentBackupPath = settingsManager.getString(getString(R.string.backup_path_key), null)
-        if (!currentBackupPath.isNullOrEmpty()) {
-            getPref(R.string.backup_path_key)?.summary = currentBackupPath
-        }
 
         getPref(R.string.locale_key)?.setOnPreferenceClickListener { pref ->
             val current = getCurrentLocale(pref.context)
@@ -401,12 +315,16 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
             true
         }
 
+
+
         getPref(R.string.override_site_key)?.setOnPreferenceClickListener { _ ->
+
             if (getCurrent().isEmpty()) {
                 showAdd()
             } else {
                 showAddOrDelete()
             }
+
             return@setOnPreferenceClickListener true
         }
 
@@ -423,7 +341,8 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
             val prefNames = resources.getStringArray(R.array.dns_pref)
             val prefValues = resources.getIntArray(R.array.dns_pref_values)
 
-            val currentDns = settingsManager.getInt(getString(R.string.dns_key), 0)
+            val currentDns =
+                settingsManager.getInt(getString(R.string.dns_key), 0)
 
             activity?.showBottomDialog(
                 prefNames.toList(),
@@ -437,6 +356,25 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
             return@setOnPreferenceClickListener true
         }
 
+        fun getDownloadDirs(): List<String> {
+            return safe {
+                context?.let { ctx ->
+                    val defaultDir = DownloadFileManagement.getDefaultDir(ctx)?.filePath()
+
+                    val first = listOf(defaultDir)
+                    (try {
+                        val currentDir = ctx.getBasePath().let { it.first?.filePath() ?: it.second }
+
+                        (first +
+                                ctx.getExternalFilesDirs("").mapNotNull { it.path } +
+                                currentDir)
+                    } catch (_: Exception) {
+                        first
+                    }).filterNotNull().distinct()
+                }
+            } ?: emptyList()
+        }
+
         settingsManager.edit { putBoolean(getString(R.string.jsdelivr_proxy_key), getKey<Boolean>(getString(R.string.jsdelivr_proxy_key), false) ?: false) }
         getPref(R.string.jsdelivr_proxy_key)?.setOnPreferenceChangeListener { _, newValue ->
             setKey(getString(R.string.jsdelivr_proxy_key), newValue)
@@ -444,11 +382,11 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
         }
 
         getPref(R.string.download_parallel_key)?.setOnPreferenceChangeListener { _, _ ->
+            // Notify that the queue logic has been changed
             DownloadQueueManager.forceRefreshQueue()
             return@setOnPreferenceChangeListener true
         }
 
-        // İNDİRME YOLU TIKLAMA DİNLENİCİSİ
         getPref(R.string.download_path_key)?.setOnPreferenceClickListener {
             val dirs = getDownloadDirs()
 
@@ -461,68 +399,42 @@ class SettingsGeneral : BasePreferenceFragmentCompat() {
                 dirs.indexOf(currentDir),
                 getString(R.string.download_path_pref),
                 true,
-                {}) { index ->
-                if (index == dirs.size) { // "Özel" seçildiyse SAF launcher'ı başlat
+                {}) {
+                // Last = custom
+                if (it == dirs.size) {
                     try {
                         pathPicker.launch(Uri.EMPTY)
                     } catch (e: Exception) {
                         logError(e)
                     }
-                } else { // Sistem dizinlerinden biri seçildiyse kaydet ve özeti güncelle
-                    val selectedPath = dirs[index]
-                    settingsManager.edit {
-                        putString(getString(R.string.download_path_key), selectedPath)
-                        putString(getString(R.string.download_path_key_visual), selectedPath)
-                    }
-                    getPref(R.string.download_path_key)?.summary = selectedPath
-                }
-            }
-            return@setOnPreferenceClickListener true
-        }
-
-        // YEDEKLEME YOLU TIKLAMA DİNLENİCİSİ
-        getPref(R.string.backup_path_key)?.setOnPreferenceClickListener {
-            val dirs = getBackupDirs()
-
-            val currentDir =
-                settingsManager.getString(getString(R.string.backup_path_key), null)
-                    ?: context?.let { ctx -> BackupUtils.getDefaultBackupDir(ctx)?.filePath() }
-
-            activity?.showBottomDialog(
-                dirs + listOf(getString(R.string.custom)),
-                dirs.indexOf(currentDir),
-                getString(R.string.backup_path_pref),
-                true,
-                {}) { index ->
-                if (index == dirs.size) {
-                    try {
-                        backupPathPicker.launch(Uri.EMPTY)
-                    } catch (e: Exception) {
-                        logError(e)
-                    }
                 } else {
-                    val selectedPath = dirs[index]
+                    // Sets both visual and actual paths.
+                    // key = used path
+                    // visual = visual path
                     settingsManager.edit {
-                        putString(getString(R.string.backup_path_key), selectedPath)
+                        putString(getString(R.string.download_path_key), dirs[it])
+                        putString(getString(R.string.download_path_key_visual), dirs[it])
                     }
-                    getPref(R.string.backup_path_key)?.summary = selectedPath
                 }
             }
             return@setOnPreferenceClickListener true
         }
 
         try {
-            beneneCount = settingsManager.getInt(getString(R.string.benene_count), 0)
+            beneneCount =
+                settingsManager.getInt(getString(R.string.benene_count), 0)
             getPref(R.string.benene_count)?.let { pref ->
                 pref.summary =
                     if (beneneCount <= 0) getString(R.string.benene_count_text_none) else getString(
                         R.string.benene_count_text
-                    ).format(beneneCount)
+                    ).format(
+                        beneneCount
+                    )
 
                 pref.setOnPreferenceClickListener {
                     try {
                         beneneCount++
-                        if (beneneCount % 20 == 0) {
+                        if (beneneCount%20 == 0) {
                             activity?.navigate(R.id.action_navigation_settings_general_to_easterEggMonkeFragment)
                         }
                         settingsManager.edit {
