@@ -1057,7 +1057,25 @@ KeyEvent.KEYCODE_SETTINGS -> {
         return true
     }
 }
-
+	// --- KIRMIZI TUŞ: ÖNCEKİ BÖLÜM ---
+            KeyEvent.KEYCODE_PROG_RED -> {
+                player.handleEvent(CSPlayerEvent.PrevEpisode)
+                playerBinding?.playerVideoTitle?.postDelayed({
+                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                    showToast("Önceki: $newTitle")
+                }, 300)
+                return true
+            }
+            
+		// --- MAVİ TUŞ: BÖLÜM LİSTESİNİ AÇMA ---
+KeyEvent.KEYCODE_PROG_BLUE -> {
+    showToast("Bölüm listesi açılıyor")
+    
+    // playerBinding veya binding yapınıza göre buton tıklamasını tetikler
+    playerBinding?.resultEpisodesShowButton?.performClick()
+    
+    return true
+}	
    
 // --- DPAD YUKARI/AŞAĞI ---
 KeyEvent.KEYCODE_DPAD_UP,
