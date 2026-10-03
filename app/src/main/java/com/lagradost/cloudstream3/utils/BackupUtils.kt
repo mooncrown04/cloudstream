@@ -1,10 +1,12 @@
 package com.lagradost.cloudstream3.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,7 +15,6 @@ import androidx.core.net.toUri
 import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.lagradost.cloudstream3.CloudStreamApp.Companion.getActivity
 import com.lagradost.cloudstream3.CommonActivity.showToast
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.mvvm.logError
@@ -29,14 +30,6 @@ import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.DataStore.getDefaultSharedPrefs
 import com.lagradost.cloudstream3.utils.DataStore.getSharedPrefs
-import com.lagradost.cloudstream3.utils.UIHelper.checkWrite
-import com.lagradost.cloudstream3.utils.UIHelper.requestRW
-import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.setupStream
-import com.lagradost.cloudstream3.utils.downloader.DownloadObjects
-import com.lagradost.cloudstream3.utils.downloader.DownloadQueueManager.QUEUE_KEY
-import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_DOWNLOAD_INFO
-import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_RESUME_IN_QUEUE
-import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager.KEY_RESUME_PACKAGES
 import com.lagradost.safefile.MediaFileContentType
 import com.lagradost.safefile.SafeFile
 import kotlinx.serialization.SerialName
@@ -45,14 +38,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.internal.closeQuietly
-import java.io.IOException
-import java.io.OutputStream
-import java.io.PrintWriter
-import java.lang.System.currentTimeMillis
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 object BackupUtils {
 
@@ -98,6 +83,11 @@ object BackupUtils {
 
     private var restoreFileSelectorOpenDoc: ActivityResultLauncher<Array<String>>? = null
     private var restoreFileSelectorGetContent: ActivityResultLauncher<String>? = null
+
+    @SuppressLint("HardwareIds")
+    private fun getUserId(context: Context): String {
+        return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "default_device"
+    }
 
     @Serializable
     data class BackupVars(
@@ -175,111 +165,43 @@ object BackupUtils {
         }
     }
 
-    // ============================================================================
-    // ONLINE (FIREBASE) YEDEKLEME VE GERİ YÜKLEME METOTLARI
-    // ============================================================================
-
     /**
-     * Yerel veriyi Firebase Realtime Database'e kaydeder.
-     * PUT kullanılırsa TEK BİR VERİ olarak sürekli güncellenir (Eski verinin üzerine yazar).
+     * Orijinal backup() metodu ismiyle doğrudan Firebase'e yedek kaydeder.
+     * PUT yöntemi kullanıldığı için her çağrıldığında veritabanındaki tek veriyi günceller.
      */
-    fun uploadOnlineBackup(context: Context, userId: String, onResult: (Boolean, String?) -> Unit) {
-        ioSafe {
-            try {
-                val backupFile = getBackup(context)
-                val jsonString = backupFile.toJson()
+    fun backup(context: Context?) = ioSafe {
+        if (context == null) return@ioSafe
+        try {
+            val backupFile = getBackup(context)
+            val jsonString = backupFile.toJson()
+            val userId = getUserId(context)
 
-                // PUT isteği: Belirtilen userId altındaki veriyi siler ve tamamen yenisini yazar (TEK VERİ YAPAR)
-                val url = "$FIREBASE_DB_URL/backups/$userId.json"
-                val body = jsonString.toRequestBody(JSON_MEDIA_TYPE)
+            val url = "$FIREBASE_DB_URL/backups/$userId.json"
+            val body = jsonString.toRequestBody(JSON_MEDIA_TYPE)
 
-                val request = Request.Builder()
-                    .url(url)
-                    .put(body) 
-                    .build()
+            val request = Request.Builder()
+                .url(url)
+                .put(body)
+                .build()
 
-                httpClient.newCall(request).execute().use { response ->
-                    if (response.isSuccessful) {
-                        main { onResult(true, "Yedek başarıyla buluta yüklendi.") }
-                    } else {
-                        main { onResult(false, "Yükleme başarısız: HTTP ${response.code}") }
-                    }
+            httpClient.newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    showToast(R.string.backup_success, Toast.LENGTH_LONG)
+                } else {
+                    showToast("Online yedekleme başarısız: HTTP ${response.code}", Toast.LENGTH_LONG)
                 }
-            } catch (e: Exception) {
-                logError(e)
-                main { onResult(false, e.localizedMessage) }
+            }
+        } catch (e: Exception) {
+            logError(e)
+            main {
+                showToast("Online yedekleme hatası: ${e.localizedMessage}", Toast.LENGTH_LONG)
             }
         }
     }
 
     /**
-     * Firebase'den yedeği çeker ve uygulamayı güncelleyerek yeniden başlatır.
+     * Yerel Uri üzerinden yedek geri yükleme (orijinal metot)
      */
-    fun restoreOnlineBackup(activity: Activity, userId: String, onResult: (Boolean, String?) -> Unit) {
-        ioSafe {
-            try {
-                val url = "$FIREBASE_DB_URL/backups/$userId.json"
-                val request = Request.Builder()
-                    .url(url)
-                    .get()
-                    .build()
-
-                httpClient.newCall(request).execute().use { response ->
-                    val responseBody = response.body?.string()
-
-                    if (response.isSuccessful && !responseBody.isNullOrBlank() && responseBody != "null") {
-                        val restoredValue = parseJson<BackupFile>(responseBody)
-
-                        restore(
-                            activity,
-                            restoredValue,
-                            restoreSettings = true,
-                            restoreDataStore = true
-                        )
-
-                        activity.runOnUiThread { activity.recreate() }
-                        main { onResult(true, "Yedek başarıyla geri yüklendi.") }
-                    } else {
-                        main { onResult(false, "Yedek bulunamadı veya veritabanı boş.") }
-                    }
-                }
-            } catch (e: Exception) {
-                logError(e)
-                main { onResult(false, e.localizedMessage) }
-            }
-        }
-    }
-
-    /**
-     * Firebase üzerindeki yedeği siler.
-     */
-    fun deleteOnlineBackup(userId: String, onResult: (Boolean, String?) -> Unit) {
-        ioSafe {
-            try {
-                val url = "$FIREBASE_DB_URL/backups/$userId.json"
-                val request = Request.Builder()
-                    .url(url)
-                    .delete()
-                    .build()
-
-                httpClient.newCall(request).execute().use { response ->
-                    if (response.isSuccessful) {
-                        main { onResult(true, "Bulut yedeği silindi.") }
-                    } else {
-                        main { onResult(false, "Silme başarısız: HTTP ${response.code}") }
-                    }
-                }
-            } catch (e: Exception) {
-                logError(e)
-                main { onResult(false, e.localizedMessage) }
-            }
-        }
-    }
-
-    // ============================================================================
-    // YEREL (LOCAL) DOSYA YEDEKLEME VE RESTORE METOTLARI
-    // ============================================================================
-
     fun restoreFromUri(activity: Activity, uri: Uri) {
         ioSafe {
             try {
@@ -314,54 +236,43 @@ object BackupUtils {
         }
     }
 
-    fun backup(context: Context?) = ioSafe {
-        if (context == null) return@ioSafe
-        var fileStream: OutputStream? = null
-        var printStream: PrintWriter? = null
-
-        try {
-            if (!context.checkWrite()) {
-                showToast(R.string.backup_failed, Toast.LENGTH_LONG)
-                context.getActivity()?.requestRW()
-                return@ioSafe
-            }
-
-            val date = SimpleDateFormat("yyyy_MM_dd_HH_mm", Locale.getDefault()).format(Date(currentTimeMillis()))
-            val displayName = "CS3_Backup_${date}"
-            val backupFile = getBackup(context)
-
-            val stream = setupBackupStream(context, displayName, "json")
-
-            fileStream = stream.openNew()
-            printStream = PrintWriter(fileStream)
-            printStream.print(backupFile.toJson())
-            showToast(R.string.backup_success, Toast.LENGTH_LONG)
-        } catch (e: Exception) {
-            logError(e)
+    /**
+     * Online (Firebase) veritabanından yedeği çekip geri yükler.
+     */
+    fun restoreFromOnline(activity: Activity) {
+        ioSafe {
             try {
-                showToast(
-                    txt(R.string.backup_failed_error_format, e.toString()),
-                    Toast.LENGTH_LONG,
-                )
+                val userId = getUserId(activity)
+                val url = "$FIREBASE_DB_URL/backups/$userId.json"
+                val request = Request.Builder()
+                    .url(url)
+                    .get()
+                    .build()
+
+                httpClient.newCall(request).execute().use { response ->
+                    val responseBody = response.body?.string()
+
+                    if (response.isSuccessful && !responseBody.isNullOrBlank() && responseBody != "null") {
+                        val restoredValue = parseJson<BackupFile>(responseBody)
+
+                        restore(
+                            activity,
+                            restoredValue,
+                            restoreSettings = true,
+                            restoreDataStore = true
+                        )
+
+                        activity.runOnUiThread { activity.recreate() }
+                        main { showToast("Online yedek başarıyla yüklendi.", Toast.LENGTH_SHORT) }
+                    } else {
+                        main { showToast("Bulutta kayıtlı yedek bulunamadı.", Toast.LENGTH_LONG) }
+                    }
+                }
             } catch (e: Exception) {
                 logError(e)
+                main { showToast("Geri yükleme hatası: ${e.localizedMessage}", Toast.LENGTH_LONG) }
             }
-        } finally {
-            printStream?.closeQuietly()
-            fileStream?.closeQuietly()
         }
-    }
-
-    @Throws(IOException::class)
-    private fun setupBackupStream(context: Context, name: String, ext: String = "json"): DownloadObjects.StreamData {
-        return setupStream(
-            baseFile = getCurrentBackupDir(context).first ?: getDefaultBackupDir(context)
-            ?: throw IOException("Bad config"),
-            name,
-            folder = null,
-            extension = ext,
-            tryResume = false,
-        )
     }
 
     fun FragmentActivity.setUpBackup() {
