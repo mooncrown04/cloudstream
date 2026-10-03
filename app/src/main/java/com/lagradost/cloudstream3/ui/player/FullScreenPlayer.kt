@@ -1057,7 +1057,7 @@ KeyEvent.KEYCODE_SETTINGS -> {
         return true
     }
 }
-	// --- KIRMIZI TUŞ: ÖNCEKİ BÖLÜM ---
+		// --- KIRMIZI TUŞ: ÖNCEKİ BÖLÜM ---
             KeyEvent.KEYCODE_PROG_RED -> {
                 player.handleEvent(CSPlayerEvent.PrevEpisode)
                 playerBinding?.playerVideoTitle?.postDelayed({
@@ -1066,16 +1066,22 @@ KeyEvent.KEYCODE_SETTINGS -> {
                 }, 300)
                 return true
             }
-            
+            		// --- MAVİ TUŞ: BÖLÜM LİSTESİNİ AÇMA ---
+KeyEvent.KEYCODE_PROG_YELLOW -> {
+    showToast("Bölüm listesi açılıyor")
+    
+    Binding?.resultEpisodesShowButton?.performClick()
+   
+    return true
+}	
 		// --- MAVİ TUŞ: BÖLÜM LİSTESİNİ AÇMA ---
 KeyEvent.KEYCODE_PROG_BLUE -> {
     showToast("Bölüm listesi açılıyor")
     
-    // playerBinding veya binding yapınıza göre buton tıklamasını tetikler
-    playerBinding?.resultEpisodesShowButton?.performClick()
-    
+    showEpisodeSelectDialogue()
     return true
 }	
+			 
    
 // --- DPAD YUKARI/AŞAĞI ---
 KeyEvent.KEYCODE_DPAD_UP,
