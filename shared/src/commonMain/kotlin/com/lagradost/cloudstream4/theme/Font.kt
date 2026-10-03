@@ -22,61 +22,49 @@ import com.lagradost.cloudstream4.generated.resources.productsans_thinitalic
 import org.jetbrains.compose.resources.Font
 
 object AppFont {
-
     val googleSans @Composable get() = FontFamily(
         Font(Res.font.productsans_thin, weight = FontWeight.W100, style = FontStyle.Normal),
         Font(Res.font.productsans_thinitalic, weight = FontWeight.W100, style = FontStyle.Italic),
+
         Font(Res.font.productsans_light, weight = FontWeight.W300, style = FontStyle.Normal),
         Font(Res.font.productsans_lightitalic, weight = FontWeight.W300, style = FontStyle.Italic),
+
         Font(Res.font.productsans_regular, weight = FontWeight.W400, style = FontStyle.Normal),
         Font(Res.font.productsans_italic, weight = FontWeight.W400, style = FontStyle.Italic),
+
         Font(Res.font.productsans_medium, weight = FontWeight.W500, style = FontStyle.Normal),
         Font(Res.font.productsans_mediumitalic, weight = FontWeight.W500, style = FontStyle.Italic),
+
         Font(Res.font.productsans_bold, weight = FontWeight.W700, style = FontStyle.Normal),
         Font(Res.font.productsans_bolditalic, weight = FontWeight.W700, style = FontStyle.Italic),
+
         Font(Res.font.productsans_black, weight = FontWeight.W900, style = FontStyle.Normal),
-        Font(Res.font.productsans_blackitalic, weight = FontWeight.W900, style = FontStyle.Italic)
-    )
+        Font(Res.font.productsans_blackitalic, weight = FontWeight.W900, style = FontStyle.Italic))
 
-    @Composable
-    fun getFontFamilyByName(fontName: String?): FontFamily {
-        return when (fontName) {
-            "GoogleSans" -> googleSans
-            "Default" -> FontFamily.Default
-            else -> FontFamily.Default
+    private val defaultTypography = androidx.compose.material3.Typography()
+    val typography @Composable get() =
+        googleSans.let { fontFamily ->
+            val lineHeight = 1.3.em
+            Typography(
+                displayLarge = defaultTypography.displayLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                displayMedium = defaultTypography.displayMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                displaySmall = defaultTypography.displaySmall.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+
+                headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+
+                titleLarge = defaultTypography.titleLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                titleMedium = defaultTypography.titleMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                titleSmall = defaultTypography.titleSmall.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+
+                bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                bodySmall = defaultTypography.bodySmall.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+
+                labelLarge = defaultTypography.labelLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                labelMedium = defaultTypography.labelMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
+                labelSmall = defaultTypography.labelSmall.copy(fontFamily = fontFamily, lineHeight = lineHeight)
+            )
         }
-    }
-
-    private val defaultTypography = Typography()
-
-    /**
-     * @param fontName "GoogleSans", "Default" vb. string değer alır.
-     */
-    @Composable
-    fun getTypography(fontName: String? = null): Typography {
-        val fontFamily = getFontFamilyByName(fontName)
-        val lineHeight = 1.3.em
-
-        return Typography(
-            displayLarge = defaultTypography.displayLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            displayMedium = defaultTypography.displayMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            displaySmall = defaultTypography.displaySmall.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-
-            headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-
-            titleLarge = defaultTypography.titleLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            titleMedium = defaultTypography.titleMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            titleSmall = defaultTypography.titleSmall.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-
-            bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            bodySmall = defaultTypography.bodySmall.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-
-            labelLarge = defaultTypography.labelLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            labelMedium = defaultTypography.labelMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
-            labelSmall = defaultTypography.labelSmall.copy(fontFamily = fontFamily, lineHeight = lineHeight)
-        )
-    }
 }
