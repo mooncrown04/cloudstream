@@ -36,8 +36,8 @@ enum class CloudStreamThemeMode {
 
     /** "SilentBlue" */
     SilentBlue,
-    
-    /** Galatasaray Temaları */
+   
+   /** Galatasaray Temaları */
     Galatasaray,
     CimBom,
     GS,
@@ -127,10 +127,9 @@ fun CloudStreamPreviewTheme(content: @Composable () -> Unit) {
     CloudStreamTheme(content = content)
 }
 
-/**
- * Seçilen FontFamily'i Material3 Typography stillerinin tümüne enjekte eder.
- */
-private fun createDynamicTypography(fontFamily: FontFamily?): Typography {
+// AppFont.typography bir Composable çağrı yaptığı için fonksiyonun da @Composable olması gerekir
+@Composable
+private fun getDynamicTypography(fontFamily: FontFamily?): Typography {
     val base = AppFont.typography
     if (fontFamily == null) return base
 
@@ -157,20 +156,20 @@ private fun createDynamicTypography(fontFamily: FontFamily?): Typography {
 fun CloudStreamTheme(
     mode: CloudStreamThemeMode = CloudStreamThemeMode.FollowSystem,
     primaryColor: CloudStreamPrimaryColor = CloudStreamPrimaryColor.NORMAL,
-    fontFamily: FontFamily? = null, // <-- EKLENDİ: Dinamik font desteği
+    fontFamily: FontFamily? = null, // <-- Sadece dışarıdan seçilen dinamik font parametresi eklendi
     content: @Composable () -> Unit,
 ) {
     val csColors = modeToTheme(mode, primaryColor)
     val globalTransition = rememberInfiniteTransition(label = "GlobalSharedTransition")
     
-    // EKLENDİ: Dinamik Font/Typography üretimi
-    val typography = remember(fontFamily) { createDynamicTypography(fontFamily) }
+    // Sabit AppFont.typography yerine dinamik font ataması yapıldı
+    val typography = getDynamicTypography(fontFamily)
 
     CompositionLocalProvider(LocalSharedInfiniteTransition provides globalTransition) {
         MaterialTheme(
             colorScheme = csColors.toMaterial3ColorScheme(),
             content = content,
-            typography = typography // <-- GÜNCELLENDİ: Artık dinlenilen dinamik font enjekte ediliyor
+            typography = typography
         )
     }
 }
