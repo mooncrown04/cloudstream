@@ -1068,12 +1068,9 @@ KeyEvent.KEYCODE_SETTINGS -> {
             }
             		// --- MAVİ TUŞ: BÖLÜM LİSTESİNİ AÇMA ---
 KeyEvent.KEYCODE_PROG_YELLOW -> {
-    showToast("Bölüm listesi açılıyor")
-    
-    binding.resultEpisodesShowButton?.performClick()
-   
+    playerBinding?.playerEpisodesButton?.performClick()
     return true
-}	
+}
 		// --- MAVİ TUŞ: BÖLÜM LİSTESİNİ AÇMA ---
 KeyEvent.KEYCODE_PROG_BLUE -> {
     showToast("Bölüm listesi açılıyor")
