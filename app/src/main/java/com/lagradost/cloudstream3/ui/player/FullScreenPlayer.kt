@@ -1057,7 +1057,7 @@ KeyEvent.KEYCODE_SETTINGS -> {
         return true
     }
 }
-		// --- KIRMIZI TUŞ: ÖNCEKİ BÖLÜM ---
+	// --- KIRMIZI TUŞ: ÖNCEKİ BÖLÜM ---
             KeyEvent.KEYCODE_PROG_RED -> {
                 player.handleEvent(CSPlayerEvent.PrevEpisode)
                 playerBinding?.playerVideoTitle?.postDelayed({
@@ -1070,7 +1070,7 @@ KeyEvent.KEYCODE_SETTINGS -> {
 KeyEvent.KEYCODE_PROG_YELLOW -> {
     showToast("Bölüm listesi açılıyor")
     
-    Binding?.resultEpisodesShowButton?.performClick()
+    binding.resultEpisodesShowButton?.performClick()
    
     return true
 }	
