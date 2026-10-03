@@ -30,6 +30,8 @@ import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.Coroutines.main
 import com.lagradost.cloudstream3.utils.DataStore.getDefaultSharedPrefs
 import com.lagradost.cloudstream3.utils.DataStore.getSharedPrefs
+import com.lagradost.cloudstream3.utils.downloader.DownloadQueueManager
+import com.lagradost.cloudstream3.utils.downloader.VideoDownloadManager
 import com.lagradost.safefile.MediaFileContentType
 import com.lagradost.safefile.SafeFile
 import kotlinx.serialization.SerialName
@@ -70,10 +72,10 @@ object BackupUtils {
         "simkl_token",
         "DOWNLOAD_EPISODE_CACHE_BACKUP",
         "DOWNLOAD_EPISODE_CACHE",
-        KEY_DOWNLOAD_INFO,
-        KEY_RESUME_IN_QUEUE,
-        KEY_RESUME_PACKAGES,
-        QUEUE_KEY,
+        VideoDownloadManager.KEY_DOWNLOAD_INFO,
+        VideoDownloadManager.KEY_RESUME_IN_QUEUE,
+        VideoDownloadManager.KEY_RESUME_PACKAGES,
+        DownloadQueueManager.QUEUE_KEY,
         "auto_download_plugins_key2"
     )
 
