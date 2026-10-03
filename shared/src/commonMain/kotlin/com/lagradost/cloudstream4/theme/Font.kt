@@ -6,7 +6,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.em
-import com.lagradost.cloudstream4.LocalSettings // <-- EKSİK IMPORT EKLENDİ
 import com.lagradost.cloudstream4.generated.resources.Res
 import com.lagradost.cloudstream4.generated.resources.productsans_black
 import com.lagradost.cloudstream4.generated.resources.productsans_blackitalic
@@ -50,17 +49,15 @@ object AppFont {
 
     private val defaultTypography = Typography()
 
-    val typography @Composable get() = run {
-        // LocalSettings import edildikten sonra ayar değerine String olarak erişilir
-        val selectedFontKey: String? = LocalSettings.current.ui.appFont.get()
-        
-        // Eğer bir Regex veya MatchGroup nesnesinden okuma yapılıyorsa .value kullanılmalıdır
-        // Örn: selectedMatchGroup?.value
-        val fontFamily = getFontFamilyByName(selectedFontKey)
-
+    /**
+     * @param fontName "GoogleSans", "Default" vb. string değer alır.
+     */
+    @Composable
+    fun getTypography(fontName: String? = null): Typography {
+        val fontFamily = getFontFamilyByName(fontName)
         val lineHeight = 1.3.em
 
-        Typography(
+        return Typography(
             displayLarge = defaultTypography.displayLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
             displayMedium = defaultTypography.displayMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
             displaySmall = defaultTypography.displaySmall.copy(fontFamily = fontFamily, lineHeight = lineHeight),
