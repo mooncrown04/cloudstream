@@ -41,10 +41,33 @@ object AppFont {
         Font(Res.font.productsans_black, weight = FontWeight.W900, style = FontStyle.Normal),
         Font(Res.font.productsans_blackitalic, weight = FontWeight.W900, style = FontStyle.Italic))
 
-    private val defaultTypography = androidx.compose.material3.Typography()
-    val typography @Composable get() =
-        googleSans.let { fontFamily ->
-            val lineHeight = 1.3.em
+  //  private val defaultTypography = androidx.compose.material3.Typography()
+   // val typography @Composable get() =
+    //    googleSans.let { fontFamily ->
+      /**
+     * Seçilen font string değerini Font Ailesi ile eşleştirir.
+     * `app/src/main/res/font` veya Compose font kaynaklarınıza göre dinamik FontFamily döndürür.
+     */
+    @Composable
+    fun getFontFamilyByName(fontName: String?): FontFamily {
+        return when (fontName) {
+            "GoogleSans" -> googleSans
+            // Varsayılan sistem fontunu kullanmak isteyen durumlar için:
+            "Default" -> FontFamily.Default
+            else -> FontFamily.Default
+        }
+    }
+
+    private val defaultTypography = Typography()
+
+    val typography @Composable get() = run {
+        // 1. Kullanıcının seçtiği font değerini ayarlardan canlı olarak alıyoruz
+        val selectedFontKey = LocalSettings.current.ui.appFont.get()
+        val fontFamily = getFontFamilyByName(selectedFontKey)  
+    
+    
+    
+    val lineHeight = 1.3.em
             Typography(
                 displayLarge = defaultTypography.displayLarge.copy(fontFamily = fontFamily, lineHeight = lineHeight),
                 displayMedium = defaultTypography.displayMedium.copy(fontFamily = fontFamily, lineHeight = lineHeight),
