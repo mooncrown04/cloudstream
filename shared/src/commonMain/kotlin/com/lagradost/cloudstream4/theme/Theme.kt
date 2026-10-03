@@ -4,6 +4,7 @@ import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 
 enum class CloudStreamThemeMode {
     /** "Black" standard dark, #111111 backgrounds */
@@ -34,8 +36,8 @@ enum class CloudStreamThemeMode {
 
     /** "SilentBlue" */
     SilentBlue,
-   
-   /** Galatasaray Temaları */
+    
+    /** Galatasaray Temaları */
     Galatasaray,
     CimBom,
     GS,
@@ -63,7 +65,7 @@ fun modeToTheme(mode : CloudStreamThemeMode, primaryColor: CloudStreamPrimaryCol
             CloudStreamThemeMode.Amoled -> amoledScheme()
             CloudStreamThemeMode.AmoledLight -> amoledLightScheme()
             CloudStreamThemeMode.Light -> lightScheme()
-			// Yeni eklenen şemalar:
+            // Yeni eklenen şemalar:
             CloudStreamThemeMode.Galatasaray -> galatasarayScheme()
             CloudStreamThemeMode.CimBom -> cimBomScheme()
             CloudStreamThemeMode.GS -> gsScheme()
@@ -125,20 +127,50 @@ fun CloudStreamPreviewTheme(content: @Composable () -> Unit) {
     CloudStreamTheme(content = content)
 }
 
+/**
+ * Seçilen FontFamily'i Material3 Typography stillerinin tümüne enjekte eder.
+ */
+private fun createDynamicTypography(fontFamily: FontFamily?): Typography {
+    val base = AppFont.typography
+    if (fontFamily == null) return base
+
+    return Typography(
+        displayLarge = base.displayLarge.copy(fontFamily = fontFamily),
+        displayMedium = base.displayMedium.copy(fontFamily = fontFamily),
+        displaySmall = base.displaySmall.copy(fontFamily = fontFamily),
+        headlineLarge = base.headlineLarge.copy(fontFamily = fontFamily),
+        headlineMedium = base.headlineMedium.copy(fontFamily = fontFamily),
+        headlineSmall = base.headlineSmall.copy(fontFamily = fontFamily),
+        titleLarge = base.titleLarge.copy(fontFamily = fontFamily),
+        titleMedium = base.titleMedium.copy(fontFamily = fontFamily),
+        titleSmall = base.titleSmall.copy(fontFamily = fontFamily),
+        bodyLarge = base.bodyLarge.copy(fontFamily = fontFamily),
+        bodyMedium = base.bodyMedium.copy(fontFamily = fontFamily),
+        bodySmall = base.bodySmall.copy(fontFamily = fontFamily),
+        labelLarge = base.labelLarge.copy(fontFamily = fontFamily),
+        labelMedium = base.labelMedium.copy(fontFamily = fontFamily),
+        labelSmall = base.labelSmall.copy(fontFamily = fontFamily),
+    )
+}
+
 @Composable
 fun CloudStreamTheme(
     mode: CloudStreamThemeMode = CloudStreamThemeMode.FollowSystem,
     primaryColor: CloudStreamPrimaryColor = CloudStreamPrimaryColor.NORMAL,
+    fontFamily: FontFamily? = null, // <-- EKLENDİ: Dinamik font desteği
     content: @Composable () -> Unit,
 ) {
     val csColors = modeToTheme(mode, primaryColor)
     val globalTransition = rememberInfiniteTransition(label = "GlobalSharedTransition")
-    // We do not provide csColors as a global, because people should use MaterialTheme directly instead
+    
+    // EKLENDİ: Dinamik Font/Typography üretimi
+    val typography = remember(fontFamily) { createDynamicTypography(fontFamily) }
+
     CompositionLocalProvider(LocalSharedInfiniteTransition provides globalTransition) {
         MaterialTheme(
             colorScheme = csColors.toMaterial3ColorScheme(),
             content = content,
-            typography = AppFont.typography
+            typography = typography // <-- GÜNCELLENDİ: Artık dinlenilen dinamik font enjekte ediliyor
         )
     }
 }
