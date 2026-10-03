@@ -64,7 +64,26 @@ fun perfToColor(perf : String?) = when (perf) {
 
     else -> CloudStreamPrimaryColor.NORMAL
 }
+// 1. SharedPreferences'tan gelen Font adını okuyup font nesnesine/string'ine dönüştürür
+fun perfToFont(perf: String?): String {
+    return when (perf) {
+        "Default" -> "Default"
+        "GoogleSans" -> "GoogleSans"
+        "TimesNewRoman" -> "TimesNewRoman"
+        "ComicSans" -> "ComicSans"
+        "Consola" -> "Consola"
+        "Futura" -> "Futura"
+        // Diğer font seçenekleriniz buraya eklenir
+        else -> "Default"
+    }
+}
 
+// 2. Context üzerinden font tercihini SharedPreferences'tan okur
+fun Context.loadAppFont(): String {
+    val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+    // "app_font_key" veya Preferences klasörünüzde tanımlı font anahtar adı
+    return perfToFont(prefs.getString("app_font_key", "Default")) 
+}
 fun Context.loadThemeMode(): CloudStreamThemeMode {
     val prefs = PreferenceManager.getDefaultSharedPreferences(this)
     return perfToMode(prefs.getString("theme_key", "AmoledLight"))
