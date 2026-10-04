@@ -13,68 +13,21 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import com.lagradost.cloudstream3.R
-
-// Font değerlerini res/font klasöründeki kaynaklar ile eşleştiren harita
-val fontFamilies = mapOf(
-    "Default" to FontFamily.Default,
-    "TimesNewRoman" to FontFamily(Font(R.font.times_new_roman)),
-    "StixGeneral" to FontFamily(Font(R.font.stix_general)),
-    "ComicSans" to FontFamily(Font(R.font.comic_sans)),
-    "Maybach" to FontFamily(Font(R.font.maybach)),
-    "Perfume" to FontFamily(Font(R.font.perfume)),
-    "Naxmos" to FontFamily(Font(R.font.naxmos)),
-    "Consola" to FontFamily(Font(R.font.consola)),
-    "Futura" to FontFamily(Font(R.font.futura)),
-    "GoogleSans" to FontFamily(Font(R.font.google_sans)),
-    "Gotham" to FontFamily(Font(R.font.gotham))
-)
-
-/**
- * Ayarlardan gelen String font anahtarını FontFamily nesnesine çevirir.
- */
-fun getAppFontFamily(fontKey: String?): FontFamily? {
-    if (fontKey == null || fontKey == "Default") return null
-    return fontFamilies[fontKey]
-}
 
 enum class CloudStreamThemeMode {
-    /** "Black" standard dark, #111111 backgrounds */
     Dark,
-
-    /** "Amoled" / "AmoledLight" pure black (#000000) */
     Amoled,
-
-    /** "AmoledLight" pure black (#000000) */
     AmoledLight,
-
-    /** "Light" white/gray backgrounds, dark text */
     Light,
-
-    /** "Dracula" */
     Dracula,
-
-    /** "Lavender" */
     Lavender,
-
-    /** "SilentBlue" */
     SilentBlue,
-    
-    /** Galatasaray Temaları */
     Galatasaray,
     CimBom,
     GS,
     Rengarenk,
-
-    /** "System" resolved on each platform via [isSystemInDarkTheme] */
     FollowSystem,
-
-    /**
-     * Uses platform dynamic color system, Material You on Android 12+,
-     * falls back to [Dark] on unsupported platforms.
-     */
     Dynamic,
 }
 
@@ -90,7 +43,6 @@ fun modeToTheme(mode : CloudStreamThemeMode, primaryColor: CloudStreamPrimaryCol
             CloudStreamThemeMode.Amoled -> amoledScheme()
             CloudStreamThemeMode.AmoledLight -> amoledLightScheme()
             CloudStreamThemeMode.Light -> lightScheme()
-            // Yeni eklenen şemalar:
             CloudStreamThemeMode.Galatasaray -> galatasarayScheme()
             CloudStreamThemeMode.CimBom -> cimBomScheme()
             CloudStreamThemeMode.GS -> gsScheme()
@@ -139,10 +91,6 @@ private fun CloudStreamColorScheme.toMaterial3ColorScheme() = if (isLight) {
 
 internal val LocalSharedInfiniteTransition = staticCompositionLocalOf<InfiniteTransition> { throw NotImplementedError() }
 
-/**
- * Global synchronized animation, so many items in e.g. a LazyList can animate at the same time,
- * even if they appeared at different times
- * */
 @Composable
 @ReadOnlyComposable
 fun MaterialTheme.infiniteSharedTransition() = LocalSharedInfiniteTransition.current
@@ -152,7 +100,6 @@ fun CloudStreamPreviewTheme(content: @Composable () -> Unit) {
     CloudStreamTheme(content = content)
 }
 
-// AppFont.typography bir Composable çağrı yaptığı için fonksiyonun da @Composable olması gerekir
 @Composable
 private fun getDynamicTypography(fontFamily: FontFamily?): Typography {
     val base = AppFont.typography
@@ -186,8 +133,6 @@ fun CloudStreamTheme(
 ) {
     val csColors = modeToTheme(mode, primaryColor)
     val globalTransition = rememberInfiniteTransition(label = "GlobalSharedTransition")
-    
-    // Sabit AppFont.typography yerine dinamik font ataması yapılır
     val typography = getDynamicTypography(fontFamily)
 
     CompositionLocalProvider(LocalSharedInfiniteTransition provides globalTransition) {
