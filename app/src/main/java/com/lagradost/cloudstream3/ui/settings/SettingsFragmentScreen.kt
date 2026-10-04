@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -323,8 +324,14 @@ object SettingsFragmentScreen : Screen {
             focusManager.clearFocus(force = true)
         }
 
+        val textValue = textFieldState.text.toString()
+
         TextField(
-            state = textFieldState,
+            value = textValue,
+            onValueChange = { newValue ->
+                textFieldState.clearText()
+                textFieldState.edit { append(newValue) }
+            },
 
             // YENİ EKLENEN KOD: TV düzeninde kumanda ile sadece üzerine gelindiğinde klavyenin aniden açılmaması için readOnly durumu
             readOnly = isTv && !isEditing,
@@ -382,10 +389,6 @@ object SettingsFragmentScreen : Screen {
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                unfocusedLeadingIconColor = MaterialTheme.colorScheme.onBackground,
-                unfocusedTrailingIconColor = MaterialTheme.colorScheme.onBackground,
-                focusedTrailingIconColor = MaterialTheme.colorScheme.onBackground,
-                focusedLeadingIconColor = MaterialTheme.colorScheme.onBackground,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -399,7 +402,7 @@ object SettingsFragmentScreen : Screen {
                 ) { value ->
                     if (value) {
                         IconButton(onClick = {
-                            textFieldState.edit { replace(0, length, "") }
+                            textFieldState.clearText()
                             // YENİ EKLENEN KOD: Sol ikonla aramadan çıkıldığında klavyeyi kapatma
                             stopEditingAndHideKeyboard()
                         }) {
@@ -430,7 +433,7 @@ object SettingsFragmentScreen : Screen {
                 ) { value ->
                     if (value) {
                         IconButton(onClick = {
-                            textFieldState.edit { replace(0, length, "") }
+                            textFieldState.clearText()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.close_24px),
