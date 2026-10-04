@@ -13,7 +13,32 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import com.lagradost.cloudstream3.R
+
+// Font değerlerini res/font klasöründeki kaynaklar ile eşleştiren harita
+val fontFamilies = mapOf(
+    "Default" to FontFamily.Default,
+    "TimesNewRoman" to FontFamily(Font(R.font.times_new_roman)),
+    "StixGeneral" to FontFamily(Font(R.font.stix_general)),
+    "ComicSans" to FontFamily(Font(R.font.comic_sans)),
+    "Maybach" to FontFamily(Font(R.font.maybach)),
+    "Perfume" to FontFamily(Font(R.font.perfume)),
+    "Naxmos" to FontFamily(Font(R.font.naxmos)),
+    "Consola" to FontFamily(Font(R.font.consola)),
+    "Futura" to FontFamily(Font(R.font.futura)),
+    "GoogleSans" to FontFamily(Font(R.font.google_sans)),
+    "Gotham" to FontFamily(Font(R.font.gotham))
+)
+
+/**
+ * Ayarlardan gelen String font anahtarını FontFamily nesnesine çevirir.
+ */
+fun getAppFontFamily(fontKey: String?): FontFamily? {
+    if (fontKey == null || fontKey == "Default") return null
+    return fontFamilies[fontKey]
+}
 
 enum class CloudStreamThemeMode {
     /** "Black" standard dark, #111111 backgrounds */
@@ -36,8 +61,8 @@ enum class CloudStreamThemeMode {
 
     /** "SilentBlue" */
     SilentBlue,
-   
-   /** Galatasaray Temaları */
+    
+    /** Galatasaray Temaları */
     Galatasaray,
     CimBom,
     GS,
@@ -156,13 +181,13 @@ private fun getDynamicTypography(fontFamily: FontFamily?): Typography {
 fun CloudStreamTheme(
     mode: CloudStreamThemeMode = CloudStreamThemeMode.FollowSystem,
     primaryColor: CloudStreamPrimaryColor = CloudStreamPrimaryColor.NORMAL,
-    fontFamily: FontFamily? = null, // <-- Sadece dışarıdan seçilen dinamik font parametresi eklendi
+    fontFamily: FontFamily? = null,
     content: @Composable () -> Unit,
 ) {
     val csColors = modeToTheme(mode, primaryColor)
     val globalTransition = rememberInfiniteTransition(label = "GlobalSharedTransition")
     
-    // Sabit AppFont.typography yerine dinamik font ataması yapıldı
+    // Sabit AppFont.typography yerine dinamik font ataması yapılır
     val typography = getDynamicTypography(fontFamily)
 
     CompositionLocalProvider(LocalSharedInfiniteTransition provides globalTransition) {
