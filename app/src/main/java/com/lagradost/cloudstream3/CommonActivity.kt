@@ -404,14 +404,13 @@ val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.
     "Gotham" -> R.style.GothamFontOverlay
     else -> R.style.TimesNewRomanFontOverlay // veya varsayılan font stiliniz
 }
-
-
-        act.theme.applyStyle(currentFontOverlay, true)
+        
         act.theme.applyStyle(currentTheme, true)
         act.theme.applyStyle(currentOverlayTheme, true)
-        appliedFont = currentFontOverlay // Font durumunu kaydet
+        act.theme.applyStyle(currentFontOverlay, true)       
 		appliedTheme = currentTheme
         appliedColor = currentOverlayTheme
+		appliedFont = currentFontOverlay // Font durumunu kaydet
         act.updateTv()
         if (isLayout(TV)) act.theme.applyStyle(R.style.AppThemeTvOverlay, true)
         act.theme.applyStyle(
