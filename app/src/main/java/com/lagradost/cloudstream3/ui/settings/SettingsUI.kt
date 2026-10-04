@@ -2,7 +2,10 @@ package com.lagradost.cloudstream3.ui.settings
 
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import androidx.preference.SeekBarPreference
@@ -32,6 +35,47 @@ import com.lagradost.cloudstream3.utils.UIHelper.hideKeyboard
 import com.lagradost.cloudstream3.utils.UIHelper.toPx
 
 class SettingsUI : BasePreferenceFragmentCompat() {
+
+    // =========================================================================
+    // EKLENEN NOT 1: Fragment Layout'unu yüklerken seçili font overlay stilini uyguluyoruz.
+    // Bu sayede settings_ui.xml içerisindeki Preference / Category / Switch ögelerinin
+    // başlık ve açıklamaları seçili fontu devralır.
+    // =========================================================================
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        
+        // Kayıtlı font key'ini oku
+        val fontKey = settingsManager.getString(
+            getString(R.string.app_font_key),
+            "Default"
+        )
+
+        // Key'e göre styles.xml dosyanızdaki overlay stilini seç
+        val fontOverlayStyle = when (fontKey) {
+            "TimesNewRoman" -> R.style.TimesNewRomanFontOverlay
+            "StixGeneral" -> R.style.StixGeneralFontOverlay
+            "ComicSans" -> R.style.ComicSansFontOverlay
+            "Maybach" -> R.style.MaybachFontOverlay
+            "Perfume" -> R.style.PerfumeFontOverlay
+            "Naxmos" -> R.style.NaxmosFontOverlay
+            "Consola" -> R.style.ConsolaFontOverlay
+            "Futura" -> R.style.FuturaFontOverlay
+            "GoogleSans" -> R.style.GoogleSansFontOverlay
+            "Gotham" -> R.style.GothamFontOverlay
+            else -> R.style.GoogleSansFontOverlay
+        }
+
+        // Context'i seçilen font overlay stili ile sarmala
+        val contextThemeWrapper = ContextThemeWrapper(requireContext(), fontOverlayStyle)
+        val localInflater = inflater.cloneInContext(contextThemeWrapper)
+
+        return super.onCreateView(localInflater, container, savedInstanceState)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpToolbar(R.string.category_ui)
@@ -210,37 +254,41 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             }
             return@setOnPreferenceClickListener true
         }
-getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
-    val prefNames = resources.getStringArray(R.array.app_font_names).toMutableList()
-    val prefValues = resources.getStringArray(R.array.app_font_values).toMutableList()
 
-    val currentFont = settingsManager.getString(
-        getString(R.string.app_font_key),
-        prefValues.firstOrNull() ?: "Default"
-    )
+        // =========================================================================
+        // EKLENEN NOT 2: Font seçimi alanında varsayılan özet (summary) güncellemesi
+        // ve seçim sonrasında activity recreate çağrısı.
+        // =========================================================================
+        getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
+            val prefNames = resources.getStringArray(R.array.app_font_names).toMutableList()
+            val prefValues = resources.getStringArray(R.array.app_font_values).toMutableList()
 
-    activity?.showBottomDialog(
-        prefNames.toList(),
-        prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
-        getString(R.string.app_font_settings),
-        true,
-        {}
-    ) { index ->
-        try {
-            prefValues.getOrNull(index)?.let { selectedFont ->
-                settingsManager.edit {
-                    putString(getString(R.string.app_font_key), selectedFont)
+            val currentFont = settingsManager.getString(
+                getString(R.string.app_font_key),
+                prefValues.firstOrNull() ?: "Default"
+            )
+
+            activity?.showBottomDialog(
+                prefNames.toList(),
+                prefValues.indexOf(currentFont).let { if (it != -1) it else 0 },
+                getString(R.string.app_font_settings),
+                true,
+                {}
+            ) { index ->
+                try {
+                    prefValues.getOrNull(index)?.let { selectedFont ->
+                        settingsManager.edit {
+                            putString(getString(R.string.app_font_key), selectedFont)
+                        }
+                        // Activity baştan başlatılır ve yeni font overlay teması yüklenir
+                        activity?.recreate()
+                    }
+                } catch (e: Exception) {
+                    logError(e)
                 }
-                activity?.recreate()
             }
-        } catch (e: Exception) {
-            logError(e)
+            true
         }
-    }
-    true
-}
-
-        
 
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
             val names = enumValues<SearchQuality>().sorted().map { it.name }
