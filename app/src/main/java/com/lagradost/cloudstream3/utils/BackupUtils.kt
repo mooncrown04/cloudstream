@@ -83,12 +83,38 @@ object BackupUtils {
         return !nonTransferableKeys.any { this.contains(it) }
     }
 
+    // Firebase Realtime Database anahtarlarında yasak olan karakterleri dönüştüren yardımcı metotlar
+    private fun String.sanitizeFirebaseKey(): String {
+        return this.replace(".", "_dot_")
+                   .replace("#", "_hash_")
+                   .replace("$", "_dollar_")
+                   .replace("[", "_lbr_")
+                   .replace("]", "_rbr_")
+    }
+
+    private fun String.desanitizeFirebaseKey(): String {
+        return this.replace("_dot_", ".")
+                   .replace("_hash_", "#")
+                   .replace("_dollar_", "$")
+                   .replace("_lbr_", "[")
+                   .replace("_rbr_", "]")
+    }
+
+    private fun <T> Map<String, T>?.sanitizeMap(): Map<String, T>? {
+        return this?.mapKeys { it.key.sanitizeFirebaseKey() }
+    }
+
+    private fun <T> Map<String, T>?.desanitizeMap(): Map<String, T>? {
+        return this?.mapKeys { it.key.desanitizeFirebaseKey() }
+    }
+
     private var restoreFileSelectorOpenDoc: ActivityResultLauncher<Array<String>>? = null
     private var restoreFileSelectorGetContent: ActivityResultLauncher<String>? = null
 
     @SuppressLint("HardwareIds")
     private fun getUserId(context: Context): String {
-        return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "default_device"
+        val id = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "default_device"
+        return id.sanitizeFirebaseKey()
     }
 
     @Serializable
@@ -113,21 +139,21 @@ object BackupUtils {
         val allSettings = context.getDefaultSharedPrefs().all.filter { it.key.isTransferable() }
 
         val allDataSorted = BackupVars(
-            allData.filter { it.value is Boolean } as? Map<String, Boolean>,
-            allData.filter { it.value is Int } as? Map<String, Int>,
-            allData.filter { it.value is String } as? Map<String, String>,
-            allData.filter { it.value is Float } as? Map<String, Float>,
-            allData.filter { it.value is Long } as? Map<String, Long>,
-            allData.filter { it.value as? Set<String> != null } as? Map<String, Set<String>>,
+            (allData.filter { it.value is Boolean } as? Map<String, Boolean>).sanitizeMap(),
+            (allData.filter { it.value is Int } as? Map<String, Int>).sanitizeMap(),
+            (allData.filter { it.value is String } as? Map<String, String>).sanitizeMap(),
+            (allData.filter { it.value is Float } as? Map<String, Float>).sanitizeMap(),
+            (allData.filter { it.value is Long } as? Map<String, Long>).sanitizeMap(),
+            (allData.filter { it.value as? Set<String> != null } as? Map<String, Set<String>>).sanitizeMap(),
         )
 
         val allSettingsSorted = BackupVars(
-            allSettings.filter { it.value is Boolean } as? Map<String, Boolean>,
-            allSettings.filter { it.value is Int } as? Map<String, Int>,
-            allSettings.filter { it.value is String } as? Map<String, String>,
-            allSettings.filter { it.value is Float } as? Map<String, Float>,
-            allSettings.filter { it.value is Long } as? Map<String, Long>,
-            allSettings.filter { it.value as? Set<String> != null } as? Map<String, Set<String>>,
+            (allSettings.filter { it.value is Boolean } as? Map<String, Boolean>).sanitizeMap(),
+            (allSettings.filter { it.value is Int } as? Map<String, Int>).sanitizeMap(),
+            (allSettings.filter { it.value is String } as? Map<String, String>).sanitizeMap(),
+            (allSettings.filter { it.value is Float } as? Map<String, Float>).sanitizeMap(),
+            (allSettings.filter { it.value is Long } as? Map<String, Long>).sanitizeMap(),
+            (allSettings.filter { it.value as? Set<String> != null } as? Map<String, Set<String>>).sanitizeMap(),
         )
 
         return BackupFile(
@@ -145,21 +171,21 @@ object BackupUtils {
     ) {
         if (context == null) return
         if (restoreSettings) {
-            context.restoreMap(backupFile.settings.bool, true)
-            context.restoreMap(backupFile.settings.int, true)
-            context.restoreMap(backupFile.settings.string, true)
-            context.restoreMap(backupFile.settings.float, true)
-            context.restoreMap(backupFile.settings.long, true)
-            context.restoreMap(backupFile.settings.stringSet, true)
+            context.restoreMap(backupFile.settings.bool?.desanitizeMap(), true)
+            context.restoreMap(backupFile.settings.int?.desanitizeMap(), true)
+            context.restoreMap(backupFile.settings.string?.desanitizeMap(), true)
+            context.restoreMap(backupFile.settings.float?.desanitizeMap(), true)
+            context.restoreMap(backupFile.settings.long?.desanitizeMap(), true)
+            context.restoreMap(backupFile.settings.stringSet?.desanitizeMap(), true)
         }
 
         if (restoreDataStore) {
-            context.restoreMap(backupFile.datastore.bool)
-            context.restoreMap(backupFile.datastore.int)
-            context.restoreMap(backupFile.datastore.string)
-            context.restoreMap(backupFile.datastore.float)
-            context.restoreMap(backupFile.datastore.long)
-            context.restoreMap(backupFile.datastore.stringSet)
+            context.restoreMap(backupFile.datastore.bool?.desanitizeMap())
+            context.restoreMap(backupFile.datastore.int?.desanitizeMap())
+            context.restoreMap(backupFile.datastore.string?.desanitizeMap())
+            context.restoreMap(backupFile.datastore.float?.desanitizeMap())
+            context.restoreMap(backupFile.datastore.long?.desanitizeMap())
+            context.restoreMap(backupFile.datastore.stringSet?.desanitizeMap())
         }
 
         for (api in AccountManager.syncApis) {
@@ -168,8 +194,7 @@ object BackupUtils {
     }
 
     /**
-     * Orijinal backup() metodu ismiyle doğrudan Firebase'e yedek kaydeder.
-     * PUT yöntemi kullanıldığı için her çağrıldığında veritabanındaki tek veriyi günceller.
+     * Firebase Realtime Database üzerine yedekleme yapar.
      */
     fun backup(context: Context?) = ioSafe {
         if (context == null) return@ioSafe
@@ -187,10 +212,11 @@ object BackupUtils {
                 .build()
 
             httpClient.newCall(request).execute().use { response ->
+                val responseBody = response.body?.string()
                 if (response.isSuccessful) {
                     showToast(R.string.backup_success, Toast.LENGTH_LONG)
                 } else {
-                    showToast("Online yedekleme başarısız: HTTP ${response.code}", Toast.LENGTH_LONG)
+                    showToast("Online yedekleme başarısız: HTTP ${response.code} ($responseBody)", Toast.LENGTH_LONG)
                 }
             }
         } catch (e: Exception) {
@@ -202,7 +228,7 @@ object BackupUtils {
     }
 
     /**
-     * Yerel Uri üzerinden yedek geri yükleme (orijinal metot)
+     * Yerel Uri üzerinden yedek geri yükleme
      */
     fun restoreFromUri(activity: Activity, uri: Uri) {
         ioSafe {
