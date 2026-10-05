@@ -2,10 +2,7 @@ package com.lagradost.cloudstream3.ui.settings
 
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import androidx.preference.SeekBarPreference
@@ -35,63 +32,83 @@ import com.lagradost.cloudstream3.utils.UIHelper.hideKeyboard
 import com.lagradost.cloudstream3.utils.UIHelper.toPx
 
 class SettingsUI : BasePreferenceFragmentCompat() {
-
-    // =========================================================================
-    // EKLENEN NOT 1: Fragment Layout'unu yüklerken seçili font overlay stilini uyguluyoruz.
-    // Bu sayede settings_ui.xml içerisindeki Preference / Category / Switch ögelerinin
-    // başlık ve açıklamaları seçili fontu devralır.
-    // =========================================================================
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        
-        // Kayıtlı font key'ini oku
-        val fontKey = settingsManager.getString(
-            getString(R.string.app_font_key),
-            "Default"
-        )
-
-        // Key'e göre styles.xml dosyanızdaki overlay stilini seç
-        val fontOverlayStyle = when (fontKey) {
-            "TimesNewRoman" -> R.style.TimesNewRomanFontOverlay
-            "StixGeneral" -> R.style.StixGeneralFontOverlay
-            "ComicSans" -> R.style.ComicSansFontOverlay
-            "Maybach" -> R.style.MaybachFontOverlay
-            "Perfume" -> R.style.PerfumeFontOverlay
-            "Naxmos" -> R.style.NaxmosFontOverlay
-            "Consola" -> R.style.ConsolaFontOverlay
-            "Futura" -> R.style.FuturaFontOverlay
-            "GoogleSans" -> R.style.GoogleSansFontOverlay
-            "Gotham" -> R.style.GothamFontOverlay
-            else -> R.style.GoogleSansFontOverlay
-        }
-
-        // Context'i seçilen font overlay stili ile sarmala
-        val contextThemeWrapper = ContextThemeWrapper(requireContext(), fontOverlayStyle)
-        val localInflater = inflater.cloneInContext(contextThemeWrapper)
-
-        return super.onCreateView(localInflater, container, savedInstanceState)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpToolbar(R.string.category_ui)
         setPaddingBottom()
         setToolBarScrollFlags()
+		
+		 //yeni   Font'u Preference öğelerine uygula
+    view.post {
+        applyFontToAllPreferences()
     }
+	//yeni	
+		
+    }
+
+//yeni
+private fun applyFontToAllPreferences() {
+    val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
+    val fontKey = settingsManager.getString(
+        getString(R.string.app_font_key),
+        "Default"
+    )
+    
+    val typeface = getTypefaceFromKey(fontKey)
+    
+    preferenceScreen?.let { screen ->
+        applyFontToPreferenceGroup(screen, typeface)
+    }
+}
+private fun applyFontToPreferenceGroup(group: androidx.preference.PreferenceGroup, typeface: android.graphics.Typeface?) {
+    for (i in 0 until group.preferenceCount) {
+        val pref = group.getPreference(i)
+        when (pref) {
+            is androidx.preference.PreferenceGroup -> applyFontToPreferenceGroup(pref, typeface)
+            else -> {
+                val view = pref.view
+                if (view != null) {
+                    applyFontToViewHierarchy(view, typeface)
+                }
+            }
+        }
+    }
+}
+
+private fun applyFontToViewHierarchy(view: View, typeface: android.graphics.Typeface?) {
+    if (typeface == null) return
+    
+    when (view) {
+        is android.widget.TextView -> view.typeface = typeface
+        is android.view.ViewGroup -> {
+            for (i in 0 until view.childCount) {
+                applyFontToViewHierarchy(view.getChildAt(i), typeface)
+            }
+        }
+    }
+}
+
+private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
+    return when (fontKey) {
+        "TimesNewRoman" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.times_new_roman)
+        "StixGeneral" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.stix_general)
+        "ComicSans" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.comic_sans)
+        "Maybach" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.maybach)
+        "Perfume" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.perfume)
+        "Naxmos" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.naxmos)
+        "Consola" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.consola)
+        "Futura" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.futura)
+        "GoogleSans" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.google_sans)
+        "Gotham" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.gotham)
+        else -> null
+    }
+}
+//yeni
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         hideKeyboard()
         setPreferencesFromResource(R.xml.settings_ui, rootKey)
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
-
-             // Font'u hemen uygula
-    view?.post {
-        applyFontToAllPreferences()
-    }
 
         (getPref(R.string.overscan_key)?.hideOn(PHONE or EMULATOR) as? SeekBarPreference)?.setOnPreferenceChangeListener { pref, newValue ->
             val padding = (newValue as? Int)?.toPx ?: return@setOnPreferenceChangeListener true
@@ -105,14 +122,17 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             SearchAdapter.sharedPool.clear()
             true
         }
-
-        getPref(R.string.wide_poster_key)?.setOnPreferenceChangeListener { _, _ ->
+  //yeni
+       getPref(R.string.wide_poster_key)?.setOnPreferenceChangeListener { _, _ ->
             HomeChildItemAdapter.sharedPool.clear()
             ParentItemAdapter.sharedPool.clear()
             SearchAdapter.sharedPool.clear()
             activity?.recreate()
             true
         }
+  //yeni
+
+
 
         getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, newValue ->
             HomeChildItemAdapter.sharedPool.clear()
@@ -192,10 +212,10 @@ class SettingsUI : BasePreferenceFragmentCompat() {
                     offset += 1
                 }
             }
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { // remove monet on android 11 and less
                 removeIncompatible("Monet")
             }
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { // Remove system on android 9 and less
                 removeIncompatible("System")
             }
 
@@ -220,13 +240,12 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             }
             return@setOnPreferenceClickListener true
         }
-
         getPref(R.string.primary_color_key)?.setOnPreferenceClickListener {
             val prefNames = resources.getStringArray(R.array.themes_overlay_names).toMutableList()
             val prefValues =
                 resources.getStringArray(R.array.themes_overlay_names_values).toMutableList()
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { // remove monet on android 11 and less
                 val toRemove = prefValues
                     .mapIndexed { idx, s -> if (s.startsWith("Monet")) idx else null }
                     .filterNotNull()
@@ -260,7 +279,8 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             return@setOnPreferenceClickListener true
         }
 
-        // =========================================================================
+
+    // =========================================================================
         // EKLENEN NOT 2: Font seçimi alanında varsayılan özet (summary) güncellemesi
         // ve seçim sonrasında activity recreate çağrısı.
         // =========================================================================
@@ -295,6 +315,7 @@ class SettingsUI : BasePreferenceFragmentCompat() {
             true
         }
 
+//yeni
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
             val names = enumValues<SearchQuality>().sorted().map { it.name }
             val currentList = settingsManager.getStringSet(
