@@ -3,6 +3,7 @@ package com.lagradost.cloudstream3.ui.settings
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import androidx.preference.SeekBarPreference
@@ -37,13 +38,13 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         setUpToolbar(R.string.category_ui)
         setPaddingBottom()
         setToolBarScrollFlags()
-		
-		 //yeni   Font'u Preference öğelerine uygula
-    view.post {
-        applyFontToAllPreferences()
-    }
-	//yeni	
-		
+        
+        //yeni   Font'u Preference öğelerine uygula
+        view.post {
+            applyFontToAllPreferences()
+        }
+        //yeni   
+        
     }
 
 //yeni
@@ -52,26 +53,13 @@ private fun applyFontToAllPreferences() {
     val fontKey = settingsManager.getString(
         getString(R.string.app_font_key),
         "Default"
-    )
+    ) ?: "Default"
     
     val typeface = getTypefaceFromKey(fontKey)
     
-    preferenceScreen?.let { screen ->
-        applyFontToPreferenceGroup(screen, typeface)
-    }
-}
-private fun applyFontToPreferenceGroup(group: androidx.preference.PreferenceGroup, typeface: android.graphics.Typeface?) {
-    for (i in 0 until group.preferenceCount) {
-        val pref = group.getPreference(i)
-        when (pref) {
-            is androidx.preference.PreferenceGroup -> applyFontToPreferenceGroup(pref, typeface)
-            else -> {
-                val view = pref.view
-                if (view != null) {
-                    applyFontToViewHierarchy(view, typeface)
-                }
-            }
-        }
+    // PreferenceFragmentCompat içindeki RecyclerView (listView) üzerinden font uygulanır
+    listView?.let { recyclerView ->
+        applyFontToViewHierarchy(recyclerView, typeface)
     }
 }
 
@@ -79,7 +67,7 @@ private fun applyFontToViewHierarchy(view: View, typeface: android.graphics.Type
     if (typeface == null) return
     
     when (view) {
-        is android.widget.TextView -> view.typeface = typeface
+        is TextView -> view.typeface = typeface
         is android.view.ViewGroup -> {
             for (i in 0 until view.childCount) {
                 applyFontToViewHierarchy(view.getChildAt(i), typeface)
@@ -123,7 +111,7 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
             true
         }
   //yeni
-       getPref(R.string.wide_poster_key)?.setOnPreferenceChangeListener { _, _ ->
+        getPref(R.string.wide_poster_key)?.setOnPreferenceChangeListener { _, _ ->
             HomeChildItemAdapter.sharedPool.clear()
             ParentItemAdapter.sharedPool.clear()
             SearchAdapter.sharedPool.clear()
@@ -131,8 +119,6 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
             true
         }
   //yeni
-
-
 
         getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, newValue ->
             HomeChildItemAdapter.sharedPool.clear()
@@ -279,7 +265,6 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
             return@setOnPreferenceClickListener true
         }
 
-
     // =========================================================================
         // EKLENEN NOT 2: Font seçimi alanında varsayılan özet (summary) güncellemesi
         // ve seçim sonrasında activity recreate çağrısı.
@@ -291,7 +276,7 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
             val currentFont = settingsManager.getString(
                 getString(R.string.app_font_key),
                 prefValues.firstOrNull() ?: "Default"
-            )
+            ) ?: "Default"
 
             activity?.showBottomDialog(
                 prefNames.toList(),
