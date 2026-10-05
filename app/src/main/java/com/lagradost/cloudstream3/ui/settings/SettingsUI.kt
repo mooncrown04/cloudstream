@@ -88,6 +88,11 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.settings_ui, rootKey)
         val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
+             // Font'u hemen uygula
+    view?.post {
+        applyFontToAllPreferences()
+    }
+
         (getPref(R.string.overscan_key)?.hideOn(PHONE or EMULATOR) as? SeekBarPreference)?.setOnPreferenceChangeListener { pref, newValue ->
             val padding = (newValue as? Int)?.toPx ?: return@setOnPreferenceChangeListener true
             (pref.context.getActivity() as? MainActivity)?.binding?.homeRoot?.setPadding(padding, padding, padding, padding)
