@@ -1,12 +1,16 @@
 package com.lagradost.cloudstream3.ui.settings
 
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.edit
+import androidx.core.content.res.ResourcesCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.SeekBarPreference
+import androidx.recyclerview.widget.RecyclerView
 import com.lagradost.cloudstream3.CloudStreamApp.Companion.getActivity
 import com.lagradost.cloudstream3.MainActivity
 import com.lagradost.cloudstream3.R
@@ -33,65 +37,82 @@ import com.lagradost.cloudstream3.utils.UIHelper.hideKeyboard
 import com.lagradost.cloudstream3.utils.UIHelper.toPx
 
 class SettingsUI : BasePreferenceFragmentCompat() {
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpToolbar(R.string.category_ui)
         setPaddingBottom()
         setToolBarScrollFlags()
-        
-        //yeni   Font'u Preference öğelerine uygula
+
+        // FontModitions Mantığı: RecyclerView çizildiğinde ve yeni ögeler eklendikçe fontu zorla uygula
         view.post {
             applyFontToAllPreferences()
         }
-        //yeni   
-        
     }
 
-//yeni
-private fun applyFontToAllPreferences() {
-    val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
-    val fontKey = settingsManager.getString(
-        getString(R.string.app_font_key),
-        "Default"
-    ) ?: "Default"
-    
-    val typeface = getTypefaceFromKey(fontKey)
-    
-    // PreferenceFragmentCompat içindeki RecyclerView (listView) üzerinden font uygulanır
-    listView?.let { recyclerView ->
-        applyFontToViewHierarchy(recyclerView, typeface)
-    }
-}
+    private fun applyFontToAllPreferences() {
+        val settingsManager = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val fontKey = settingsManager.getString(
+            getString(R.string.app_font_key),
+            "Default"
+        ) ?: "Default"
 
-private fun applyFontToViewHierarchy(view: View, typeface: android.graphics.Typeface?) {
-    if (typeface == null) return
-    
-    when (view) {
-        is TextView -> view.typeface = typeface
-        is android.view.ViewGroup -> {
-            for (i in 0 until view.childCount) {
-                applyFontToViewHierarchy(view.getChildAt(i), typeface)
+        val typeface = getTypefaceFromKey(fontKey) ?: return
+
+        // PreferenceFragmentCompat içindeki RecyclerView'ı yakala
+        listView?.let { recyclerView ->
+            // 1. Mevcut görünen çocuklara fontu bas
+            applyTypefaceRecursively(recyclerView, typeface)
+
+            // 2. FontModitions yapısındaki gibi RecyclerView scroll edildikçe yeni eklenen ögeleri dinle
+            recyclerView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
+                override fun onChildViewAttachedToWindow(child: View) {
+                    applyTypefaceRecursively(child, typeface)
+                }
+
+                override fun onChildViewDetachedFromWindow(child: View) {}
+            })
+        }
+    }
+
+    private fun applyTypefaceRecursively(view: View, typeface: Typeface) {
+        when (view) {
+            is TextView -> {
+                val currentStyle = view.typeface?.style ?: Typeface.NORMAL
+                view.typeface = if (currentStyle != Typeface.NORMAL) {
+                    Typeface.create(typeface, currentStyle)
+                } else {
+                    typeface
+                }
+            }
+            is ViewGroup -> {
+                for (i in 0 until view.childCount) {
+                    applyTypefaceRecursively(view.getChildAt(i), typeface)
+                }
             }
         }
     }
-}
 
-private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
-    return when (fontKey) {
-        "TimesNewRoman" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.times_new_roman)
-        "StixGeneral" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.stix_general)
-        "ComicSans" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.comic_sans)
-        "Maybach" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.maybach)
-        "Perfume" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.perfume)
-        "Naxmos" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.naxmos)
-        "Consola" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.consola)
-        "Futura" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.futura)
-        "GoogleSans" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.google_sans)
-        "Gotham" -> androidx.core.content.res.ResourcesCompat.getFont(requireContext(), R.font.gotham)
-        else -> null
+    private fun getTypefaceFromKey(fontKey: String): Typeface? {
+        val fontResId = when (fontKey) {
+            "TimesNewRoman" -> R.font.times_new_roman
+            "StixGeneral" -> R.font.stix_general
+            "ComicSans" -> R.font.comic_sans
+            "Maybach" -> R.font.maybach
+            "Perfume" -> R.font.perfume
+            "Naxmos" -> R.font.naxmos
+            "Consola" -> R.font.consola
+            "Futura" -> R.font.futura
+            "GoogleSans" -> R.font.google_sans
+            "Gotham" -> R.font.gotham
+            else -> return null
+        }
+        return try {
+            ResourcesCompat.getFont(requireContext(), fontResId)
+        } catch (e: Exception) {
+            null
+        }
     }
-}
-//yeni
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         hideKeyboard()
@@ -110,7 +131,7 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
             SearchAdapter.sharedPool.clear()
             true
         }
-  //yeni
+
         getPref(R.string.wide_poster_key)?.setOnPreferenceChangeListener { _, _ ->
             HomeChildItemAdapter.sharedPool.clear()
             ParentItemAdapter.sharedPool.clear()
@@ -118,7 +139,6 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
             activity?.recreate()
             true
         }
-  //yeni
 
         getPref(R.string.poster_size_key)?.setOnPreferenceChangeListener { _, newValue ->
             HomeChildItemAdapter.sharedPool.clear()
@@ -198,10 +218,10 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
                     offset += 1
                 }
             }
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { // remove monet on android 11 and less
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 removeIncompatible("Monet")
             }
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { // Remove system on android 9 and less
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 removeIncompatible("System")
             }
 
@@ -226,12 +246,13 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
             }
             return@setOnPreferenceClickListener true
         }
+
         getPref(R.string.primary_color_key)?.setOnPreferenceClickListener {
             val prefNames = resources.getStringArray(R.array.themes_overlay_names).toMutableList()
             val prefValues =
                 resources.getStringArray(R.array.themes_overlay_names_values).toMutableList()
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { // remove monet on android 11 and less
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 val toRemove = prefValues
                     .mapIndexed { idx, s -> if (s.startsWith("Monet")) idx else null }
                     .filterNotNull()
@@ -265,16 +286,13 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
             return@setOnPreferenceClickListener true
         }
 
-    // =========================================================================
-        // EKLENEN NOT 2: Font seçimi alanında varsayılan özet (summary) güncellemesi
-        // ve seçim sonrasında activity recreate çağrısı.
-        // =========================================================================
         getPref(R.string.app_font_key)?.setOnPreferenceClickListener {
             val prefNames = resources.getStringArray(R.array.app_font_names).toMutableList()
             val prefValues = resources.getStringArray(R.array.app_font_values).toMutableList()
 
+            val fontKeyRes = getString(R.string.app_font_key)
             val currentFont = settingsManager.getString(
-                getString(R.string.app_font_key),
+                fontKeyRes,
                 prefValues.firstOrNull() ?: "Default"
             ) ?: "Default"
 
@@ -288,9 +306,8 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
                 try {
                     prefValues.getOrNull(index)?.let { selectedFont ->
                         settingsManager.edit {
-                            putString(getString(R.string.app_font_key), selectedFont)
+                            putString(fontKeyRes, selectedFont)
                         }
-                        // Activity baştan başlatılır ve yeni font overlay teması yüklenir
                         activity?.recreate()
                     }
                 } catch (e: Exception) {
@@ -300,7 +317,6 @@ private fun getTypefaceFromKey(fontKey: String): android.graphics.Typeface? {
             true
         }
 
-//yeni
         getPref(R.string.pref_filter_search_quality_key)?.setOnPreferenceClickListener {
             val names = enumValues<SearchQuality>().sorted().map { it.name }
             val currentList = settingsManager.getStringSet(
