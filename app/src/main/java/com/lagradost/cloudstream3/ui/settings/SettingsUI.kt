@@ -44,7 +44,6 @@ class SettingsUI : BasePreferenceFragmentCompat() {
         setPaddingBottom()
         setToolBarScrollFlags()
 
-        // FontModitions Mantığı: RecyclerView çizildiğinde ve yeni ögeler eklendikçe fontu zorla uygula
         view.post {
             applyFontToAllPreferences()
         }
@@ -59,18 +58,37 @@ class SettingsUI : BasePreferenceFragmentCompat() {
 
         val typeface = getTypefaceFromKey(fontKey) ?: return
 
-        // PreferenceFragmentCompat içindeki RecyclerView'ı yakala
         listView?.let { recyclerView ->
-            // 1. Mevcut görünen çocuklara fontu bas
-            applyTypefaceRecursively(recyclerView, typeface)
+            val applyFont = {
+                applyTypefaceRecursively(recyclerView, typeface)
+            }
 
-            // 2. FontModitions yapısındaki gibi RecyclerView scroll edildikçe yeni eklenen ögeleri dinle
+            applyFont()
+
             recyclerView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
                 override fun onChildViewAttachedToWindow(child: View) {
                     applyTypefaceRecursively(child, typeface)
                 }
 
-                override fun onChildViewDetachedFromWindow(child: View) {}
+                override fun onChildViewDetachedFromWindow(child: View) = Unit
+            })
+
+            recyclerView.adapter?.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+                override fun onChanged() {
+                    applyFont()
+                }
+
+                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                    applyFont()
+                }
+
+                override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+                    applyFont()
+                }
+
+                override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                    applyFont()
+                }
             })
         }
     }
