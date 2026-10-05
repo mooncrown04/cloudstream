@@ -15,6 +15,8 @@ import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString // [YENİ EKLENDİ]
+import androidx.compose.ui.text.SpanStyle // [YENİ EKLENDİ]
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -45,7 +47,9 @@ import kotlinx.collections.immutable.toPersistentMap
 
 object SettingsUIScreen : SearchableSettings {
 
-    private val fontFamilies = mapOf(
+    // [DEĞİŞTİRİLDİ] Diğer Compose bileşenlerinden veya temadan erişilebilmesi için 'private' kaldırıldı.
+    // ESKİ: private val fontFamilies = mapOf(...)
+    val fontFamilies = mapOf(
         "Default" to FontFamily.Default,
         "TimesNewRoman" to FontFamily(Font(R.font.times_new_roman)),
         "StixGeneral" to FontFamily(Font(R.font.stix_general)),
@@ -163,14 +167,30 @@ object SettingsUIScreen : SearchableSettings {
                             }
                             return@ListPreference false
                         }),
+
+                    // [DEĞİŞTİRİLDİ] appFont ListPreference ögesi güncellemesi:
+                    // Font seçim diyaloğundaki her bir listenin kendi fontunda önizleme (preview) olarak render edilmesi sağlandı.
                     Preference.PreferenceItem.ListPreference(
                         preference = settings.ui.appFont,
                         icon = painterResource(R.drawable.ic_baseline_text_fields_24),
                         title = stringResource(R.string.app_font_settings),
+                        /* ESKİ KOD (Sadece metin eşlemesi yapıyordu, font stillerini uygulamıyordu):
                         entries = stringArrayResource(R.array.app_font_values)
                             .zip(stringArrayResource(R.array.app_font_names))
                             .toMap()
                             .toPersistentMap(),
+                        */
+                        /* YENİ KOD: */
+                        entries = stringArrayResource(R.array.app_font_values)
+                            .zip(stringArrayResource(R.array.app_font_names))
+                            .associate { (value, name) ->
+                                value to AnnotatedString(
+                                    text = name,
+                                    spanStyle = SpanStyle(
+                                        fontFamily = fontFamilies[value] ?: FontFamily.Default
+                                    )
+                                )
+                            }.toPersistentMap(),
                         onValueChanged = { newValue ->
                             settings.ui.appFont.set(newValue)
                             safe {
