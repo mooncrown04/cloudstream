@@ -157,7 +157,8 @@
     <string name="error_bookmarks_text">Yer imleri</string>
     <string name="action_remove_from_bookmarks">Kaldır</string>
     <string name="action_add_to_bookmarks">İzleme durumunu ayarla</string>
-    <string name="sort_apply">Uygula</string>
+    <string name="sort_cancel">İptal</string>
+	<string name="sort_apply">Uygula</string>
     <string name="sort_copy">Kopyala</string>
     <string name="sort_close">Kapat</string>
     <string name="sort_clear">Temizle</string>
