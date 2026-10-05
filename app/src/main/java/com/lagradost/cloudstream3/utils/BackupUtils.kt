@@ -60,8 +60,8 @@ object BackupUtils {
         MAL_CACHED_LIST,
         KITSU_CACHED_LIST,
 
-        // The plugins themselves are not backed up
-        PLUGINS_KEY,
+        // The plugins themselves are not backed up        
+		//PLUGINS_KEY,  silindi
         PLUGINS_KEY_LOCAL,
 
         AccountManager.ACCOUNT_TOKEN,
@@ -106,7 +106,7 @@ object BackupUtils {
         QUEUE_KEY,
 
         // Prevent automatic plugin download after restoring backup
-        "auto_download_plugins_key2"
+      //  "auto_download_plugins_key2"  silindi
     )
 
     /** false if key should not be contained in backup */
