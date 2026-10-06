@@ -128,15 +128,11 @@ private fun getDynamicTypography(fontFamily: FontFamily?): Typography {
 fun CloudStreamTheme(
     mode: CloudStreamThemeMode = CloudStreamThemeMode.FollowSystem,
     primaryColor: CloudStreamPrimaryColor = CloudStreamPrimaryColor.NORMAL,
-    // Ayarlarda seçili font ismini alıyoruz (Örn: "ComicSans", "Gotham")
-    fontStyleKey: String = remember { settings.ui.appFont.get() },
-    fontFamily: FontFamily? = fontFamilies[fontStyleKey], // Map'ten ilgili FontFamily'i çeker
+    fontFamily: FontFamily? = null,
     content: @Composable () -> Unit,
 ) {
     val csColors = modeToTheme(mode, primaryColor)
     val globalTransition = rememberInfiniteTransition(label = "GlobalSharedTransition")
-    
-    // Artık seçili fontFamily geçerli olur
     val typography = getDynamicTypography(fontFamily)
 
     CompositionLocalProvider(LocalSharedInfiniteTransition provides globalTransition) {
