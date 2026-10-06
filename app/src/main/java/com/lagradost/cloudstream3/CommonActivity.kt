@@ -402,7 +402,7 @@ val currentFontOverlay = when (settingsManager.getString(act.getString(R.string.
     "Futura" -> R.style.FuturaFontOverlay
     "GoogleSans" -> R.style.GoogleSansFontOverlay
     "Gotham" -> R.style.GothamFontOverlay
-    else -> R.style.TimesNewRomanFontOverlay // veya varsayılan font stiliniz
+    else -> R.style.GoogleSansFontOverlay // veya varsayılan font stiliniz
 }
         
         act.theme.applyStyle(currentTheme, true)
