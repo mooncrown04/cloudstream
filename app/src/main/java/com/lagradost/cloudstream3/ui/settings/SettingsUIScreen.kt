@@ -1,6 +1,6 @@
 package com.lagradost.cloudstream3.ui.settings
 
-//import android.os.Build
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
