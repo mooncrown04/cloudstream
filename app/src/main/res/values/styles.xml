@@ -1,55 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-   <!-- Font Overlay Stilleri -->
-<style name="TimesNewRomanFontOverlay">
-    <item name="android:fontFamily">@font/times_new_roman</item>
-    <item name="fontFamily">@font/times_new_roman</item>
-</style>
 
-<style name="StixGeneralFontOverlay">
-    <item name="android:fontFamily">@font/stix_general</item>
-    <item name="fontFamily">@font/stix_general</item>
-</style>
-
-<style name="ComicSansFontOverlay">
-    <item name="android:fontFamily">@font/comic_sans</item>
-    <item name="fontFamily">@font/comic_sans</item>
-</style>
-
-<style name="MaybachFontOverlay">
-    <item name="android:fontFamily">@font/maybach</item>
-    <item name="fontFamily">@font/maybach</item>
-</style>
-
-<style name="PerfumeFontOverlay">
-    <item name="android:fontFamily">@font/perfume</item>
-    <item name="fontFamily">@font/perfume</item>
-</style>
-
-<style name="NaxmosFontOverlay">
-    <item name="android:fontFamily">@font/naxmos</item>
-    <item name="fontFamily">@font/naxmos</item>
-</style>
-
-
-<style name="ConsolaFontOverlay">
-    <item name="android:fontFamily">@font/consola</item>
-    <item name="fontFamily">@font/consola</item>
-</style>
-
-<style name="FuturaFontOverlay">
-    <item name="android:fontFamily">@font/futura</item>
-    <item name="fontFamily">@font/futura</item>
-</style>
-
-<style name="GoogleSansFontOverlay">
-    <item name="android:fontFamily">@font/google_sans</item>
-    <item name="fontFamily">@font/google_sans</item>
-</style>
-
-<style name="GothamFontOverlay">
-    <item name="android:fontFamily">@font/gotham</item>
-    <item name="fontFamily">@font/gotham</item>
-</style>
     <!-- Base application theme. Material3 -->
     <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
         <item name="android:windowBackground">@drawable/splash_background</item>
@@ -1275,5 +1225,175 @@
         <item name="android:layout_height">@dimen/download_header_progress_size</item>
         <item name="android:background">@color/playIconBackground</item>
     </style>
+<!-- Font Overlay Stilleri (Tüm Uygulama ve Ayarlar Ekranı İçin) -->
 
+<style name="TimesNewRomanFontOverlay">
+    <item name="android:fontFamily">@font/times_new_roman</item>
+    <item name="fontFamily">@font/times_new_roman</item>
+    <item name="android:textAppearanceListItem">@style/TimesNewRomanPrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/TimesNewRomanPrefText</item>
+    <item name="preferenceCategoryStyle">@style/TimesNewRomanPrefCategory</item>
+</style>
+<style name="TimesNewRomanPrefText">
+    <item name="android:fontFamily">@font/times_new_roman</item>
+    <item name="fontFamily">@font/times_new_roman</item>
+</style>
+<style name="TimesNewRomanPrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/times_new_roman</item>
+    <item name="fontFamily">@font/times_new_roman</item>
+</style>
+
+<style name="StixGeneralFontOverlay">
+    <item name="android:fontFamily">@font/stix_general</item>
+    <item name="fontFamily">@font/stix_general</item>
+    <item name="android:textAppearanceListItem">@style/StixGeneralPrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/StixGeneralPrefText</item>
+    <item name="preferenceCategoryStyle">@style/StixGeneralPrefCategory</item>
+</style>
+<style name="StixGeneralPrefText">
+    <item name="android:fontFamily">@font/stix_general</item>
+    <item name="fontFamily">@font/stix_general</item>
+</style>
+<style name="StixGeneralPrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/stix_general</item>
+    <item name="fontFamily">@font/stix_general</item>
+</style>
+
+<style name="ComicSansFontOverlay">
+    <item name="android:fontFamily">@font/comic_sans</item>
+    <item name="fontFamily">@font/comic_sans</item>
+    <item name="android:textAppearanceListItem">@style/ComicSansPrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/ComicSansPrefText</item>
+    <item name="preferenceCategoryStyle">@style/ComicSansPrefCategory</item>
+</style>
+<style name="ComicSansPrefText">
+    <item name="android:fontFamily">@font/comic_sans</item>
+    <item name="fontFamily">@font/comic_sans</item>
+</style>
+<style name="ComicSansPrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/comic_sans</item>
+    <item name="fontFamily">@font/comic_sans</item>
+</style>
+
+<style name="MaybachFontOverlay">
+    <item name="android:fontFamily">@font/maybach</item>
+    <item name="fontFamily">@font/maybach</item>
+    <item name="android:textAppearanceListItem">@style/MaybachPrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/MaybachPrefText</item>
+    <item name="preferenceCategoryStyle">@style/MaybachPrefCategory</item>
+</style>
+<style name="MaybachPrefText">
+    <item name="android:fontFamily">@font/maybach</item>
+    <item name="fontFamily">@font/maybach</item>
+</style>
+<style name="MaybachPrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/maybach</item>
+    <item name="fontFamily">@font/maybach</item>
+</style>
+
+<style name="PerfumeFontOverlay">
+    <item name="android:fontFamily">@font/perfume</item>
+    <item name="fontFamily">@font/perfume</item>
+    <item name="android:textAppearanceListItem">@style/PerfumePrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/PerfumePrefText</item>
+    <item name="preferenceCategoryStyle">@style/PerfumePrefCategory</item>
+</style>
+<style name="PerfumePrefText">
+    <item name="android:fontFamily">@font/perfume</item>
+    <item name="fontFamily">@font/perfume</item>
+</style>
+<style name="PerfumePrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/perfume</item>
+    <item name="fontFamily">@font/perfume</item>
+</style>
+
+<style name="NaxmosFontOverlay">
+    <item name="android:fontFamily">@font/naxmos</item>
+    <item name="fontFamily">@font/naxmos</item>
+    <item name="android:textAppearanceListItem">@style/NaxmosPrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/NaxmosPrefText</item>
+    <item name="preferenceCategoryStyle">@style/NaxmosPrefCategory</item>
+</style>
+<style name="NaxmosPrefText">
+    <item name="android:fontFamily">@font/naxmos</item>
+    <item name="fontFamily">@font/naxmos</item>
+</style>
+<style name="NaxmosPrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/naxmos</item>
+    <item name="fontFamily">@font/naxmos</item>
+</style>
+
+<style name="ConsolaFontOverlay">
+    <item name="android:fontFamily">@font/consola</item>
+    <item name="fontFamily">@font/consola</item>
+    <item name="android:textAppearanceListItem">@style/ConsolaPrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/ConsolaPrefText</item>
+    <item name="preferenceCategoryStyle">@style/ConsolaPrefCategory</item>
+</style>
+<style name="ConsolaPrefText">
+    <item name="android:fontFamily">@font/consola</item>
+    <item name="fontFamily">@font/consola</item>
+</style>
+<style name="ConsolaPrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/consola</item>
+    <item name="fontFamily">@font/consola</item>
+</style>
+
+<style name="FuturaFontOverlay">
+    <item name="android:fontFamily">@font/futura</item>
+    <item name="fontFamily">@font/futura</item>
+    <item name="android:textAppearanceListItem">@style/FuturaPrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/FuturaPrefText</item>
+    <item name="preferenceCategoryStyle">@style/FuturaPrefCategory</item>
+</style>
+<style name="FuturaPrefText">
+    <item name="android:fontFamily">@font/futura</item>
+    <item name="fontFamily">@font/futura</item>
+</style>
+<style name="FuturaPrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/futura</item>
+    <item name="fontFamily">@font/futura</item>
+</style>
+
+<style name="GoogleSansFontOverlay">
+    <item name="android:fontFamily">@font/google_sans</item>
+    <item name="fontFamily">@font/google_sans</item>
+    <item name="android:textAppearanceListItem">@style/GoogleSansPrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/GoogleSansPrefText</item>
+    <item name="preferenceCategoryStyle">@style/GoogleSansPrefCategory</item>
+</style>
+<style name="GoogleSansPrefText">
+    <item name="android:fontFamily">@font/google_sans</item>
+    <item name="fontFamily">@font/google_sans</item>
+</style>
+<style name="GoogleSansPrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/google_sans</item>
+    <item name="fontFamily">@font/google_sans</item>
+</style>
+
+<style name="GothamFontOverlay">
+    <item name="android:fontFamily">@font/gotham</item>
+    <item name="fontFamily">@font/gotham</item>
+    <item name="android:textAppearanceListItem">@style/GothamPrefText</item>
+    <item name="android:textAppearanceListItemSmall">@style/GothamPrefText</item>
+    <item name="preferenceCategoryStyle">@style/GothamPrefCategory</item>
+</style>
+<style name="GothamPrefText">
+    <item name="android:fontFamily">@font/gotham</item>
+    <item name="fontFamily">@font/gotham</item>
+</style>
+<style name="GothamPrefCategory" parent="Preference.Category">
+    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/gotham</item>
+    <item name="fontFamily">@font/gotham</item>
+</style>
 </resources>
