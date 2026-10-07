@@ -449,7 +449,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(
                         pinIcon.visibility = if (isPinned) View.VISIBLE else View.GONE
 
                         val pluginInstance = providerApi.sourcePlugin?.let { PluginManager.plugins[it] } as? Plugin
-                        val isDownloadedPluginWithSettings = pluginInstance?.openSettings != null && !isLayout(TV)
+                        val isDownloadedPluginWithSettings = pluginInstance?.openSettings != null //&& !isLayout(TV)
 
                         settingsIcon.visibility = if (isDownloadedPluginWithSettings) View.VISIBLE else View.GONE
                         if (isDownloadedPluginWithSettings) {
