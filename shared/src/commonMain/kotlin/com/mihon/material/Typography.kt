@@ -11,4 +11,5 @@ val Typography.header: TextStyle
     get() = bodyMedium.copy(
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontWeight = FontWeight.SemiBold,
+        fontFamily = bodyMedium.fontFamily // <-- Font ailesinin kopyaya aktarıldığından emin olunur
     )
