@@ -25,10 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
-import com.lagradost.cloudstream4.compose.SingleSelectDialog
 import com.lagradost.cloudstream4.generated.resources.Res
 import com.lagradost.cloudstream4.generated.resources.cancel
-import com.lagradost.cloudstream4.generated.resources.ok
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -51,84 +49,48 @@ fun <T> ListPreferenceWidget(
     )
 
     if (isDialogShown) {
-        // M3 MaterialTheme içinden seçilen aktif fontu ve tipografiyi alır
-        MaterialTheme(
-            colorScheme = MaterialTheme.colorScheme,
-            shapes = MaterialTheme.shapes,
-            typography = MaterialTheme.typography
-        ) {
-            SingleSelectDialog(
-                dismiss = { isDialogShown = false },
-                title = title,
-                entries = entries,
-                selectedKey = value,
-                confirm = { key ->
-                    if (key != null) {
-                        onValueChange(key)
-                    }
-                    isDialogShown = false
-                },
-                confirmText = stringResource(Res.string.ok),
-                dismissText = stringResource(Res.string.cancel),
-                iconProvider = iconProvider
-            )
-        }
-    }
-}
-
-/**
- * Alternatif: Eğer SingleSelectDialog yerine kendi AlertDialog yapınızı kullanmak isterseniz
- * aşağıdaki composable bileşenini aktif edip kullanabilirsiniz.
- */
-@Composable
-private fun <T> CustomListPreferenceDialog(
-    title: String,
-    entries: Map<out T, String>,
-    selectedValue: T,
-    onValueChange: (T) -> Unit,
-    onDismissRequest: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-        text = {
-            Box {
-                val state = rememberLazyListState()
-                LazyColumn(state = state) {
-                    items(entries.entries.toList()) { entry ->
-                        val isSelected = selectedValue == entry.key
-                        DialogRow(
-                            label = entry.value,
-                            isSelected = isSelected,
-                            onSelected = {
-                                onValueChange(entry.key)
-                                onDismissRequest()
-                            }
-                        )
-                    }
-                }
-                if (state.canScrollBackward) {
-                    HorizontalDivider(modifier = Modifier.align(Alignment.TopCenter))
-                }
-                if (state.canScrollForward) {
-                    HorizontalDivider(modifier = Modifier.align(Alignment.BottomCenter))
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismissRequest) {
+        AlertDialog(
+            onDismissRequest = { isDialogShown = false },
+            title = {
                 Text(
-                    text = stringResource(Res.string.cancel),
-                    style = MaterialTheme.typography.labelLarge
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge
                 )
-            }
-        }
-    )
+            },
+            text = {
+                Box {
+                    val state = rememberLazyListState()
+                    LazyColumn(state = state) {
+                        items(entries.entries.toList()) { current ->
+                            val isSelected = value == current.key
+                            DialogRow(
+                                label = current.value,
+                                isSelected = isSelected,
+                                onSelected = {
+                                    onValueChange(current.key)
+                                    isDialogShown = false
+                                },
+                            )
+                        }
+                    }
+                    if (state.canScrollBackward) {
+                        HorizontalDivider(modifier = Modifier.align(Alignment.TopCenter))
+                    }
+                    if (state.canScrollForward) {
+                        HorizontalDivider(modifier = Modifier.align(Alignment.BottomCenter))
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { isDialogShown = false }) {
+                    Text(
+                        text = stringResource(Res.string.cancel),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            },
+        )
+    }
 }
 
 @Composable
