@@ -91,6 +91,17 @@ private fun CloudStreamColorScheme.toMaterial3ColorScheme() = if (isLight) {
 
 internal val LocalSharedInfiniteTransition = staticCompositionLocalOf<InfiniteTransition> { throw NotImplementedError() }
 
+/**
+ * Kullanıcının Ayarlar > Arayüz > App Font seçiminden çözülen font ailesi.
+ *
+ * Kök Compose ağacına [CloudStreamTheme] ile verilir; yeni bir pencere açan
+ * bileşenler (ör. diyaloglar) üstteki MaterialTheme'i miras almadığı için bu
+ * composition local'den okuyup kendilerine uygular.
+ *
+ * `null` = seçili font yok / "Default" → Compose varsayılan fontu kullanılır.
+ */
+val LocalAppFontFamily = staticCompositionLocalOf<FontFamily?> { null }
+
 @Composable
 @ReadOnlyComposable
 fun MaterialTheme.infiniteSharedTransition() = LocalSharedInfiniteTransition.current
@@ -100,28 +111,12 @@ fun CloudStreamPreviewTheme(content: @Composable () -> Unit) {
     CloudStreamTheme(content = content)
 }
 
+/**
+ * Seçili fontu Material3 tipografisine çevirir (asıl tanım AppFont.kt içindedir).
+ */
 @Composable
 private fun getDynamicTypography(fontFamily: FontFamily?): Typography {
-    val base = AppFont.typography
-    if (fontFamily == null) return base
-
-    return Typography(
-        displayLarge = base.displayLarge.copy(fontFamily = fontFamily),
-        displayMedium = base.displayMedium.copy(fontFamily = fontFamily),
-        displaySmall = base.displaySmall.copy(fontFamily = fontFamily),
-        headlineLarge = base.headlineLarge.copy(fontFamily = fontFamily),
-        headlineMedium = base.headlineMedium.copy(fontFamily = fontFamily),
-        headlineSmall = base.headlineSmall.copy(fontFamily = fontFamily),
-        titleLarge = base.titleLarge.copy(fontFamily = fontFamily),
-        titleMedium = base.titleMedium.copy(fontFamily = fontFamily),
-        titleSmall = base.titleSmall.copy(fontFamily = fontFamily),
-        bodyLarge = base.bodyLarge.copy(fontFamily = fontFamily),
-        bodyMedium = base.bodyMedium.copy(fontFamily = fontFamily),
-        bodySmall = base.bodySmall.copy(fontFamily = fontFamily),
-        labelLarge = base.labelLarge.copy(fontFamily = fontFamily),
-        labelMedium = base.labelMedium.copy(fontFamily = fontFamily),
-        labelSmall = base.labelSmall.copy(fontFamily = fontFamily),
-    )
+    return rememberAppTypography(fontFamily)
 }
 
 @Composable
@@ -135,7 +130,10 @@ fun CloudStreamTheme(
     val globalTransition = rememberInfiniteTransition(label = "GlobalSharedTransition")
     val typography = getDynamicTypography(fontFamily)
 
-    CompositionLocalProvider(LocalSharedInfiniteTransition provides globalTransition) {
+    CompositionLocalProvider(
+        LocalSharedInfiniteTransition provides globalTransition,
+        LocalAppFontFamily provides fontFamily
+    ) {
         MaterialTheme(
             colorScheme = csColors.toMaterial3ColorScheme(),
             typography = typography,

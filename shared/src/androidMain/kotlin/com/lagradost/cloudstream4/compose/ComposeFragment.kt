@@ -14,6 +14,7 @@ import com.lagradost.cloudstream4.rememberAppSettings
 import com.lagradost.cloudstream4.theme.CloudStreamTheme
 import com.lagradost.cloudstream4.theme.perfToColor
 import com.lagradost.cloudstream4.theme.perfToMode
+import com.lagradost.cloudstream4.theme.rememberAppFontFamily
 import com.mihon.presentation.LocalBackPress
 import com.mihon.presentation.settings.collectAsState
 
@@ -32,9 +33,13 @@ fun Screen.createComposeView(
         val layout by settings.ui.layout.collectAsState()
         val layoutFlag = DeviceLayout.layoutToFlag(LocalContext.current, layout)
 
+        // Ayarlar > Arayüz > App Font. Reaktif okunur; seçim değişince yeniden compose edilir.
+        val appFontFamily = rememberAppFontFamily()
+
         CloudStreamTheme(
             mode = perfToMode(mode),
             primaryColor = perfToColor(primaryColor),
+            fontFamily = appFontFamily,
         ) {
             val backDispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
                 "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"

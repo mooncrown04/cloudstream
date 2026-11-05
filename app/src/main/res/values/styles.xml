@@ -14,6 +14,8 @@
         <item name="android:scrollbarThumbVertical">@null</item>
         <item name="android:scrollbarThumbHorizontal">@null</item>
 
+        <item name="android:fontFamily">@font/google_sans</item>
+        <item name="fontFamily">@font/google_sans</item>
         <item name="android:textViewStyle">@style/AppTextViewStyle</item>
         <item name="android:buttonStyle">@style/AppButtonStyle</item>
         <item name="android:editTextStyle">@style/AppEditStyle</item>
@@ -1225,16 +1227,36 @@
         <item name="android:layout_height">@dimen/download_header_progress_size</item>
         <item name="android:background">@color/playIconBackground</item>
     </style>
-<!-- Font Overlay Stilleri (Tüm Uygulama ve Ayarlar Ekranı İçin) -->
+<!-- Font Overlay Stilleri: her font için tüm TextView/Button/EditText/Preference
+     stillerini tek seferde ezer. Tek kaynak: getAppFontFamily() + array.xml. -->
 
 <style name="TimesNewRomanFontOverlay">
     <item name="android:fontFamily">@font/times_new_roman</item>
     <item name="fontFamily">@font/times_new_roman</item>
-    <item name="android:textAppearanceListItem">@style/TimesNewRomanPrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/TimesNewRomanPrefText</item>
+    <item name="android:textViewStyle">@style/TimesNewRomanText</item>
+    <item name="android:buttonStyle">@style/TimesNewRomanButton</item>
+    <item name="android:editTextStyle">@style/TimesNewRomanEdit</item>
+    <item name="materialButtonStyle">@style/TimesNewRomanMaterialButton</item>
+    <item name="textAppearanceLarge">@style/TimesNewRomanTextAppearance</item>
+    <item name="textAppearanceMedium">@style/TimesNewRomanTextAppearance</item>
+    <item name="textAppearanceSmall">@style/TimesNewRomanTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/TimesNewRomanTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/TimesNewRomanTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/TimesNewRomanPrefCategory</item>
 </style>
-<style name="TimesNewRomanPrefText">
+<style name="TimesNewRomanText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/times_new_roman</item>
+</style>
+<style name="TimesNewRomanButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/times_new_roman</item>
+</style>
+<style name="TimesNewRomanEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/times_new_roman</item>
+</style>
+<style name="TimesNewRomanMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/times_new_roman</item>
+</style>
+<style name="TimesNewRomanTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/times_new_roman</item>
     <item name="fontFamily">@font/times_new_roman</item>
 </style>
@@ -1247,11 +1269,30 @@
 <style name="StixGeneralFontOverlay">
     <item name="android:fontFamily">@font/stix_general</item>
     <item name="fontFamily">@font/stix_general</item>
-    <item name="android:textAppearanceListItem">@style/StixGeneralPrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/StixGeneralPrefText</item>
+    <item name="android:textViewStyle">@style/StixGeneralText</item>
+    <item name="android:buttonStyle">@style/StixGeneralButton</item>
+    <item name="android:editTextStyle">@style/StixGeneralEdit</item>
+    <item name="materialButtonStyle">@style/StixGeneralMaterialButton</item>
+    <item name="textAppearanceLarge">@style/StixGeneralTextAppearance</item>
+    <item name="textAppearanceMedium">@style/StixGeneralTextAppearance</item>
+    <item name="textAppearanceSmall">@style/StixGeneralTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/StixGeneralTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/StixGeneralTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/StixGeneralPrefCategory</item>
 </style>
-<style name="StixGeneralPrefText">
+<style name="StixGeneralText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/stix_general</item>
+</style>
+<style name="StixGeneralButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/stix_general</item>
+</style>
+<style name="StixGeneralEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/stix_general</item>
+</style>
+<style name="StixGeneralMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/stix_general</item>
+</style>
+<style name="StixGeneralTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/stix_general</item>
     <item name="fontFamily">@font/stix_general</item>
 </style>
@@ -1264,11 +1305,30 @@
 <style name="ComicSansFontOverlay">
     <item name="android:fontFamily">@font/comic_sans</item>
     <item name="fontFamily">@font/comic_sans</item>
-    <item name="android:textAppearanceListItem">@style/ComicSansPrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/ComicSansPrefText</item>
+    <item name="android:textViewStyle">@style/ComicSansText</item>
+    <item name="android:buttonStyle">@style/ComicSansButton</item>
+    <item name="android:editTextStyle">@style/ComicSansEdit</item>
+    <item name="materialButtonStyle">@style/ComicSansMaterialButton</item>
+    <item name="textAppearanceLarge">@style/ComicSansTextAppearance</item>
+    <item name="textAppearanceMedium">@style/ComicSansTextAppearance</item>
+    <item name="textAppearanceSmall">@style/ComicSansTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/ComicSansTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/ComicSansTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/ComicSansPrefCategory</item>
 </style>
-<style name="ComicSansPrefText">
+<style name="ComicSansText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/comic_sans</item>
+</style>
+<style name="ComicSansButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/comic_sans</item>
+</style>
+<style name="ComicSansEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/comic_sans</item>
+</style>
+<style name="ComicSansMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/comic_sans</item>
+</style>
+<style name="ComicSansTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/comic_sans</item>
     <item name="fontFamily">@font/comic_sans</item>
 </style>
@@ -1281,11 +1341,30 @@
 <style name="MaybachFontOverlay">
     <item name="android:fontFamily">@font/maybach</item>
     <item name="fontFamily">@font/maybach</item>
-    <item name="android:textAppearanceListItem">@style/MaybachPrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/MaybachPrefText</item>
+    <item name="android:textViewStyle">@style/MaybachText</item>
+    <item name="android:buttonStyle">@style/MaybachButton</item>
+    <item name="android:editTextStyle">@style/MaybachEdit</item>
+    <item name="materialButtonStyle">@style/MaybachMaterialButton</item>
+    <item name="textAppearanceLarge">@style/MaybachTextAppearance</item>
+    <item name="textAppearanceMedium">@style/MaybachTextAppearance</item>
+    <item name="textAppearanceSmall">@style/MaybachTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/MaybachTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/MaybachTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/MaybachPrefCategory</item>
 </style>
-<style name="MaybachPrefText">
+<style name="MaybachText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/maybach</item>
+</style>
+<style name="MaybachButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/maybach</item>
+</style>
+<style name="MaybachEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/maybach</item>
+</style>
+<style name="MaybachMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/maybach</item>
+</style>
+<style name="MaybachTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/maybach</item>
     <item name="fontFamily">@font/maybach</item>
 </style>
@@ -1298,11 +1377,30 @@
 <style name="PerfumeFontOverlay">
     <item name="android:fontFamily">@font/perfume</item>
     <item name="fontFamily">@font/perfume</item>
-    <item name="android:textAppearanceListItem">@style/PerfumePrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/PerfumePrefText</item>
+    <item name="android:textViewStyle">@style/PerfumeText</item>
+    <item name="android:buttonStyle">@style/PerfumeButton</item>
+    <item name="android:editTextStyle">@style/PerfumeEdit</item>
+    <item name="materialButtonStyle">@style/PerfumeMaterialButton</item>
+    <item name="textAppearanceLarge">@style/PerfumeTextAppearance</item>
+    <item name="textAppearanceMedium">@style/PerfumeTextAppearance</item>
+    <item name="textAppearanceSmall">@style/PerfumeTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/PerfumeTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/PerfumeTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/PerfumePrefCategory</item>
 </style>
-<style name="PerfumePrefText">
+<style name="PerfumeText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/perfume</item>
+</style>
+<style name="PerfumeButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/perfume</item>
+</style>
+<style name="PerfumeEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/perfume</item>
+</style>
+<style name="PerfumeMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/perfume</item>
+</style>
+<style name="PerfumeTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/perfume</item>
     <item name="fontFamily">@font/perfume</item>
 </style>
@@ -1315,11 +1413,30 @@
 <style name="NaxmosFontOverlay">
     <item name="android:fontFamily">@font/naxmos</item>
     <item name="fontFamily">@font/naxmos</item>
-    <item name="android:textAppearanceListItem">@style/NaxmosPrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/NaxmosPrefText</item>
+    <item name="android:textViewStyle">@style/NaxmosText</item>
+    <item name="android:buttonStyle">@style/NaxmosButton</item>
+    <item name="android:editTextStyle">@style/NaxmosEdit</item>
+    <item name="materialButtonStyle">@style/NaxmosMaterialButton</item>
+    <item name="textAppearanceLarge">@style/NaxmosTextAppearance</item>
+    <item name="textAppearanceMedium">@style/NaxmosTextAppearance</item>
+    <item name="textAppearanceSmall">@style/NaxmosTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/NaxmosTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/NaxmosTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/NaxmosPrefCategory</item>
 </style>
-<style name="NaxmosPrefText">
+<style name="NaxmosText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/naxmos</item>
+</style>
+<style name="NaxmosButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/naxmos</item>
+</style>
+<style name="NaxmosEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/naxmos</item>
+</style>
+<style name="NaxmosMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/naxmos</item>
+</style>
+<style name="NaxmosTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/naxmos</item>
     <item name="fontFamily">@font/naxmos</item>
 </style>
@@ -1332,11 +1449,30 @@
 <style name="ConsolaFontOverlay">
     <item name="android:fontFamily">@font/consola</item>
     <item name="fontFamily">@font/consola</item>
-    <item name="android:textAppearanceListItem">@style/ConsolaPrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/ConsolaPrefText</item>
+    <item name="android:textViewStyle">@style/ConsolaText</item>
+    <item name="android:buttonStyle">@style/ConsolaButton</item>
+    <item name="android:editTextStyle">@style/ConsolaEdit</item>
+    <item name="materialButtonStyle">@style/ConsolaMaterialButton</item>
+    <item name="textAppearanceLarge">@style/ConsolaTextAppearance</item>
+    <item name="textAppearanceMedium">@style/ConsolaTextAppearance</item>
+    <item name="textAppearanceSmall">@style/ConsolaTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/ConsolaTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/ConsolaTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/ConsolaPrefCategory</item>
 </style>
-<style name="ConsolaPrefText">
+<style name="ConsolaText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/consola</item>
+</style>
+<style name="ConsolaButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/consola</item>
+</style>
+<style name="ConsolaEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/consola</item>
+</style>
+<style name="ConsolaMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/consola</item>
+</style>
+<style name="ConsolaTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/consola</item>
     <item name="fontFamily">@font/consola</item>
 </style>
@@ -1349,11 +1485,30 @@
 <style name="FuturaFontOverlay">
     <item name="android:fontFamily">@font/futura</item>
     <item name="fontFamily">@font/futura</item>
-    <item name="android:textAppearanceListItem">@style/FuturaPrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/FuturaPrefText</item>
+    <item name="android:textViewStyle">@style/FuturaText</item>
+    <item name="android:buttonStyle">@style/FuturaButton</item>
+    <item name="android:editTextStyle">@style/FuturaEdit</item>
+    <item name="materialButtonStyle">@style/FuturaMaterialButton</item>
+    <item name="textAppearanceLarge">@style/FuturaTextAppearance</item>
+    <item name="textAppearanceMedium">@style/FuturaTextAppearance</item>
+    <item name="textAppearanceSmall">@style/FuturaTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/FuturaTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/FuturaTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/FuturaPrefCategory</item>
 </style>
-<style name="FuturaPrefText">
+<style name="FuturaText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/futura</item>
+</style>
+<style name="FuturaButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/futura</item>
+</style>
+<style name="FuturaEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/futura</item>
+</style>
+<style name="FuturaMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/futura</item>
+</style>
+<style name="FuturaTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/futura</item>
     <item name="fontFamily">@font/futura</item>
 </style>
@@ -1366,11 +1521,30 @@
 <style name="GoogleSansFontOverlay">
     <item name="android:fontFamily">@font/google_sans</item>
     <item name="fontFamily">@font/google_sans</item>
-    <item name="android:textAppearanceListItem">@style/GoogleSansPrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/GoogleSansPrefText</item>
+    <item name="android:textViewStyle">@style/GoogleSansText</item>
+    <item name="android:buttonStyle">@style/GoogleSansButton</item>
+    <item name="android:editTextStyle">@style/GoogleSansEdit</item>
+    <item name="materialButtonStyle">@style/GoogleSansMaterialButton</item>
+    <item name="textAppearanceLarge">@style/GoogleSansTextAppearance</item>
+    <item name="textAppearanceMedium">@style/GoogleSansTextAppearance</item>
+    <item name="textAppearanceSmall">@style/GoogleSansTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/GoogleSansTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/GoogleSansTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/GoogleSansPrefCategory</item>
 </style>
-<style name="GoogleSansPrefText">
+<style name="GoogleSansText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/google_sans</item>
+</style>
+<style name="GoogleSansButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/google_sans</item>
+</style>
+<style name="GoogleSansEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/google_sans</item>
+</style>
+<style name="GoogleSansMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/google_sans</item>
+</style>
+<style name="GoogleSansTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/google_sans</item>
     <item name="fontFamily">@font/google_sans</item>
 </style>
@@ -1383,11 +1557,30 @@
 <style name="GothamFontOverlay">
     <item name="android:fontFamily">@font/gotham</item>
     <item name="fontFamily">@font/gotham</item>
-    <item name="android:textAppearanceListItem">@style/GothamPrefText</item>
-    <item name="android:textAppearanceListItemSmall">@style/GothamPrefText</item>
+    <item name="android:textViewStyle">@style/GothamText</item>
+    <item name="android:buttonStyle">@style/GothamButton</item>
+    <item name="android:editTextStyle">@style/GothamEdit</item>
+    <item name="materialButtonStyle">@style/GothamMaterialButton</item>
+    <item name="textAppearanceLarge">@style/GothamTextAppearance</item>
+    <item name="textAppearanceMedium">@style/GothamTextAppearance</item>
+    <item name="textAppearanceSmall">@style/GothamTextAppearance</item>
+    <item name="android:textAppearanceListItem">@style/GothamTextAppearance</item>
+    <item name="android:textAppearanceListItemSmall">@style/GothamTextAppearance</item>
     <item name="preferenceCategoryStyle">@style/GothamPrefCategory</item>
 </style>
-<style name="GothamPrefText">
+<style name="GothamText" parent="android:Widget.TextView">
+    <item name="android:fontFamily">@font/gotham</item>
+</style>
+<style name="GothamButton" parent="android:Widget.Holo.Button">
+    <item name="android:fontFamily">@font/gotham</item>
+</style>
+<style name="GothamEdit" parent="android:Widget.EditText">
+    <item name="android:fontFamily">@font/gotham</item>
+</style>
+<style name="GothamMaterialButton" parent="Widget.MaterialComponents.Button">
+    <item name="android:fontFamily">@font/gotham</item>
+</style>
+<style name="GothamTextAppearance" parent="TextAppearance.Material3.BodyLarge">
     <item name="android:fontFamily">@font/gotham</item>
     <item name="fontFamily">@font/gotham</item>
 </style>
@@ -1396,4 +1589,5 @@
     <item name="android:fontFamily">@font/gotham</item>
     <item name="fontFamily">@font/gotham</item>
 </style>
+
 </resources>

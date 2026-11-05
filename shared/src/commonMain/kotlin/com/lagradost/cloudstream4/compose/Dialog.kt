@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.lagradost.cloudstream4.generated.resources.Res
 import com.lagradost.cloudstream4.generated.resources.check
+import com.lagradost.cloudstream4.theme.CloudStreamFontTheme
 import com.mihon.material.padding
 import org.jetbrains.compose.resources.painterResource
 
@@ -51,6 +52,31 @@ fun ActionDialog(
     confirmText: String,
     dismissText: String,
 
+    dismiss: () -> Unit,
+    confirm: () -> Unit
+) {
+    // Diyalog yeni bir pencere açar; üstteki MaterialTheme'i miras almadığı için
+    // seçili uygulama fontu burada ayrıca uygulanır.
+    CloudStreamFontTheme {
+        ActionDialogContent(
+            title = title,
+            text = text,
+            icon = icon,
+            confirmText = confirmText,
+            dismissText = dismissText,
+            dismiss = dismiss,
+            confirm = confirm
+        )
+    }
+}
+
+@Composable
+private fun ActionDialogContent(
+    title: String,
+    text: String,
+    icon: Painter? = null,
+    confirmText: String,
+    dismissText: String,
     dismiss: () -> Unit,
     confirm: () -> Unit
 ) {
@@ -184,6 +210,47 @@ fun <T> SingleSelectDialog(
     /* key - visual */
     entries: Map<out T, String>,
     /* Selected keys used in entries */
+    selectedKey: T,
+    confirmText: String? = null,
+    dismissText: String? = null,
+    dismiss: () -> Unit,
+    confirm: (T) -> Unit,
+    iconProvider: (@Composable (key: T, value: String) -> Unit)? = null
+) {
+    // Diyalog yeni bir pencere açar; seçili uygulama fontu burada ayrıca uygulanır.
+    CloudStreamFontTheme {
+        SingleSelectDialogContent(
+            modifier = modifier,
+            shape = shape,
+            containerColor = containerColor,
+            iconContentColor = iconContentColor,
+            tonalElevation = tonalElevation,
+            icon = icon,
+            title = title,
+            properties = properties,
+            entries = entries,
+            selectedKey = selectedKey,
+            confirmText = confirmText,
+            dismissText = dismissText,
+            dismiss = dismiss,
+            confirm = confirm,
+            iconProvider = iconProvider,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun <T> SingleSelectDialogContent(
+    modifier: Modifier = Modifier,
+    shape: Shape = AlertDialogDefaults.shape,
+    containerColor: Color = MaterialTheme.colorScheme.background,
+    iconContentColor: Color = AlertDialogDefaults.iconContentColor,
+    tonalElevation: Dp = AlertDialogDefaults.TonalElevation,
+    icon: @Composable (() -> Unit)? = null,
+    title: String? = null,
+    properties: DialogProperties = DialogProperties(),
+    entries: Map<out T, String>,
     selectedKey: T,
     confirmText: String? = null,
     dismissText: String? = null,
@@ -398,6 +465,46 @@ fun <T> MultiSelectDialog(
     /* key - visual */
     entries: Map<out T, String>,
     /* Selected keys used in entries */
+    selectedKeys: Set<T>,
+    confirmText: String? = null,
+    dismissText: String? = null,
+    dismiss: () -> Unit,
+    confirm: (Set<T>) -> Unit,
+    iconProvider: (@Composable (key: T, value: String) -> Unit)? = null
+) {
+    // Diyalog yeni bir pencere açar; seçili uygulama fontu burada ayrıca uygulanır.
+    CloudStreamFontTheme {
+        MultiSelectDialogContent(
+            modifier = modifier,
+            shape = shape,
+            containerColor = containerColor,
+            iconContentColor = iconContentColor,
+            tonalElevation = tonalElevation,
+            icon = icon,
+            title = title,
+            properties = properties,
+            entries = entries,
+            selectedKeys = selectedKeys,
+            confirmText = confirmText,
+            dismissText = dismissText,
+            dismiss = dismiss,
+            confirm = confirm,
+            iconProvider = iconProvider,
+        )
+    }
+}
+
+@Composable
+private fun <T> MultiSelectDialogContent(
+    modifier: Modifier = Modifier,
+    shape: Shape = AlertDialogDefaults.shape,
+    containerColor: Color = MaterialTheme.colorScheme.background,
+    iconContentColor: Color = AlertDialogDefaults.iconContentColor,
+    tonalElevation: Dp = AlertDialogDefaults.TonalElevation,
+    icon: @Composable (() -> Unit)? = null,
+    title: String? = null,
+    properties: DialogProperties = DialogProperties(),
+    entries: Map<out T, String>,
     selectedKeys: Set<T>,
     confirmText: String? = null,
     dismissText: String? = null,

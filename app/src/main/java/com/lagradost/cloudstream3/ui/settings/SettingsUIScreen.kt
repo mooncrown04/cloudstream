@@ -9,14 +9,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.lagradost.cloudstream3.CommonActivity.activity
 import com.lagradost.cloudstream3.DubStatus
@@ -45,19 +44,9 @@ import kotlinx.collections.immutable.toPersistentMap
 
 object SettingsUIScreen : SearchableSettings {
 
-    val fontFamilies = mapOf(
-        "Default" to FontFamily.Default,
-        "TimesNewRoman" to FontFamily(Font(R.font.times_new_roman)),
-        "StixGeneral" to FontFamily(Font(R.font.stix_general)),
-        "ComicSans" to FontFamily(Font(R.font.comic_sans)),
-        "Maybach" to FontFamily(Font(R.font.maybach)),
-        "Perfume" to FontFamily(Font(R.font.perfume)),
-        "Naxmos" to FontFamily(Font(R.font.naxmos)),
-        "Consola" to FontFamily(Font(R.font.consola)),
-        "Futura" to FontFamily(Font(R.font.futura)),
-        "GoogleSans" to FontFamily(Font(R.font.google_sans)),
-        "Gotham" to FontFamily(Font(R.font.gotham))
-    )
+    // Font anahtarı -> FontFamily eşlemesi artık TEK yerde:
+    // com.lagradost.cloudstream3.utils.getAppFontFamily()
+    // (Aşağıdaki font listesi sadece ayar ekranındaki önizleme için kullanılır.)
 
     @Composable
     override fun getTitleRes(): String = stringResource(R.string.category_ui)
@@ -95,6 +84,9 @@ object SettingsUIScreen : SearchableSettings {
     @Composable
     override fun getPreferences(): List<Preference> {
         val settings = rememberAppSettings()
+
+    @Composable
+    override fun getTitleRes(): String = stringResource(R.string.category_ui)
 
         return persistentListOf(
             Preference.PreferenceGroup(
@@ -172,10 +164,9 @@ object SettingsUIScreen : SearchableSettings {
                             .toMap()
                             .toPersistentMap(),
                         onValueChanged = { newValue ->
+                            // Font artık reaktif okunuyor (rememberAppFontFamily);
+                            // recreate() gerekmez, ama eski XML ekranları için zararsız.
                             settings.ui.appFont.set(newValue)
-                            safe {
-                                activity?.recreate()
-                            }
                             return@ListPreference false
                         }),
                 )

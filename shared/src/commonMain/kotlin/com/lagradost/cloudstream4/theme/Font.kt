@@ -36,3 +36,19 @@ object AppFont {
 
     val typography @Composable get() = getTypography()
 }
+
+/**
+ * Seçili fontu tüm Material3 tipografi stillerine uygular.
+ *
+ * NOT: `fontFamily == null` (Default) durumunda stil YENİDEN OLUŞTURULMAZ,
+ * varsayılan [Typography] döndürülür. Aksi halde `FontFamily.Default` açıkça
+ * atandığı için tema/markaya özel varsayılan font ezilirdi.
+ */
+@Composable
+internal fun rememberAppTypography(fontFamily: FontFamily?): Typography {
+    return if (fontFamily == null) {
+        Typography()
+    } else {
+        AppFont.getTypography(fontFamily)
+    }
+}
