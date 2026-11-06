@@ -1,7 +1,9 @@
 package com.lagradost.cloudstream4.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.em
 
@@ -51,4 +53,39 @@ internal fun rememberAppTypography(fontFamily: FontFamily?): Typography {
     } else {
         AppFont.getTypography(fontFamily)
     }
+}
+
+/**
+ * `MaterialTheme.typography`'deki HER stile seçili fontu uygular.
+ *
+ * Neden gerekli: ekranlarda `MaterialTheme.typography.bodyMedium.copy(fontSize = …)`
+ * gibi `.copy()` çağrıları yaygın; `.copy()` çağrılırken `fontFamily` parametresi
+ * açıkça verilmezse stil kendi alanını korur, ancak Material3'te bu alan çoğu
+ * yerde `FontFamily.Default` olarak saklandığı için üstten gelen tema fontu
+ * beklenmedik biçimde kaybolabiliyor. Burada her stil tek tek kopyalanıp
+ * `fontFamily` açıkça set edilir.
+ */
+@Composable
+internal fun Typography.withFontFamily(fontFamily: FontFamily?): Typography {
+    if (fontFamily == null) return this
+
+    fun TextStyle.withFont() = copy(fontFamily = fontFamily)
+
+    return Typography(
+        displayLarge = displayLarge.withFont(),
+        displayMedium = displayMedium.withFont(),
+        displaySmall = displaySmall.withFont(),
+        headlineLarge = headlineLarge.withFont(),
+        headlineMedium = headlineMedium.withFont(),
+        headlineSmall = headlineSmall.withFont(),
+        titleLarge = titleLarge.withFont(),
+        titleMedium = titleMedium.withFont(),
+        titleSmall = titleSmall.withFont(),
+        bodyLarge = bodyLarge.withFont(),
+        bodyMedium = bodyMedium.withFont(),
+        bodySmall = bodySmall.withFont(),
+        labelLarge = labelLarge.withFont(),
+        labelMedium = labelMedium.withFont(),
+        labelSmall = labelSmall.withFont(),
+    )
 }

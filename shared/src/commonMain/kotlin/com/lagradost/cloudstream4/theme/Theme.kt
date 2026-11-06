@@ -4,6 +4,7 @@ import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -119,11 +120,18 @@ private fun getDynamicTypography(fontFamily: FontFamily?): Typography {
     return rememberAppTypography(fontFamily)
 }
 
+/**
+ * Uygulamanın kök teması.
+ *
+ * [fontFamily] verilmezse (veya `null` ise) Ayarlar > Arayüz > App Font tercihi
+ * reaktif olarak okunur; böylece tema çağrısını değiştirmeye gerek kalmadan
+ * tüm Compose ağacı seçili fontu alır.
+ */
 @Composable
 fun CloudStreamTheme(
     mode: CloudStreamThemeMode = CloudStreamThemeMode.FollowSystem,
     primaryColor: CloudStreamPrimaryColor = CloudStreamPrimaryColor.NORMAL,
-    fontFamily: FontFamily? = null,
+    fontFamily: FontFamily? = rememberAppFontFamily(),
     content: @Composable () -> Unit,
 ) {
     val csColors = modeToTheme(mode, primaryColor)
@@ -137,7 +145,9 @@ fun CloudStreamTheme(
         MaterialTheme(
             colorScheme = csColors.toMaterial3ColorScheme(),
             typography = typography,
-            content = content
-        )
+        ) {
+            // Stil belirtmeyen Text() çağrıları için de varsayılanı ayarla.
+            ProvideTextStyle(typography.bodyMedium, content = content)
+        }
     }
 }

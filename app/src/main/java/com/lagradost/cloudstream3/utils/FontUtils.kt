@@ -1,14 +1,8 @@
 package com.lagradost.cloudstream3.utils // Uygulamanızın paket adı
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.lagradost.cloudstream3.R
-import com.lagradost.cloudstream4.rememberAppSettings
-import com.lagradost.cloudstream4.theme.CloudStreamFontTheme
-import com.mihon.presentation.settings.collectAsState
 
 /**
  * Ayarlar > Arayüz > App Font seçeneğinin font ailesi karşılığı.
@@ -34,34 +28,4 @@ fun getAppFontFamily(fontKey: String?): FontFamily? {
         "Gotham" -> FontFamily(Font(R.font.gotham))
         else -> null // "Default" ve bilinmeyen anahtarlar → sistem fontu
     }
-}
-
-/**
- * Ayarda seçili font anahtarını reaktif olarak okur.
- * Ayar değiştiğinde yeniden compose edilir; `activity.recreate()` gerekmez.
- */
-@Composable
-fun rememberAppFontKey(): String {
-    val settings = rememberAppSettings()
-    val fontKey by settings.ui.appFont.collectAsState()
-    return fontKey
-}
-
-/** Ayarda seçili fontu reaktif olarak döndürür. */
-@Composable
-fun rememberAppFontFamily(): FontFamily? = getAppFontFamily(rememberAppFontKey())
-
-/**
- * Tüm Compose ağacına seçili fontu uygulayan sarmalayıcı.
- *
- * Kök ComposeView'lar (`createComposeView`) fontu zaten uygular; bu fonksiyon
- * yeni bir pencere açan Compose içerikleri (diyaloglar, bağımsız ComposeView'lar)
- * için kullanılır: renk şemasına dokunmaz, sadece tipografiyi değiştirir.
- */
-@Composable
-fun AppFontTheme(
-    fontFamily: FontFamily? = rememberAppFontFamily(),
-    content: @Composable () -> Unit,
-) {
-    CloudStreamFontTheme(fontFamily = fontFamily, content = content)
 }

@@ -1,10 +1,11 @@
 package com.lagradost.cloudstream4.theme
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.text.font.FontFamily
 import com.lagradost.cloudstream4.rememberAppSettings
 import com.mihon.presentation.settings.collectAsState
 
@@ -16,7 +17,12 @@ fun rememberAppFontKey(): String {
     return fontKey
 }
 
-/** Ayarda seçili fontu reaktif olarak döndürür (`null` = sistem fontu). */
+/**
+ * Ayarda seçili fontu reaktif olarak döndürür (`null` = sistem fontu).
+ *
+ * Fonksiyon referansı üzerinden de kullanılabilir:
+ * `CloudStreamTheme(fontFamily = rememberAppFontFamily())`
+ */
 @Composable
 fun rememberAppFontFamily(fontKey: String? = rememberAppFontKey()): FontFamily? {
     return resolveAppFontFamily(fontKey)
@@ -35,20 +41,22 @@ expect fun resolveAppFontFamily(fontKey: String?): FontFamily?
  *
  * Yeni bir pencere açan Compose içerikleri (diyaloglar, bağımsız ComposeView'lar)
  * üstteki `MaterialTheme`'i miras almadığı için bunu kullanır: renk şemasına
- * dokunmaz, sadece `MaterialTheme.typography`'yi seçili fonta çevirir.
+ * dokunmaz, sadece tipografiyi ve varsayılan metin stilini seçili fonta çevirir.
  */
 @Composable
 fun CloudStreamFontTheme(
     fontFamily: FontFamily? = LocalAppFontFamily.current,
     content: @Composable () -> Unit,
 ) {
-    val typography = rememberAppTypography(fontFamily)
+    val typography = MaterialTheme.typography.withFontFamily(fontFamily)
     CompositionLocalProvider(LocalAppFontFamily provides fontFamily) {
         MaterialTheme(
             colorScheme = MaterialTheme.colorScheme,
             typography = typography,
-            content = content
-        )
+        ) {
+            // Stil belirtmeyen Text() çağrıları için de varsayılanı ayarla.
+            ProvideTextStyle(typography.bodyMedium, content = content)
+        }
     }
 }
 

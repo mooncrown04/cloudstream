@@ -72,8 +72,13 @@ internal fun BasePreferenceWidget(
                     text = title,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2,
+                    // DİKKAT: `style.copy(fontSize = …)` KULLANMA. Material3'te
+                    // TextStyle kendi `fontFamily` alanını taşır ve `.copy(fontSize=…)`
+                    // çağrısı fontFamily'yi olduğu gibi korur; bu da üstten gelen
+                    // (uygulama fontu) yerine varsayılan fontun kullanılmasına yol açar.
                     style = MaterialTheme.typography.titleLarge,
                     fontSize = TitleFontSize,
+                    fontFamily = MaterialTheme.typography.titleLarge.fontFamily,
                 )
             }
             subcomponent?.invoke(this)
