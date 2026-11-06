@@ -14,8 +14,6 @@
         <item name="android:scrollbarThumbVertical">@null</item>
         <item name="android:scrollbarThumbHorizontal">@null</item>
 
-        <item name="android:fontFamily">@font/google_sans</item>
-        <item name="fontFamily">@font/google_sans</item>
         <item name="android:textViewStyle">@style/AppTextViewStyle</item>
         <item name="android:buttonStyle">@style/AppButtonStyle</item>
         <item name="android:editTextStyle">@style/AppEditStyle</item>
@@ -1227,290 +1225,100 @@
         <item name="android:layout_height">@dimen/download_header_progress_size</item>
         <item name="android:background">@color/playIconBackground</item>
     </style>
-<!-- Font Overlay Stilleri: her font için Preference layout'larını sabitler.
-     XML'de Preference/PreferenceCategory layout'ları fontFamily item'ı
-     taşımadığı için (sadece font eklendiğinde build kırılıyordu) font
-     uygulama-genelinde AppTheme + android:textViewStyle üzerinden geliyor.
-     Tek kaynak: getAppFontFamily() + array.xml. -->
+<!-- Font Overlay Stilleri: sadece tema nitelikleri (fontFamily + preferenceCategoryStyle).
+     NOT: Burada var olmayan item isimleri (textViewStyle, textAppearanceListItem,
+     materialButtonStyle, preferenceStyle, ...) kullanmak AAPT2'de
+     "resource linking failed" ile build'i kırar. Fontun geri kalanı
+     AppTheme + android:textViewStyle + Compose tarafından geliyor. -->
 <style name="TimesNewRomanFontOverlay">
     <item name="android:fontFamily">@font/times_new_roman</item>
     <item name="fontFamily">@font/times_new_roman</item>
     <item name="preferenceCategoryStyle">@style/TimesNewRomanPrefCategory</item>
-    <item name="preferenceStyle">@style/TimesNewRomanPref</item>
-    <item name="switchPreferenceCompatStyle">@style/TimesNewRomanSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/TimesNewRomanCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/TimesNewRomanSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/TimesNewRomanEditTextPref</item>
-</style>
-<style name="TimesNewRomanPref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="TimesNewRomanSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="TimesNewRomanCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="TimesNewRomanSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="TimesNewRomanEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="TimesNewRomanPrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/times_new_roman</item>
+    <item name="fontFamily">@font/times_new_roman</item>
 </style>
 <style name="StixGeneralFontOverlay">
     <item name="android:fontFamily">@font/stix_general</item>
     <item name="fontFamily">@font/stix_general</item>
     <item name="preferenceCategoryStyle">@style/StixGeneralPrefCategory</item>
-    <item name="preferenceStyle">@style/StixGeneralPref</item>
-    <item name="switchPreferenceCompatStyle">@style/StixGeneralSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/StixGeneralCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/StixGeneralSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/StixGeneralEditTextPref</item>
-</style>
-<style name="StixGeneralPref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="StixGeneralSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="StixGeneralCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="StixGeneralSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="StixGeneralEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="StixGeneralPrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/stix_general</item>
+    <item name="fontFamily">@font/stix_general</item>
 </style>
 <style name="ComicSansFontOverlay">
     <item name="android:fontFamily">@font/comic_sans</item>
     <item name="fontFamily">@font/comic_sans</item>
     <item name="preferenceCategoryStyle">@style/ComicSansPrefCategory</item>
-    <item name="preferenceStyle">@style/ComicSansPref</item>
-    <item name="switchPreferenceCompatStyle">@style/ComicSansSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/ComicSansCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/ComicSansSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/ComicSansEditTextPref</item>
-</style>
-<style name="ComicSansPref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="ComicSansSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="ComicSansCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="ComicSansSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="ComicSansEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="ComicSansPrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/comic_sans</item>
+    <item name="fontFamily">@font/comic_sans</item>
 </style>
 <style name="MaybachFontOverlay">
     <item name="android:fontFamily">@font/maybach</item>
     <item name="fontFamily">@font/maybach</item>
     <item name="preferenceCategoryStyle">@style/MaybachPrefCategory</item>
-    <item name="preferenceStyle">@style/MaybachPref</item>
-    <item name="switchPreferenceCompatStyle">@style/MaybachSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/MaybachCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/MaybachSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/MaybachEditTextPref</item>
-</style>
-<style name="MaybachPref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="MaybachSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="MaybachCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="MaybachSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="MaybachEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="MaybachPrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/maybach</item>
+    <item name="fontFamily">@font/maybach</item>
 </style>
 <style name="PerfumeFontOverlay">
     <item name="android:fontFamily">@font/perfume</item>
     <item name="fontFamily">@font/perfume</item>
     <item name="preferenceCategoryStyle">@style/PerfumePrefCategory</item>
-    <item name="preferenceStyle">@style/PerfumePref</item>
-    <item name="switchPreferenceCompatStyle">@style/PerfumeSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/PerfumeCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/PerfumeSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/PerfumeEditTextPref</item>
-</style>
-<style name="PerfumePref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="PerfumeSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="PerfumeCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="PerfumeSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="PerfumeEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="PerfumePrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/perfume</item>
+    <item name="fontFamily">@font/perfume</item>
 </style>
 <style name="NaxmosFontOverlay">
     <item name="android:fontFamily">@font/naxmos</item>
     <item name="fontFamily">@font/naxmos</item>
     <item name="preferenceCategoryStyle">@style/NaxmosPrefCategory</item>
-    <item name="preferenceStyle">@style/NaxmosPref</item>
-    <item name="switchPreferenceCompatStyle">@style/NaxmosSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/NaxmosCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/NaxmosSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/NaxmosEditTextPref</item>
-</style>
-<style name="NaxmosPref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="NaxmosSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="NaxmosCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="NaxmosSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="NaxmosEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="NaxmosPrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/naxmos</item>
+    <item name="fontFamily">@font/naxmos</item>
 </style>
 <style name="ConsolaFontOverlay">
     <item name="android:fontFamily">@font/consola</item>
     <item name="fontFamily">@font/consola</item>
     <item name="preferenceCategoryStyle">@style/ConsolaPrefCategory</item>
-    <item name="preferenceStyle">@style/ConsolaPref</item>
-    <item name="switchPreferenceCompatStyle">@style/ConsolaSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/ConsolaCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/ConsolaSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/ConsolaEditTextPref</item>
-</style>
-<style name="ConsolaPref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="ConsolaSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="ConsolaCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="ConsolaSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="ConsolaEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="ConsolaPrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/consola</item>
+    <item name="fontFamily">@font/consola</item>
 </style>
 <style name="FuturaFontOverlay">
     <item name="android:fontFamily">@font/futura</item>
     <item name="fontFamily">@font/futura</item>
     <item name="preferenceCategoryStyle">@style/FuturaPrefCategory</item>
-    <item name="preferenceStyle">@style/FuturaPref</item>
-    <item name="switchPreferenceCompatStyle">@style/FuturaSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/FuturaCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/FuturaSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/FuturaEditTextPref</item>
-</style>
-<style name="FuturaPref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="FuturaSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="FuturaCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="FuturaSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="FuturaEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="FuturaPrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/futura</item>
+    <item name="fontFamily">@font/futura</item>
 </style>
 <style name="GoogleSansFontOverlay">
     <item name="android:fontFamily">@font/google_sans</item>
     <item name="fontFamily">@font/google_sans</item>
     <item name="preferenceCategoryStyle">@style/GoogleSansPrefCategory</item>
-    <item name="preferenceStyle">@style/GoogleSansPref</item>
-    <item name="switchPreferenceCompatStyle">@style/GoogleSansSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/GoogleSansCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/GoogleSansSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/GoogleSansEditTextPref</item>
-</style>
-<style name="GoogleSansPref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="GoogleSansSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="GoogleSansCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="GoogleSansSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="GoogleSansEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="GoogleSansPrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/google_sans</item>
+    <item name="fontFamily">@font/google_sans</item>
 </style>
 <style name="GothamFontOverlay">
     <item name="android:fontFamily">@font/gotham</item>
     <item name="fontFamily">@font/gotham</item>
     <item name="preferenceCategoryStyle">@style/GothamPrefCategory</item>
-    <item name="preferenceStyle">@style/GothamPref</item>
-    <item name="switchPreferenceCompatStyle">@style/GothamSwitchPref</item>
-    <item name="checkBoxPreferenceStyle">@style/GothamCheckBoxPref</item>
-    <item name="seekBarPreferenceStyle">@style/GothamSeekBarPref</item>
-    <item name="editTextPreferenceStyle">@style/GothamEditTextPref</item>
-</style>
-<style name="GothamPref" parent="Preference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="GothamSwitchPref" parent="Preference.SwitchPreferenceCompat">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="GothamCheckBoxPref" parent="Preference.CheckBoxPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
-</style>
-<style name="GothamSeekBarPref" parent="Preference.SeekBarPreference">
-    <item name="android:layout">@layout/custom_preference_widget_seekbar</item>
-</style>
-<style name="GothamEditTextPref" parent="Preference.DialogPreference.EditTextPreference">
-    <item name="android:layout">@layout/custom_preference_material</item>
 </style>
 <style name="GothamPrefCategory" parent="Preference.Category">
-    <item name="android:layout">@layout/preference_category_material</item>
+    <item name="android:fontFamily">@font/gotham</item>
+    <item name="fontFamily">@font/gotham</item>
 </style>
 
 </resources>
