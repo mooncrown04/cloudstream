@@ -1,7 +1,6 @@
 package com.lagradost.cloudstream4.theme
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -9,22 +8,17 @@ import androidx.compose.ui.text.font.FontFamily
 import com.lagradost.cloudstream4.rememberAppSettings
 import com.mihon.presentation.settings.collectAsState
 
-/** Ayarda seçili font anahtarını reaktif olarak okur. */
-@Composable
-fun rememberAppFontKey(): String {
-    val settings = rememberAppSettings()
-    val fontKey by settings.ui.appFont.collectAsState()
-    return fontKey
-}
-
 /**
  * Ayarda seçili fontu reaktif olarak döndürür (`null` = sistem fontu).
  *
- * Fonksiyon referansı üzerinden de kullanılabilir:
- * `CloudStreamTheme(fontFamily = rememberAppFontFamily())`
+ * Ayar anahtarı burada okunur; font eşlemesi platforma bırakılır.
+ * `CloudStreamTheme` varsayılan olarak bunu kullanır, böylece tema çağrısını
+ * değiştirmeye gerek kalmadan tüm Compose ağacı seçili fontu alır.
  */
 @Composable
-fun rememberAppFontFamily(fontKey: String? = rememberAppFontKey()): FontFamily? {
+fun rememberAppFontFamily(): FontFamily? {
+    val settings = rememberAppSettings()
+    val fontKey by settings.ui.appFont.collectAsState()
     return resolveAppFontFamily(fontKey)
 }
 
@@ -53,21 +47,7 @@ fun CloudStreamFontTheme(
         MaterialTheme(
             colorScheme = MaterialTheme.colorScheme,
             typography = typography,
-        ) {
-            // Stil belirtmeyen Text() çağrıları için de varsayılanı ayarla.
-            ProvideTextStyle(typography.bodyMedium, content = content)
-        }
+            content = content
+        )
     }
-}
-
-/**
- * Yeni bir pencere açan Compose içerikleri için font sarmalayıcısı.
- * Sadece ayarlarda seçili fontu uygular; tema/renk tarafına dokunmaz.
- */
-@Composable
-fun AppFontTheme(
-    fontFamily: FontFamily? = rememberAppFontFamily(),
-    content: @Composable () -> Unit,
-) {
-    CloudStreamFontTheme(fontFamily = fontFamily, content = content)
 }
