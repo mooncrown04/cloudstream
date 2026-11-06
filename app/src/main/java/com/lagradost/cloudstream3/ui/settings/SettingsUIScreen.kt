@@ -9,8 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.painterResource
@@ -44,9 +43,8 @@ import kotlinx.collections.immutable.toPersistentMap
 
 object SettingsUIScreen : SearchableSettings {
 
-    // Font anahtarı -> FontFamily eşlemesi artık TEK yerde:
-    // com.lagradost.cloudstream3.utils.getAppFontFamily()
-    // (Aşağıdaki font listesi sadece ayar ekranındaki önizleme için kullanılır.)
+    // Font anahtarı -> dosya eşlemesi tek yerde:
+    // com.lagradost.cloudstream4.theme.appFontFileNames (shared/androidMain)
 
     @Composable
     override fun getTitleRes(): String = stringResource(R.string.category_ui)
@@ -84,9 +82,6 @@ object SettingsUIScreen : SearchableSettings {
     @Composable
     override fun getPreferences(): List<Preference> {
         val settings = rememberAppSettings()
-
-    @Composable
-    override fun getTitleRes(): String = stringResource(R.string.category_ui)
 
         return persistentListOf(
             Preference.PreferenceGroup(
