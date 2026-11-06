@@ -25,9 +25,10 @@ fun rememberAppFontFamily(): FontFamily? {
 /**
  * Font anahtarını platformun sağladığı `FontFamily` çözücüsüne devreder.
  *
- * Eşleme Android tarafında (`com.lagradost.cloudstream3.utils.getAppFontFamily`)
- * tek yerde tutulur; burası ortak (common) kod olduğu için `R.font` erişimi yoktur.
+ * Eşleme Android tarafında (`appFontFileNames`) tek yerde tutulur; burası
+ * ortak (common) kod olduğu için `R.font` erişimi yoktur.
  */
+@Composable
 expect fun resolveAppFontFamily(fontKey: String?): FontFamily?
 
 /**
