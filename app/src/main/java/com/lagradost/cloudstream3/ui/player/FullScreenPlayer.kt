@@ -1079,55 +1079,44 @@ KeyEvent.KEYCODE_PROG_BLUE -> {
 }	
 			 
    
-// --- DPAD YUKARI/AŞAĞI ---
+// --- DPAD YUKARI/AŞAĞI: BÖLÜM GEÇİŞİ ---
+// Dizi bölümlerinde YUKARI = önceki bölüm, AŞAĞI = sonraki bölüm.
+// Eski kodda "kısa / uzun basış" ayrımı vardı: kısa basışta YUKARI SONRAKİ
+// bölüme gidiyordu (önceki bölümün çalışmamasının sebebi buydu) ve uzun
+// basışta tuş tekrarı yüzünden PrevEpisode birkaç kez tetikleniyordu.
 KeyEvent.KEYCODE_DPAD_UP,
 KeyEvent.KEYCODE_DPAD_DOWN -> {
-    // Eğer arayüz, diyalog veya bölüm listesi/sekmeleri açıksa tuşları yakalama
+    // Arayüz / diyalog / bölüm listesi açıksa tuşu normal odak yönetimine bırak
     if (isShowing || isDialogOpen() || isShowingEpisodeOverlay) {
-        return false // null yerine false döndürülmeli
+        return false
     }
-    
-    // Her şey kapalıysa işlemleri gerçekleştir
-    if (!isLocked) {
-        val isLongPress = event.isLongPress || event.repeatCount > 5
-        
-        if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            if (isLongPress) {
-                // YUKARI - Uzun Basma: Önceki Bölüm
-        
+    if (isLocked) {
+        return false
+    }
 
-			 player.handleEvent(CSPlayerEvent.PrevEpisode)
-                
-            playerBinding?.playerVideoTitle?.postDelayed({
-                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    showToast("Önceki: $newTitle")
-                }, 300)
-            } else {
-                // YUKARI - Kısa Basma: Sonraki Bölüm
-                player.handleEvent(CSPlayerEvent.NextEpisode)
-                
-                playerBinding?.playerVideoTitle?.postDelayed({
-                    val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
-                    showToast("Sonraki: $newTitle")
-                }, 300)
-            }
-        } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
-            if (isLongPress) {
-                // AŞAĞI - Uzun Basma: arama
-               val context = context
-            if (subsProvidersIsActive && context != null) {
-                openOnlineSubPicker(context, null) {}
-               
-			   }
-            } else {
-                // AŞAĞI - Kısa Basma: kaynaklar
-                showMirrorsDialogue()
-            }
-        }
-        
+    // Basılı tutmada bölüm atlamayı engelle: yalnızca ilk basış işlenir
+    if (event.repeatCount > 0) {
         return true
     }
-    return false
+
+    when (keyCode) {
+        KeyEvent.KEYCODE_DPAD_UP -> {
+            player.handleEvent(CSPlayerEvent.PrevEpisode)
+            playerBinding?.playerVideoTitle?.postDelayed({
+                val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                showToast("Önceki: $newTitle")
+            }, 300)
+        }
+
+        KeyEvent.KEYCODE_DPAD_DOWN -> {
+            player.handleEvent(CSPlayerEvent.NextEpisode)
+            playerBinding?.playerVideoTitle?.postDelayed({
+                val newTitle = playerBinding?.playerVideoTitle?.text?.toString() ?: "Bölüm"
+                showToast("Sonraki: $newTitle")
+            }, 300)
+        }
+    }
+    return true
 }
 
 

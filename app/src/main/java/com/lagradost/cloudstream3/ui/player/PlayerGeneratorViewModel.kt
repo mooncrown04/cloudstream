@@ -257,7 +257,9 @@ class PlayerGeneratorViewModel : ViewModel() {
     fun loadLinksPrev() {
         Log.i(TAG, "loadLinksPrev")
         if (generator?.hasPrev(episodeIndex) == true) {
-            episodeIndex += 1
+            // ÖNCEKİ bölüm = indeks AZALIR. (Önceden += 1 yazıyordu; bu yüzden
+            // "önceki bölüm" gerçekte bir sonraki bölüme gidiyordu.)
+            episodeIndex -= 1
             loadLinks()
         }
     }
