@@ -109,6 +109,7 @@ internal fun PreferenceItem(
                     icon = item.icon,
                     entries = item.entries,
                     iconProvider = item::InternalIconProvider,
+                    entryFontProvider = item::InternalEntryFontProvider,
                     onValueChange = { newValue ->
                         scope.launch {
                             if (item.internalOnValueChanged(newValue)) {

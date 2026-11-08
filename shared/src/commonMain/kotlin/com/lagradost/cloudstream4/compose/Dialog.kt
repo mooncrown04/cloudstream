@@ -34,6 +34,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -215,7 +216,8 @@ fun <T> SingleSelectDialog(
     dismissText: String? = null,
     dismiss: () -> Unit,
     confirm: (T) -> Unit,
-    iconProvider: (@Composable (key: T, value: String) -> Unit)? = null
+    iconProvider: (@Composable (key: T, value: String) -> Unit)? = null,
+    entryFontProvider: @Composable (key: T) -> FontFamily? = { null },
 ) {
     // Diyalog yeni bir pencere açar; seçili uygulama fontu burada ayrıca uygulanır.
     CloudStreamFontTheme {
@@ -235,6 +237,7 @@ fun <T> SingleSelectDialog(
             dismiss = dismiss,
             confirm = confirm,
             iconProvider = iconProvider,
+            entryFontProvider = entryFontProvider,
         )
     }
 }
@@ -256,7 +259,8 @@ private fun <T> SingleSelectDialogContent(
     dismissText: String? = null,
     dismiss: () -> Unit,
     confirm: (T) -> Unit,
-    iconProvider: (@Composable (key: T, value: String) -> Unit)? = null
+    iconProvider: (@Composable (key: T, value: String) -> Unit)? = null,
+    entryFontProvider: @Composable (key: T) -> FontFamily? = { null },
 ) {
     var selected by remember { mutableStateOf(selectedKey) }
     val selectedPainter = painterResource(Res.drawable.check)
@@ -282,6 +286,7 @@ private fun <T> SingleSelectDialogContent(
                             key = key,
                             text = value,
                             iconProvider = iconProvider,
+                            textFontFamily = entryFontProvider(key),
                             selectedPainter = selectedPainter,
                             modifier = Modifier.focusProperties {
                                 start = dismissFocus
@@ -412,6 +417,7 @@ fun <T> SingleSelectionItem(
     text: String,
     modifier: Modifier = Modifier,
     iconProvider: (@Composable (key: T, value: String) -> Unit)? = null,
+    textFontFamily: FontFamily? = null,
     selectedPainter: Painter,
     onClick: () -> Unit,
 ) {
@@ -435,6 +441,7 @@ fun <T> SingleSelectionItem(
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
+                fontFamily = textFontFamily ?: MaterialTheme.typography.bodyLarge.fontFamily,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(15.dp)
             )
@@ -444,6 +451,7 @@ fun <T> SingleSelectionItem(
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
+                fontFamily = textFontFamily ?: MaterialTheme.typography.bodyLarge.fontFamily,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(15.dp)
             )

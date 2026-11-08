@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.font.FontFamily
 import com.lagradost.cloudstream4.generated.resources.Res
 import com.lagradost.cloudstream4.generated.resources.none
 import com.mihon.common.preference.PreferenceData
@@ -88,6 +89,12 @@ sealed class Preference {
             override val enabled: Boolean = true,
             override val onValueChanged: suspend (value: T) -> Boolean = { true },
             val iconProvider: (@Composable (key: T, value: String) -> Unit)? = null,
+            /**
+             * Diyalogdaki her satırın YAZI TİPİNİ belirler (ör. font seçimi listesinde
+             * satırları kendi fontlarıyla göstermek için).
+             * `null` dönerse satır varsayılan temayla çizilir.
+             */
+            val entryFontProvider: @Composable (key: T) -> FontFamily? = { null },
         ) : PreferenceItem<T, Boolean>() {
             internal fun internalSet(value: Any?) = preference.set(value as T)
             internal suspend fun internalOnValueChanged(value: Any?) = onValueChanged(value as T)
@@ -98,6 +105,10 @@ sealed class Preference {
             @Composable
             internal fun InternalIconProvider(key: Any?, value: String) =
                 iconProvider?.invoke(key as T, value)
+
+            @Composable
+            internal fun InternalEntryFontProvider(key: Any?): FontFamily? =
+                entryFontProvider(key as T)
         }
 
         /**

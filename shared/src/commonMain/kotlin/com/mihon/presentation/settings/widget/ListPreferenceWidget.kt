@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.text.font.FontFamily
 import com.lagradost.cloudstream4.compose.SingleSelectDialog
 import com.lagradost.cloudstream4.generated.resources.Res
 import com.lagradost.cloudstream4.generated.resources.cancel
@@ -20,7 +21,9 @@ fun <T> ListPreferenceWidget(
     icon: Painter?,
     entries: Map<out T, String>,
     onValueChange: (T) -> Unit,
-    iconProvider: (@Composable (key: T, value: String) -> Unit)? = null
+    iconProvider: (@Composable (key: T, value: String) -> Unit)? = null,
+    /** Her satırı kendi yazı tipiyle göstermek için (font seçimi listesi). */
+    entryFontProvider: @Composable (key: T) -> FontFamily? = { null },
 ) {
     var isDialogShown by remember { mutableStateOf(false) }
 
@@ -43,7 +46,8 @@ fun <T> ListPreferenceWidget(
             },
             confirmText = stringResource(Res.string.ok),
             dismissText = stringResource(Res.string.cancel),
-            iconProvider = iconProvider
+            iconProvider = iconProvider,
+            entryFontProvider = entryFontProvider,
         )
         /*AlertDialog(
             onDismissRequest = { isDialogShown = false },

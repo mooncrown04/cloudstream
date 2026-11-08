@@ -15,6 +15,7 @@ import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.lagradost.cloudstream3.CommonActivity.activity
 import com.lagradost.cloudstream3.DubStatus
@@ -35,6 +36,7 @@ import com.lagradost.cloudstream4.theme.CloudStreamPrimaryColor
 import com.lagradost.cloudstream4.theme.modeToTheme
 import com.lagradost.cloudstream4.theme.perfToColor
 import com.lagradost.cloudstream4.theme.perfToMode
+import com.lagradost.cloudstream4.theme.resolveAppFontFamily
 import com.mihon.presentation.settings.Preference
 import com.mihon.presentation.settings.SearchableSettings
 import kotlinx.collections.immutable.mutate
@@ -42,6 +44,14 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentMap
 
 object SettingsUIScreen : SearchableSettings {
+
+    /**
+     * Font seçimi diyalogunda satırı kendi yazı tipiyle göstermek için.
+     * Çözümleme shared modüldeki platform çözücüsüne devredilir; böylece
+     * eşleme tek yerde kalır (appFontFileNames).
+     */
+    @Composable
+    fun fontPreviewFamily(key: String): FontFamily? = resolveAppFontFamily(key)
 
     // Font anahtarı -> dosya eşlemesi tek yerde:
     // com.lagradost.cloudstream4.theme.appFontFileNames (shared/androidMain)
@@ -158,6 +168,8 @@ object SettingsUIScreen : SearchableSettings {
                             .zip(stringArrayResource(R.array.app_font_names))
                             .toMap()
                             .toPersistentMap(),
+                        // Her satırı kendi fontuyla göster
+                        entryFontProvider = { key -> fontPreviewFamily(key) },
                         onValueChanged = { newValue ->
                             settings.ui.appFont.set(newValue)
                             // XML/View ekranları (ana sayfa, kütüphane, ...) Compose gibi
