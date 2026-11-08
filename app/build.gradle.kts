@@ -89,14 +89,20 @@ android {
         // so won't kill the configuration cache.
         if (System.getenv("SIGNING_KEY_ALIAS") != null) {
             create("prerelease") {
-                // Öncelik: SIGNING_STORE_FILE (tam yol). Yoksa eski davranış:
-                // ~/work/_temp/keystore/ altındaki ilk dosya.
+                // Öncelik: SIGNING_STORE_FILE (tam yol).
+                // Sonra: <user.home>/work/_temp/keystore/ klasöründeki ilk dosya
+                //        (CI'da user.home = /home/runner).
+                // Son olarak: /work/_temp/keystore/ (CI'da user.home farklı çıkarsa diye yedek yol).
                 val explicitPath = System.getenv("SIGNING_STORE_FILE")
-                val prereleaseStoreFile: File? = if (explicitPath != null) {
-                    File(explicitPath)
-                } else {
-                    val tmpFilePath = System.getProperty("user.home") + "/work/_temp/keystore/"
-                    File(tmpFilePath).listFiles()?.firstOrNull()
+                val prereleaseStoreFile: File? = when {
+                    !explicitPath.isNullOrBlank() -> File(explicitPath)
+                    else -> sequenceOf(
+                        System.getProperty("user.home") + "/work/_temp/keystore/",
+                        "/work/_temp/keystore/"
+                    ).mapNotNull { dir ->
+                        File(dir).listFiles()?.firstOrNull { it.name.endsWith(".jks") || it.name.endsWith(".keystore") }
+                            ?: File(dir).listFiles()?.firstOrNull()
+                    }.firstOrNull()
                 }
 
                 if (prereleaseStoreFile == null || !prereleaseStoreFile.exists()) {
