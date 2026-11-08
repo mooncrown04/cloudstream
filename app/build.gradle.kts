@@ -89,8 +89,21 @@ android {
         // so won't kill the configuration cache.
         if (System.getenv("SIGNING_KEY_ALIAS") != null) {
             create("prerelease") {
-                val tmpFilePath = System.getProperty("user.home") + "/work/_temp/keystore/"
-                val prereleaseStoreFile: File? = File(tmpFilePath).listFiles()?.first()
+                // Öncelik: SIGNING_STORE_FILE (tam yol). Yoksa eski davranış:
+                // ~/work/_temp/keystore/ altındaki ilk dosya.
+                val explicitPath = System.getenv("SIGNING_STORE_FILE")
+                val prereleaseStoreFile: File? = if (explicitPath != null) {
+                    File(explicitPath)
+                } else {
+                    val tmpFilePath = System.getProperty("user.home") + "/work/_temp/keystore/"
+                    File(tmpFilePath).listFiles()?.firstOrNull()
+                }
+
+                if (prereleaseStoreFile == null || !prereleaseStoreFile.exists()) {
+                    logger.warn("Keystore bulunamadı: ${prereleaseStoreFile?.absolutePath ?: "yol yok"}")
+                } else {
+                    logger.lifecycle("Keystore kullanılıyor: ${prereleaseStoreFile.absolutePath} (${prereleaseStoreFile.length()} bayt)")
+                }
 
                 storeFile = prereleaseStoreFile?.let { file(it) }
                 storePassword = System.getenv("SIGNING_STORE_PASSWORD")
