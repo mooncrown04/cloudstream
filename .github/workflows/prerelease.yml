@@ -31,13 +31,23 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
+    - name: Decode keystore
+      # app/build.gradle.kts keystore'u ~/work/_temp/keystore/ altında arıyor.
+      run: |
+        mkdir -p "$HOME/work/_temp/keystore"
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > "$HOME/work/_temp/keystore/release.jks"
+        ls -l "$HOME/work/_temp/keystore/"
+
     - name: Run Gradle Build
-      # İmza gerektirmeyen debug sürümünü ve jar dosyalarını derliyoruz
-      run: ./gradlew assembleDebug androidSourcesJar makeJar || ./gradlew assembleDebug
+      # İmzalı release APK + jar dosyaları
+      run: ./gradlew assemblePrereleaseRelease androidSourcesJar makeJar || ./gradlew assemblePrereleaseRelease
       env:
         SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
         SIMKL_CLIENT_SECRET: ${{ secrets.SIMKL_CLIENT_SECRET }}
         MDL_API_KEY: ${{ secrets.MDL_API_KEY }}
+        SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+        SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+        SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
     - name: Create pre-release
       uses: marvinpinto/action-automatic-releases@latest
@@ -47,6 +57,6 @@ jobs:
         prerelease: true
         title: "Kendi Derlemem - Pre-release Build"
         files: |
-          app/build/outputs/apk/debug/*.apk
+          app/build/outputs/apk/prerelease/release/*.apk
           app/build/libs/*.jar
           app/build/*.jar
