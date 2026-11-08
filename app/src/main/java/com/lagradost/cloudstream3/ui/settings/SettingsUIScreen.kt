@@ -159,9 +159,15 @@ object SettingsUIScreen : SearchableSettings {
                             .toMap()
                             .toPersistentMap(),
                         onValueChanged = { newValue ->
-                            // Font artık reaktif okunuyor (rememberAppFontFamily);
-                            // recreate() gerekmez, ama eski XML ekranları için zararsız.
                             settings.ui.appFont.set(newValue)
+                            // XML/View ekranları (ana sayfa, kütüphane, ...) Compose gibi
+                            // reaktif değil: android:fontFamily tema niteliğinden geldiği
+                            // için yeni fontun uygulanması activity'nin yeniden
+                            // oluşturulmasını gerektirir. Aksi halde font ancak uygulama
+                            // tamamen kapatılıp açılınca görünüyordu.
+                            safe {
+                                activity?.recreate()
+                            }
                             return@ListPreference false
                         }),
                 )
