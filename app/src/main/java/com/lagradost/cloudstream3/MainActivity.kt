@@ -732,15 +732,17 @@ class MainActivity : AppCompatActivity(), ColorPickerDialogListener, BiometricCa
                 }
             }
 KeyEvent.KEYCODE_PROG_BLUE -> {
-    //if (isNotPlayingVideo) {
-        showToast("Bölüm listesi açılıyor", Toast.LENGTH_SHORT)
-        
-        // Ekranda aktif olan view içinden ilgili butonu bulup tıklatıyoruz
-        findViewById<View>(R.id.result_episodes_show_button)?.performClick()
-        
-        return true
-   // }
-}
+                if (isNotPlayingVideo) {
+                    // Eklentileri güncelle: Ayarlar > Güncelleme ve yedekleme > Eklentileri güncelle
+                    showToast("Eklentiler güncelleniyor", Toast.LENGTH_SHORT)
+                    ioSafe {
+                        PluginManager.___DO_NOT_CALL_FROM_A_PLUGIN_manuallyReloadAndUpdatePlugins(
+                            this@MainActivity
+                        )
+                    }
+                    return true
+                }
+            }
 
             KeyEvent.KEYCODE_MEDIA_PLAY,
             KeyEvent.KEYCODE_MEDIA_PAUSE,
