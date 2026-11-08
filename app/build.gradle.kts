@@ -151,6 +151,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // GitHub Actions'ta SIGNING_* secret'ları varsa imzala.
+            // Yoksa imzasız derlenir (yerel derleme için).
+            if (signingConfigs.names.contains("prerelease")) {
+                signingConfig = signingConfigs.getByName("prerelease")
+            }
         }
         debug {
             isDebuggable = true
@@ -169,7 +174,10 @@ android {
         }
         create("prerelease") {
             dimension = "state"
-            applicationIdSuffix = ".prerelease"
+            // ÖNEMLİ: applicationIdSuffix KALDIRILDI.
+            // Paket adı com.lagradost.cloudstream3 olarak kalıyor; böylece
+            // yeni APK eskisinin ÜZERİNE kurulur (uygulama verileri korunur).
+            // Aynı imza anahtarıyla imzalandığı için Android güncelleme sayar.
             if (signingConfigs.names.contains("prerelease")) {
                 signingConfig = signingConfigs.getByName("prerelease")
             } else {
