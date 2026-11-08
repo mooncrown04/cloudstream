@@ -34,23 +34,24 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
 
     - name: Decode keystore
-      # app/build.gradle.kts keystore'u ~/work/_temp/keystore/ altında arıyor.
-      # DİKKAT: echo "${{ ... }}" satır sonlarını bozabiliyor ("Tag number over 30"
-      # hatası). Bu yüzden secret env değişkeni olarak geçirilip printf ile yazılıyor.
+      # Keystore kullanıcı ev dizinine yazılıyor; /work gibi kök dizinlere
+      # yazma izni yok. Yol SIGNING_STORE_FILE ile Gradle'a açıkça veriliyor.
       env:
         KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
       run: |
-        # Not: burada $HOME KULLANILMIYOR; $HOME /home/runner olur ve Gradle
-        # /work/_temp/keystore/release.jks arıyor (JAVA user.home farklı).
-        mkdir -p /work/_temp/keystore
-        printf '%s' "$KEYSTORE_BASE64" | base64 -d > /work/_temp/keystore/release.jks
-        echo "Keystore boyutu: $(stat -c%s /work/_temp/keystore/release.jks) bayt"
-        # Dosyanın gerçekten okunabildiğini doğrula (imzalama öncesi erken hata)
-        keytool -list -keystore /work/_temp/keystore/release.jks -storepass "${{ secrets.SIGNING_STORE_PASSWORD }}" | head -5
+        set -euo pipefail
+        KEYSTORE_PATH="$HOME/keystore/release.jks"
+        mkdir -p "$HOME/keystore"
+        printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$KEYSTORE_PATH"
+        echo "Keystore yazıldı: $KEYSTORE_PATH ($(stat -c%s "$KEYSTORE_PATH") bayt)"
+        echo "SIGNING_STORE_FILE=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+        # İmzalama öncesi erken doğrulama
+        keytool -list -keystore "$KEYSTORE_PATH" -storepass "$SIGNING_STORE_PASSWORD" | head -5
 
     - name: Run Gradle Build
       # İmzalı release APK + jar dosyaları
-      run: ./gradlew assemblePrereleaseRelease androidSourcesJar makeJar || ./gradlew assemblePrereleaseRelease
+      run: ./gradlew assemblePrereleaseRelease androidSourcesJar makeJar || ./gradlew assemblePrereleaseRelease --stacktrace
       env:
         SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
         SIMKL_CLIENT_SECRET: ${{ secrets.SIMKL_CLIENT_SECRET }}

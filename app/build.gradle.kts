@@ -89,24 +89,27 @@ android {
         // so won't kill the configuration cache.
         if (System.getenv("SIGNING_KEY_ALIAS") != null) {
             create("prerelease") {
-                // Öncelik: SIGNING_STORE_FILE (tam yol).
-                // Sonra: <user.home>/work/_temp/keystore/ klasöründeki ilk dosya
-                //        (CI'da user.home = /home/runner).
-                // Son olarak: /work/_temp/keystore/ (CI'da user.home farklı çıkarsa diye yedek yol).
+                // Öncelik: SIGNING_STORE_FILE (workflow bu değişkeni set ediyor).
+                // Sonra: <user.home>/work/_temp/keystore/ klasörü (upstream varsayılanı).
+                // Son olarak: <user.home>/keystore/.
                 val explicitPath = System.getenv("SIGNING_STORE_FILE")
-                val prereleaseStoreFile: File? = when {
-                    !explicitPath.isNullOrBlank() -> File(explicitPath)
-                    else -> sequenceOf(
-                        System.getProperty("user.home") + "/work/_temp/keystore/",
-                        "/work/_temp/keystore/"
-                    ).mapNotNull { dir ->
-                        File(dir).listFiles()?.firstOrNull { it.name.endsWith(".jks") || it.name.endsWith(".keystore") }
-                            ?: File(dir).listFiles()?.firstOrNull()
-                    }.firstOrNull()
+                val candidates = buildList {
+                    if (!explicitPath.isNullOrBlank()) add(File(explicitPath))
+                    val home = System.getProperty("user.home")
+                    listOf("$home/work/_temp/keystore/", "$home/keystore/", "/work/_temp/keystore/")
+                        .map { File(it) }
+                        .filter { it.isDirectory }
+                        .forEach { dir ->
+                            dir.listFiles()
+                                ?.sortedByDescending { it.name.endsWith(".jks") || it.name.endsWith(".keystore") }
+                                ?.forEach { add(it) }
+                        }
                 }
+                val prereleaseStoreFile: File? = candidates.firstOrNull { it.isFile }
 
                 if (prereleaseStoreFile == null || !prereleaseStoreFile.exists()) {
-                    logger.warn("Keystore bulunamadı: ${prereleaseStoreFile?.absolutePath ?: "yol yok"}")
+                    logger.warn("Keystore bulunamadı. Aranan yollar: " +
+                        candidates.joinToString { it.absolutePath } + " | SIGNING_STORE_FILE=" + explicitPath)
                 } else {
                     logger.lifecycle("Keystore kullanılıyor: ${prereleaseStoreFile.absolutePath} (${prereleaseStoreFile.length()} bayt)")
                 }
