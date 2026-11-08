@@ -7,6 +7,8 @@ on:
       - '*.md'
       - '*.json'
       - '**/wcokey.txt'
+      # Doküman/not değişiklikleri yeni APK üretmesin
+      - 'docs/**'
   workflow_dispatch:
 
 concurrency:

@@ -50,7 +50,9 @@ sealed class GithubAction {
     data class SkipUpdate(val file: GithubReleases.GithubFile) : GithubAction()
 }
 
-const val APK_USERNAME = "recloudstream"
+// Uygulama içi güncelleme kontrolü KENDİ repo'na bakar.
+// Yeni APK yayınlandığında uygulama bunu görür ve indirip kurar.
+const val APK_USERNAME = "mooncrown04"
 const val APK_REPOSITORY = "cloudstream"
 const val APK_PRERELEASE = "pre-release"
 const val APK_CONTENT_TYPE = "application/vnd.android.package-archive"
