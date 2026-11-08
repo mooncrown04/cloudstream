@@ -81,6 +81,8 @@
         android:fullBackupContent="@xml/backup_descriptor"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
+        android:killAfterRestore="false"
+        android:restoreAnyVersion="true"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:pageSizeCompat="enabled"
