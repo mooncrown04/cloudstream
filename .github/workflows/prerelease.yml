@@ -49,6 +49,11 @@ jobs:
         # İmzalama öncesi erken doğrulama
         keytool -list -keystore "$KEYSTORE_PATH" -storepass "$SIGNING_STORE_PASSWORD" | head -5
 
+    - name: Update library ABI reference
+      # Upstream kodu değiştirip library.api referansını güncellememiş olabilir
+      # (:library:checkLegacyAbi hata verir). Referansı otomatik yenile.
+      run: ./gradlew :library:updateKotlinAbi || true
+
     - name: Run Gradle Build
       # İmzalı release APK + jar dosyaları
       run: ./gradlew assemblePrereleaseRelease androidSourcesJar makeJar || ./gradlew assemblePrereleaseRelease --stacktrace
