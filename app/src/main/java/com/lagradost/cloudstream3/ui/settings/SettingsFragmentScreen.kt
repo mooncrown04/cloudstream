@@ -304,6 +304,7 @@ object SettingsFragmentScreen : Screen {
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusRequester = remember { FocusRequester() }
         val isTv = isLayout(TV)
+        val textValue = textFieldState.text.toString()
         TextField(
             value = textValue,
             onValueChange = { newValue ->
