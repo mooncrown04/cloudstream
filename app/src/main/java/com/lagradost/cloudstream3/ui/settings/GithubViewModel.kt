@@ -158,7 +158,10 @@ class GithubViewModel(
             }
 
             GithubAction.AutoSearchForUpdate -> {
-                if (!isDebug && settings.updates.showAppUpdates.get()) {
+                // isDebug engeli kaldırıldı: debug sürüm de kendi reposundaki
+                // (${remoteUserName}/${remoteRepository}) release'leri kontrol eder.
+                // Güncelleme gösterimi yine showAppUpdates ayarına bağlı.
+                if (settings.updates.showAppUpdates.get()) {
                     ioSafe {
                         searchForUpdate(prerelease = isPrerelease, fromUser = false)
                     }
