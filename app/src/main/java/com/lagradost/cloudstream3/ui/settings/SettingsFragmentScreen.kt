@@ -20,7 +20,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -43,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -95,7 +93,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-
 
 object SettingsFragmentScreen : Screen {
     val screens = persistentListOf(
@@ -301,17 +298,10 @@ object SettingsFragmentScreen : Screen {
         var isWritable by remember { mutableStateOf(false) }
         val focusProgress by animateFloatAsState(targetValue = if (hasFocus) 1.0f else 0.0f)
         val focusManager = LocalFocusManager.current
-        val keyboardController = LocalSoftwareKeyboardController.current
         val focusRequester = remember { FocusRequester() }
         val isTv = isLayout(TV)
-        val textValue = textFieldState.text.toString()
         TextField(
-            value = textValue,
-            onValueChange = { newValue ->
-                textFieldState.clearText()
-                textFieldState.edit { append(newValue) }
-            },
-
+            state = textFieldState,
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Search,
                 /**
@@ -358,6 +348,10 @@ object SettingsFragmentScreen : Screen {
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedLeadingIconColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedTrailingIconColor = MaterialTheme.colorScheme.onBackground,
+                focusedTrailingIconColor = MaterialTheme.colorScheme.onBackground,
+                focusedLeadingIconColor = MaterialTheme.colorScheme.onBackground,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -371,9 +365,8 @@ object SettingsFragmentScreen : Screen {
                 ) { value ->
                     if (value) {
                         IconButton(onClick = {
-                            textFieldState.clearText()
-                            // YENİ EKLENEN KOD: Sol ikonla aramadan çıkıldığında klavyeyi kapatma
-                            keyboardController?.hide(); focusManager.clearFocus(force = true)
+                            textFieldState.edit { replace(0, length, "") }
+                            focusManager.clearFocus()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.keyboard_arrow_left_24px),
@@ -383,9 +376,6 @@ object SettingsFragmentScreen : Screen {
                     } else {
                         IconButton(onClick = {
                             focusRequester.requestFocus()
-                            // YENİ EKLENEN KOD: İkona tıklandığında düzenleme modunu açıp klavyeyi gösterme
-                            isWritable = true
-                            keyboardController?.show()
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.search_icon),
@@ -402,7 +392,7 @@ object SettingsFragmentScreen : Screen {
                 ) { value ->
                     if (value) {
                         IconButton(onClick = {
-                            textFieldState.clearText()
+                            textFieldState.edit { replace(0, length, "") }
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.close_24px),
@@ -414,6 +404,7 @@ object SettingsFragmentScreen : Screen {
             },
         )
 
+        val keyboardController = LocalSoftwareKeyboardController.current
         DisposableEffect(Unit) {
             onDispose {
                 keyboardController?.hide()
