@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
@@ -14,6 +15,7 @@ import com.lagradost.cloudstream4.rememberAppSettings
 import com.lagradost.cloudstream4.theme.CloudStreamTheme
 import com.lagradost.cloudstream4.theme.perfToColor
 import com.lagradost.cloudstream4.theme.perfToMode
+import com.lagradost.cloudstream4.theme.rememberAppFontFamily
 import com.mihon.presentation.LocalBackPress
 import com.mihon.presentation.settings.collectAsState
 
@@ -24,30 +26,36 @@ fun Screen.createComposeView(
     savedInstanceState: Bundle?,
 ): View = ComposeView(inflater.context).apply {
     setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-
     setContent {
-        val settings = rememberAppSettings()
-        val mode by settings.ui.theme.collectAsState()
-        val primaryColor by settings.ui.primaryColor.collectAsState()
-        val layout by settings.ui.layout.collectAsState()
-        val layoutFlag = DeviceLayout.layoutToFlag(LocalContext.current, layout)
+        CloudStreamThemeAppSettings(this@createComposeView::Content)
+    }
+}
 
-        // Ayarlar > Arayüz > App Font: CloudStreamTheme içinde reaktif olarak
-        // (rememberAppFontFamily) okunur; seçim değişince yeniden compose edilir.
-        CloudStreamTheme(
-            mode = perfToMode(mode),
-            primaryColor = perfToColor(primaryColor),
+@Composable
+fun CloudStreamThemeAppSettings(content: @Composable () -> Unit) {
+    val settings = rememberAppSettings()
+    val mode by settings.ui.theme.collectAsState()
+    val primaryColor by settings.ui.primaryColor.collectAsState()
+    val layout by settings.ui.layout.collectAsState()
+    val layoutFlag = DeviceLayout.layoutToFlag(LocalContext.current, layout)
+
+    // Ayarlar > Arayüz > App Font: reaktif okunur, seçim değişince yeniden compose edilir.
+    val appFontFamily = rememberAppFontFamily()
+
+    CloudStreamTheme(
+        mode = perfToMode(mode),
+        primaryColor = perfToColor(primaryColor),
+        fontFamily = appFontFamily,
+    ) {
+        val backDispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
+            "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
+        }.onBackPressedDispatcher
+
+        CompositionLocalProvider(
+            LocalBackPress provides backDispatcher::onBackPressed,
+            DeviceLayout.LocalLayout provides layoutFlag
         ) {
-            val backDispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
-                "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
-            }.onBackPressedDispatcher
-
-            CompositionLocalProvider(
-                LocalBackPress provides backDispatcher::onBackPressed,
-                DeviceLayout.LocalLayout provides layoutFlag
-            ) {
-                this@createComposeView.Content()
-            }
+            content()
         }
     }
 }

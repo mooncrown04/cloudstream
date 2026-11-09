@@ -13,19 +13,19 @@ import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import com.lagradost.cloudstream3.AutoDownloadMode
 import com.lagradost.cloudstream3.BuildConfig
 import com.lagradost.cloudstream3.CommonActivity.activity
 import com.lagradost.cloudstream3.MainActivityScreen
 import com.lagradost.cloudstream3.R
 import com.lagradost.cloudstream3.mvvm.logError
-import com.lagradost.cloudstream3.plugins.PluginManager
+import com.lagradost.cloudstream3.services.BackupWorkManager
 import com.lagradost.cloudstream3.utils.BackupUtils
 import com.lagradost.cloudstream3.utils.BackupUtils.restorePrompt
-import com.lagradost.cloudstream3.utils.Coroutines.ioSafe
 import com.lagradost.cloudstream3.utils.InAppUpdater.installPreReleaseIfNeeded
 import com.lagradost.cloudstream3.utils.UIHelper.navigate
 import com.lagradost.cloudstream4.rememberAppSettings
+import com.lagradost.cloudstream4.viewmodels.GithubAction
+import com.lagradost.safefile.SafeFile
 import com.mihon.presentation.settings.Preference
 import com.mihon.presentation.settings.SearchableSettings
 import com.mihon.presentation.settings.collectAsState
@@ -121,7 +121,14 @@ object SettingsUpdatesScreen : SearchableSettings {
                         entries = integerArrayResource(R.array.periodic_work_values).zip(
                             stringArrayResource(R.array.periodic_work_names)
                         ).toMap(),
-                        preference = settings.backup.frequency
+                        preference = settings.backup.frequency,
+                        onValueChanged = { value ->
+                            BackupWorkManager.enqueuePeriodicWork(
+                                CloudStreamApp.context,
+                                value.toLong()
+                            )
+                            return@ListPreference true
+                        }
                     ),
                     Preference.PreferenceItem.TextPreference(
                         title = stringResource(R.string.backup_path_title),
@@ -152,7 +159,8 @@ object SettingsUpdatesScreen : SearchableSettings {
                         icon = painterResource(R.drawable.extension_24px),
                         preference = settings.plugins.autoUpdate,
                     ),
-                    Preference.PreferenceItem.ListPreference(
+
+                    /*Preference.PreferenceItem.ListPreference(
                         title = stringResource(R.string.automatic_plugin_download),
                         subtitle = "%s\n" + stringResource(R.string.automatic_plugin_download_summary),
                         icon = painterResource(R.drawable.extention_renew2),
@@ -171,7 +179,7 @@ object SettingsUpdatesScreen : SearchableSettings {
                                 )
                             }
                         }
-                    ),
+                    ),*/
                     Preference.PreferenceItem.TextPreference(
                         title = stringResource(R.string.test_extensions),
                         subtitle = stringResource(R.string.test_extensions_summary),

@@ -177,10 +177,11 @@ object AccountHelper {
         canSetPin = true
 
         binding.editProfilePhotoButtonHolder.setOnClickListener {
-            val bottomSheetDialog = BottomSheetDialog(context)
+            val builder = AlertDialog.Builder(context, R.style.AlertDialogCustom)
             val sheetBinding = BottomInputDialogBinding.inflate(LayoutInflater.from(context))
-            bottomSheetDialog.setContentView(sheetBinding.root)
-            bottomSheetDialog.show()
+            builder.setView(sheetBinding.root)
+            val dialog = builder.create()
+            dialog.show()
 
             sheetBinding.apply {
                 text1.text = context.getString(R.string.edit_profile_image_title)
@@ -205,7 +206,7 @@ object AccountHelper {
                                     R.string.edit_profile_image_success,
                                     Toast.LENGTH_SHORT
                                 )
-                                bottomSheetDialog.dismissSafe()
+                                dialog.dismissSafe()
                             },
                             onError = { _, _ ->
                                 showToast(
@@ -222,7 +223,7 @@ object AccountHelper {
                     imageLoader.enqueue(request)
                 }
                 sheetBinding.cancelBtt.setOnClickListener {
-                    bottomSheetDialog.dismissSafe()
+                    dialog.dismissSafe()
                 }
             }
         }
@@ -367,6 +368,11 @@ object AccountHelper {
 
     fun Activity?.showAccountSelectLinear() {
         val activity = this as? MainActivity ?: return
+        activity.navigate(
+            R.id.accountSelectActivity,
+            Bundle().apply { putBoolean(AccountSelectActivity2.IS_FROM_MAIN_ACTIVITY, true) }
+        )
+        /*
         val viewModel = ViewModelProvider(activity)[AccountViewModel::class.java]
 
         val binding: AccountSelectLinearBinding = AccountSelectLinearBinding.inflate(
@@ -424,6 +430,6 @@ object AccountHelper {
                 val layoutManager = recyclerView.layoutManager as LinearLayoutManager
                 layoutManager.scrollToPositionWithOffset(selectedKeyIndex, 0)
             }
-        }
+        }*/
     }
 }

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>CloudStream — Font Ayarları Sorunu: Kök Neden ve Düzeltme</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161a21; --line:#262c36; --text:#e6e9ef; --dim:#98a2b3;
+    --ok:#3ecf8e; --warn:#ffb020; --err:#ff6b6b; --accent:#7aa2ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--dim);margin:0 0 28px;font-size:14px}
+  h2{font-size:18px;margin:36px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h3{font-size:15px;margin:22px 0 8px;color:var(--accent)}
+  p{margin:8px 0}
+  code{background:#1d222b;border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:13px}
+  pre{background:#0b0e12;border:1px solid var(--line);border-radius:8px;padding:14px;overflow:auto;font-size:12.5px;line-height:1.55}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+  .row{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
+  .tag{flex:0 0 auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.03em}
+  .t-ok{background:rgba(62,207,142,.15);color:var(--ok);border:1px solid rgba(62,207,142,.35)}
+  .t-no{background:rgba(255,107,107,.13);color:var(--err);border:1px solid rgba(255,107,107,.35)}
+  .t-warn{background:rgba(255,176,32,.13);color:var(--warn);border:1px solid rgba(255,176,32,.35)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  ul{margin:8px 0 8px 20px;padding:0}
+  li{margin:5px 0}
+  .muted{color:var(--dim)}
+  .path{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;color:var(--accent)}
+  .pill{display:inline-block;background:#1d222b;border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--dim);margin-right:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Font ayarı neden sadece ana sayfada çalışıyor?</h1>
+  <p class="sub">mooncrown04/cloudstream · <span class="pill">master</span> <span class="pill">Kotlin / Compose</span> · kök neden analizi + düzeltme planı</p>
+
+  <h2>Kısa cevap</h2>
+  <div class="card">
+    <p>Font seçimi <b>hiçbir yerde kullanılmıyor</b>. Ayarlar ekranında fontu seçiyorsun, tercih
+    (<code>app_font_key</code>) kaydediliyor, sonra <code>activity.recreate()</code> çağrılıyor — ama
+    <code>getAppFontFamily()</code> fonksiyonunu <b>tek bir satır bile çağırmıyor</b>. Ana sayfada
+    gördüğün font, seçtiğin font değil; <code>AppTextViewStyle</code> içindeki sabit Google Sans
+    (Product Sans). Yani her yer zaten "orijinal font"ta.</p>
+  </div>
+
+  <h2>Kanıt: arama sonuçları</h2>
+  <table>
+    <tr><th>Ne arandı</th><th>Bulunan</th></tr>
+    <tr><td><code>getAppFontFamily</code> çağrısı</td><td>Yalnızca kendi tanımı — <b>hiç çağrı yok</b></td></tr>
+    <tr><td><code>settings.ui.appFont</code> okuması</td><td>Yalnızca ayar ekranındaki <code>preference =</code> bağlantısı</td></tr>
+    <tr><td><code>loadAppFont()</code> / <code>perfToFont()</code></td><td>Tanımlı ama <b>hiç kullanılmıyor</b></td></tr>
+    <tr><td><code>CloudStreamTheme(fontFamily = …)</code></td><td>Parametre var, hiçbir çağrıda verilmiyor (default <code>null</code>)</td></tr>
+    <tr><td><code>FontOverlay</code> stilleri (styles.xml)</td><td>Tanımlı, <code>loadThemes()</code> içinde uygulanıyor — ama Compose'u etkilemiyor</td></tr>
+  </table>
+
+  <h2>Mimari: nerede kırılıyor</h2>
+  <p>Uygulamada iki ayrı render yolu var. Font ikisinde de farklı davranıyor:</p>
+
+  <div class="card">
+    <div class="row"><span class="tag t-ok">ÇALIŞIR</span><div><b>XML/View ekranları</b> — <code>loadThemes()</code> →
+      <code>theme.applyStyle(GothamFontOverlay)</code>. <code>android:fontFamily</code> ve
+      <code>textAppearanceListItem</code> geçersiz kılınır, TextView'ler yeni fontu alır.</div></div>
+    <div class="row"><span class="tag t-no">ÇALIŞMAZ</span><div><b>Compose ekranları</b> — Ayarlar menüsü
+      (<code>SettingsFragmentScreen</code>, <code>SettingsUIScreen</code>), diyaloglar, altyazı ekranları.
+      Bunlar <code>createComposeView()</code> ile açılıyor ve orada <code>CloudStreamTheme(...)</code>
+      çağrılırken <code>fontFamily</code> parametresi <b>hiç verilmiyor</b>.</div></div>
+  </div>
+
+  <h3>Kırılma noktası — ComposeFragment.kt</h3>
+  <pre>CloudStreamTheme(
+    mode = perfToMode(mode),
+    primaryColor = perfToColor(primaryColor),
+    // ❌ fontFamily = ... yok  →  Theme.kt'de null  →  Typography() varsayılan font
+) {</pre>
+
+  <h3>Theme.kt tarafı zaten hazır</h3>
+  <pre>@Composable
+fun CloudStreamTheme(
+    mode: CloudStreamThemeMode = CloudStreamThemeMode.FollowSystem,
+    primaryColor: CloudStreamPrimaryColor = CloudStreamPrimaryColor.NORMAL,
+    fontFamily: FontFamily? = null,          // ✅ hazır, sadece beslenmiyor
+    content: @Composable () -> Unit,
+) {
+    val typography = getDynamicTypography(fontFamily)   // 15 text style'ın hepsini değiştirir
+    MaterialTheme(colorScheme = …, typography = typography, content = content)
+}</pre>
+
+  <h3>İkinci sorun: anahtar tutarsızlığı</h3>
+  <p><code>SettingsUI.kt</code> içindeki eski diyalog <code>R.string.app_font_key</code> ile okuyup yazıyor,
+  Compose tarafı ise <code>settings.ui.appFont</code> üzerinden <b>aynı</b> anahtarı okuyor — burada sorun yok.
+  Ama <code>perfToFont()</code> yalnızca 5 fontu tanıyor (StixGeneral, Maybach, Perfume, Naxmos, Gotham
+  sessizce "Default"a düşüyor). Font listesi <b>üç ayrı yerde</b> tekrar ediyor:
+  <code>FontUtils.kt</code>, <code>SettingsUIScreen.kt</code>, <code>SettingsUI.kt</code>, artı
+  <code>styles.xml</code> içindeki 10 overlay. Yeni font eklemek 4 dosyayı elle düzenlemek demek.</p>
+
+  <h2>Düzeltme planı</h2>
+
+  <h3>1 · Tek kaynak: font haritası</h3>
+  <p><span class="path">app/src/main/java/com/lagradost/cloudstream3/utils/FontUtils.kt</span></p>
+  <ul>
+    <li>Font anahtarı → <code>FontFamily</code> eşlemesi burada tek yerde dursun.</li>
+    <li><code>rememberAppFontFamily()</code>: tercihi <b>reaktif</b> okur (<code>collectAsState</code>), böylece
+      <code>recreate()</code> beklemeden değişir.</li>
+    <li>Her Compose girişinde kullanılmak üzere sarmalayıcı sağlar.</li>
+  </ul>
+
+  <h3>2 · Kök ComposeView'a fontu bağla</h3>
+  <p><span class="path">shared/src/androidMain/.../compose/ComposeFragment.kt</span></p>
+  <pre>val settings = rememberAppSettings()
+val mode by settings.ui.theme.collectAsState()
+val primaryColor by settings.ui.primaryColor.collectAsState()
+val fontKey by settings.ui.appFont.collectAsState()      // ➕
+
+CloudStreamTheme(
+    mode = perfToMode(mode),
+    primaryColor = perfToColor(primaryColor),
+    fontFamily = appFontFamilyFromKey(fontKey),           // ➕
+) { … }</pre>
+  <p class="muted">Bu tek değişiklik ayarlar ekranlarının, diyalogların ve altyazı ekranlarının tamamını kapsar
+  — hepsi <code>BaseComposeFragment</code> → <code>createComposeView()</code> üzerinden geçiyor.</p>
+
+  <h3>3 · Diyaloglar ve ayrı pencereler</h3>
+  <p><code>Dialog.kt</code> içindeki <code>ActionDialog</code> / <code>SingleSelectDialog</code> kendi
+  <code>AlertDialog</code>'unu açıyor; Android'de diyalog yeni bir pencere olduğu için üstteki
+  <code>MaterialTheme</code> taşınmaz. Bunları da <code>CloudStreamTheme(fontFamily = …)</code> ile
+  sarmalamak gerekiyor (veya <code>LocalAppFontFamily</code> composition local'ini okuyup
+  <code>MaterialTheme.typography</code> üzerinden fontu geçirmek).</p>
+
+  <h3>4 · XML tarafı ile hizalama</h3>
+  <ul>
+    <li><code>styles.xml</code> içindeki 10 × 3 overlay stilini <b>tek bir</b> parametreli
+      <code>FontOverlay</code> ailesine indirmek mümkün; şu an 30+ stil bloğu var.</li>
+    <li><code>perfToFont()</code> eksik fontları tanısın ya da tamamen kaldırılıp tek haritaya bağlansın.</li>
+  </ul>
+
+  <h3>5 · Bonus: yeniden başlatma ihtiyacını kaldır</h3>
+  <p><code>settings.ui.appFont.set(...)</code> sonrası <code>activity.recreate()</code> çağrısı, tercih
+  reaktif okunduğunda gereksiz kalır — font anında değişir.</p>
+
+  <h2>Yazılan ilk dosya</h2>
+  <p><span class="path">app/src/main/java/com/lagradost/cloudstream3/utils/FontUtils.kt</span> —
+  mevcut <code>getAppFontFamily</code> korunarak genişletildi:</p>
+  <pre>fun getAppFontFamily(fontKey: String?): FontFamily?   // 10 font, "Default" → null
+
+@Composable
+fun rememberAppFontFamily(): FontFamily?              // reaktif okuma
+
+@Composable
+fun AppFontTheme(fontFamily = rememberAppFontFamily(), content)</pre>
+
+  <h2>Sıradaki adımlar</h2>
+  <table>
+    <tr><th>#</th><th>Dosya</th><th>İş</th></tr>
+    <tr><td>1</td><td><code>ComposeFragment.kt</code></td><td>appFont'u reaktif oku, <code>CloudStreamTheme(fontFamily = …)</code> geçir</td></tr>
+    <tr><td>2</td><td><code>Dialog.kt</code></td><td>Diyalogları font sarmalayıcısıyla sar</td></tr>
+    <tr><td>3</td><td><code>SettingsUIScreen.kt</code></td><td>Yerel <code>fontFamilies</code> haritasını kaldır, ortak fonksiyonu kullan</td></tr>
+    <tr><td>4</td><td><code>styles.xml</code></td><td>Overlay stillerini sadeleştir (isteğe bağlı)</td></tr>
+  </table>
+  <p class="muted">Not: Bu değişiklikler Gradle/Android derlemesi gerektiriyor; bu makinede Android SDK
+  olmadığı için derleme doğrulaması sende (Android Studio) veya GitHub Actions üzerinden yapılmalı.</p>
+</div>
+</body>
+</html>

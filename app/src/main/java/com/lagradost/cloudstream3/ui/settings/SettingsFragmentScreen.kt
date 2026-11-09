@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.clearText
@@ -31,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
@@ -49,6 +49,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -91,13 +96,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-// YENİ EKLENEN İMPORTLAR (TV Klavye ve Odaklanma Mantığı İçin)
-import androidx.compose.foundation.text.KeyboardActions
-import android.view.KeyEvent as AndroidKeyEvent
-import androidx.activity.compose.BackHandler
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 
 object SettingsFragmentScreen : Screen {
     val screens = persistentListOf(
@@ -298,34 +296,14 @@ object SettingsFragmentScreen : Screen {
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Composable
-    fun SettingsSearch(textFieldState : TextFieldState) {
+    fun SettingsSearch(textFieldState: TextFieldState) {
         var hasFocus by remember { mutableStateOf(false) }
-
-        // YENİ EKLENEN KOD: TV Kumandasında arama çubuğuna tıklanmadan klavyenin kendi kendine açılmasını önleyen düzenleme durumu
-        var isEditing by remember { mutableStateOf(false) }
-
+        var isWritable by remember { mutableStateOf(false) }
         val focusProgress by animateFloatAsState(targetValue = if (hasFocus) 1.0f else 0.0f)
         val focusManager = LocalFocusManager.current
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusRequester = remember { FocusRequester() }
         val isTv = isLayout(TV)
-
-        // YENİ EKLENEN KOD: Arama tamamlandığında veya kapatıldığında klavyeyi gizleyip odağı temizleyen yardımcı fonksiyon
-        val stopEditingAndHideKeyboard = {
-            isEditing = false
-            keyboardController?.hide()
-            focusManager.clearFocus(force = true)
-        }
-
-        // YENİ EKLENEN KOD: Kumandadan Geri (Back) tuşuna basıldığında klavyeyi kapatma ve düzenleme modundan çıkma kontrolü
-        BackHandler(enabled = isEditing) {
-            isEditing = false
-            keyboardController?.hide()
-            focusManager.clearFocus(force = true)
-        }
-
-        val textValue = textFieldState.text.toString()
-
         TextField(
             value = textValue,
             onValueChange = { newValue ->
@@ -333,55 +311,45 @@ object SettingsFragmentScreen : Screen {
                 textFieldState.edit { append(newValue) }
             },
 
-            // YENİ EKLENEN KOD: TV düzeninde kumanda ile sadece üzerine gelindiğinde klavyenin aniden açılmaması için readOnly durumu
-            readOnly = isTv && !isEditing,
-           //yeni bitti
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Search,
-                // This option is bugged on compose, making it unable to open at all
-                // showKeyboardOnFocus = false
+                /**
+                 * We do not want to pull up the keyboard when navigating to the item on TV, therefore
+                 * we listen to when the TV user presses some key to "extra" focus it
+                 *
+                 * showKeyboardOnFocus is somewhat bugged, so need to change this to true when you
+                 * press it, as otherwise no keyboard will show even with keyboardController
+                 * */
+                showKeyboardOnFocus = if (isTv) isWritable else true
             ),
-
-            // YENİ EKLENEN KOD: IME arama aksiyonu tetiklendiğinde klavyeyi kapatma
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    stopEditingAndHideKeyboard()
-                    if (textFieldState.text.isNotBlank()) {
-                        focusManager.moveFocus(FocusDirection.Down)
-                    }
-                }
-            ),
-//yeni bitti
+            lineLimits = TextFieldLineLimits.SingleLine,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp - 12.dp * focusProgress)
                 .focusOutline(enabled = isTv, CircleShape)
-
-                // YENİ EKLENEN KOD: TV Kumandası D-Pad/Enter tuşu algılandığında klavyeyi aktifleştirme dinleyicisi
-                .onKeyEvent { event ->
-                    if (isTv && event.type == KeyEventType.KeyUp) {
-                        val keyCode = event.nativeKeyEvent.keyCode
-                        if (keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER || keyCode == AndroidKeyEvent.KEYCODE_ENTER) {
-                            if (!isEditing) {
-                                isEditing = true
-                                keyboardController?.show()
-                                return@onKeyEvent true
-                            }
-                        }
-                    }
-                    false
-                }
-
-                // YENİ EKLENEN KOD: Odak değiştiğinde TV için klavye görünürlüğünü yöneten akıllı odak dinleyicisi
                 .onFocusChanged { newFocus ->
                     hasFocus = newFocus.hasFocus
+                    /** Loss of focus -> readonly */
                     if (!newFocus.hasFocus) {
-                        isEditing = false
-                        keyboardController?.hide()
-                    } else if (!isTv) {
-                        keyboardController?.show()
+                        isWritable = false
                     }
-                }.focusRequester(focusRequester),
+                }
+                .focusRequester(focusRequester)
+                .onPreviewKeyEvent { keyEvent ->
+                    if (isWritable || !isTv || !hasFocus || keyEvent.type != KeyEventType.KeyUp) {
+                        return@onPreviewKeyEvent false
+                    }
+
+                    /** Focus + press once -> writable */
+                    return@onPreviewKeyEvent when (keyEvent.key) {
+                        Key.Enter, Key.DirectionCenter, Key.NumPadEnter, Key.Spacebar -> {
+                            isWritable = true
+                            true
+                        }
+
+                        else -> false
+                    }
+                },
             placeholder = {
                 Text(text = stringResource(R.string.search_hint))
             },
@@ -404,7 +372,7 @@ object SettingsFragmentScreen : Screen {
                         IconButton(onClick = {
                             textFieldState.clearText()
                             // YENİ EKLENEN KOD: Sol ikonla aramadan çıkıldığında klavyeyi kapatma
-                            stopEditingAndHideKeyboard()
+                            keyboardController?.hide(); focusManager.clearFocus(force = true)
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.keyboard_arrow_left_24px),
@@ -415,7 +383,7 @@ object SettingsFragmentScreen : Screen {
                         IconButton(onClick = {
                             focusRequester.requestFocus()
                             // YENİ EKLENEN KOD: İkona tıklandığında düzenleme modunu açıp klavyeyi gösterme
-                            isEditing = true
+                            isWritable = true
                             keyboardController?.show()
                         }) {
                             Icon(

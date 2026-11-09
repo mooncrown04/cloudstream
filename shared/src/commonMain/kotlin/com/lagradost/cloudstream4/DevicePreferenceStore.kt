@@ -34,6 +34,7 @@ class AppSettings internal constructor(
 
 class PluginPreferences(preferences: PreferenceStore) {
     val autoUpdate = preferences.getBoolean("auto_update_plugins", true)
+    /** Not used anymore, as a user should never auto install all plugins in a repository */
     val autoDownload = preferences.getInt("auto_download_plugins_key2", 0)
 }
 
@@ -170,6 +171,7 @@ class PlayerPreferences(preferences: PreferenceStore) {
     val pipEnabled = preferences.getBoolean("pip_enabled_key", true)
     val resizeEnabled = preferences.getBoolean("player_resize_enabled_key", true)
     val speedEnabled = preferences.getBoolean("playback_speed_enabled_key", false)
+    val compressorEnabled = preferences.getBoolean("compressor_enabled_key", false)
     val tiktokEnabled = preferences.getBoolean("speedup_key", false)
     val autoPlayEnabled = preferences.getBoolean("autoplay_next_key", true)
     val startPaused = preferences.getBoolean("start_paused_key", false)
