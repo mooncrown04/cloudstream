@@ -56,7 +56,7 @@ jobs:
 
     - name: Run Gradle Build
       # İmzalı release APK + jar dosyaları
-      run: ./gradlew assemblePrereleaseRelease androidSourcesJar makeJar || ./gradlew assemblePrereleaseRelease --stacktrace
+      run: ./gradlew assemblePrereleaseRelease --stacktrace
       env:
         SIMKL_CLIENT_ID: ${{ secrets.SIMKL_CLIENT_ID }}
         SIMKL_CLIENT_SECRET: ${{ secrets.SIMKL_CLIENT_SECRET }}
